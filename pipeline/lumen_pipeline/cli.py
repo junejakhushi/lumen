@@ -1,10 +1,13 @@
 """`lumen` command-line interface."""
 from __future__ import annotations
 
+import csv
 import logging
+import multiprocessing as mp
 import resource
 import sys
 import time
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from contextlib import contextmanager
 from pathlib import Path
 
@@ -12,8 +15,11 @@ import click
 
 from .detect_export import detect_export
 from .load import load_stl
+from .process import process_file
 from .reconstruct import reconstruct
 from .volume import slice_layers
+
+INDEX_CSV = "_index.csv"
 
 
 class Timings(dict):
@@ -89,3 +95,74 @@ def _print_timings(tm: Timings, warnings: list[str]) -> None:
 
 if __name__ == "__main__":
     main()
+
+
+def _rows_table(rows: list[dict]) -> str:
+    head = ["id", "type", "layers", "volume_mm3", "18k_yellow_g", "span_deg", "warnings"]
+    widths = [max(len(h), *(len(str(r[k])) for r in rows)) if rows else len(h)
+              for h, k in zip(head, head)]
+    out = ["  ".join(h.ljust(w) for h, w in zip(head, widths))]
+    out.append("  ".join("-" * w for w in widths))
+    for r in rows:
+        out.append("  ".join(str(r[k]).ljust(w) for k, w in zip(head, widths)))
+    return "\n".join(out)
+
+
+@main.command()
+@click.argument("src", type=click.Path(exists=True, file_okay=False, path_type=Path))
+@click.argument("dst", type=click.Path(file_okay=False, path_type=Path))
+@click.option("--workers", "-w", default=2, show_default=True,
+              help="Parallel processes (each peaks around 5 GB on large files).")
+@click.option("--no-draco", is_flag=True, help="Skip Draco compression (no npx needed).")
+@click.option("--no-thumb", is_flag=True, help="Skip thumbnail rendering.")
+def ingest(src: Path, dst: Path, workers: int, no_draco: bool, no_thumb: bool) -> None:
+    """Process every STL in SRC into piece folders under DST."""
+    files = sorted(p for p in src.iterdir() if p.suffix.lower() == ".stl")
+    if not files:
+        raise click.ClickException(f"no .stl files in {src}")
+    dst.mkdir(parents=True, exist_ok=True)
+    if "private" not in dst.resolve().parts:
+        click.echo(f"WARNING: {dst} is not under a private/ directory; {INDEX_CSV} maps ids to "
+                   "original filenames and must never be published or committed.")
+
+    t0 = time.perf_counter()
+    rows, index, failures = [], [], []
+    ctx = mp.get_context("spawn")
+    with ProcessPoolExecutor(max_workers=workers, mp_context=ctx, max_tasks_per_child=1) as pool:
+        futures = {pool.submit(process_file, f, dst, draco=not no_draco, thumb=not no_thumb): f
+                   for f in files}
+        for fut in as_completed(futures):
+            f = futures[fut]
+            res = fut.result()
+            index.append({"id": res.piece_id, "file": f.name, "type": res.type,
+                          "ok": int(res.ok), "error": res.error or ""})
+            if not res.ok:
+                failures.append((f.name, res.error))
+                click.echo(f"FAILED {f.name}: {res.error}")
+                continue
+            m = res.manifest
+            span = m["curve"]["span_deg"] if m.get("curve") else ""
+            rows.append({"id": m["id"], "type": m["type"], "layers": m["layers"],
+                         "volume_mm3": round(m["volume_mm3"], 2),
+                         "18k_yellow_g": round(m["weights_g"]["18k_yellow"], 3),
+                         "span_deg": span,
+                         "warnings": "; ".join(res.warnings) if res.warnings else "-"})
+            click.echo(f"done {f.name} -> {res.piece_id} ({res.timings.get('total', 0):.0f} s)")
+
+    dupes = {}
+    for r in index:
+        dupes.setdefault(r["id"], []).append(r["file"])
+    for pid, names in dupes.items():
+        if len(names) > 1:
+            click.echo(f"NOTE duplicate input bytes share id {pid}: {', '.join(sorted(names))}")
+
+    with open(dst / INDEX_CSV, "w", newline="") as fh:
+        w = csv.DictWriter(fh, fieldnames=["id", "file", "type", "ok", "error"])
+        w.writeheader()
+        w.writerows(sorted(index, key=lambda r: r["file"]))
+
+    rows.sort(key=lambda r: (r["type"], r["id"]))
+    click.echo("")
+    click.echo(_rows_table(rows))
+    click.echo(f"\n{len(rows)}/{len(files)} pieces in {time.perf_counter() - t0:.0f} s "
+               f"({len(failures)} failed)")
