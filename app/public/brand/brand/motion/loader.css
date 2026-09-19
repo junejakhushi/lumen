@@ -1,0 +1,191 @@
+/* ==========================================================================
+   Quiet Heritage · Lumen — loader, page transition, shimmer, snapshot
+   loader.css  (pairs with tokens.css; every value has a literal fallback)
+   --------------------------------------------------------------------------
+   MOTION TOKENS (declared on :root below; base tokens come from tokens.css)
+     --ease-quiet  cubic-bezier(0.2,0,0,1)     settle / arrive
+     --ease-draw   cubic-bezier(0.65,0,0.35,1) line drawing, travel
+     --ease-exit   cubic-bezier(0.4,0,1,1)     leave / fade out
+     --qh-dur-loader      1600ms  signature loader loop
+     --qh-dur-page-enter   500ms  page / view arrival
+     --qh-dur-shimmer     1800ms  placeholder sheen loop (1260ms travel + 540ms rest)
+     --qh-dur-snap-flash   280ms  snapshot flash
+     --qh-dur-snap-fly     520ms  snapshot frame flies to look-board icon
+
+   CLASSES
+   .qh-loader            Wrapper (inline-block, square). Put role="img" aria-label="Loading"
+                         on it. Contains <svg viewBox="0 0 160 160"> with one path.
+       --qh-loader-size    width/height, default 48px.
+       --qh-loader-stroke  stroke width in 160-grid user units; default 4.1667
+                           (= 1.25px at 48px). Rule: 1.25 × 160 / size-in-px.
+                           Modifiers set both: .qh-loader--sm (24px), .qh-loader--lg (96px).
+       color               thread colour via currentColor; default var(--hairline, #A8844A).
+   .qh-loader__thread    The paisley path. MUST carry pathLength="1" (length-independent dashes).
+                         Animation: qh-thread-draw — draw 0–62.5% (ease-draw), hold to 81.25%,
+                         fade to 0 by 100% (ease-exit). Do not add vector-effect=non-scaling-stroke:
+                         Chromium then computes dashes in screen space and pathLength breaks.
+   .qh-page-enter        Add to a view root when it mounts: 8px rise + fade, 500ms ease-quiet.
+                         Runs once (fill: both). Remove it (or leave) after animationend.
+   .qh-shimmer           Placeholder tile: pearl mist (#E8E2D8), 4:5, 2px radius, with a soft
+                         ivory sheen (::after) travelling left→right. Not grey bars.
+                         Put aria-hidden="true" on it; announce loading elsewhere.
+       --qh-shimmer-ratio  aspect ratio, default 4 / 5.
+   .qh-snap-flash        Full-bleed ivory layer over the camera view (pointer-events: none).
+     .is-active          JS adds on shutter → opacity 0 → .85 (70ms) → 0 (280ms total).
+                         JS removes it on animationend (or before re-triggering: remove,
+                         force reflow with el.offsetWidth, add).
+   .qh-snap-fly          The captured frame (e.g. an <img> of the snapshot with 1px gold hairline).
+     .is-active          JS adds after the flash peaks (at ~70ms) → frame translates/scales
+                         into the look-board icon over 520ms ease-draw, fading out in the last 20%.
+       --qh-fly-x          x distance from frame centre to icon centre (px), set by JS.
+       --qh-fly-y          y distance from frame centre to icon centre (px), set by JS.
+       --qh-fly-scale      icon width ÷ frame width (e.g. 0.08), set by JS.
+   .qh-snap-target       The look-board (save-look) icon button.
+     .is-receiving       JS adds on the fly's animationend → a 1.12 scale nudge, 200ms ease-quiet.
+
+   REDUCED MOTION (prefers-reduced-motion: reduce)
+     loader      static complete mark at 60% opacity (no draw).
+     page-enter  opacity-only fade, 200ms, no rise.
+     shimmer     static pearl tile, no sheen.
+     snap-flash  softer flash, peak .5, same 280ms (no movement involved).
+     snap-fly    no travel/scale: frame fades out in 200ms; icon nudge replaced by nothing.
+   Gold is used only as line (stroke / 1px border) — never as fill or gradient.
+   ========================================================================== */
+
+:root {
+  --ease-quiet: cubic-bezier(0.2, 0, 0, 1);
+  --ease-draw: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
+  --qh-dur-loader: 1600ms;
+  --qh-dur-page-enter: 500ms;
+  --qh-dur-shimmer: 1800ms;
+  --qh-dur-snap-flash: 280ms;
+  --qh-dur-snap-fly: 520ms;
+}
+
+/* ---------- signature loader ---------- */
+.qh-loader {
+  --qh-loader-size: 48px;
+  --qh-loader-stroke: 4.1667;
+  display: inline-block;
+  width: var(--qh-loader-size);
+  height: var(--qh-loader-size);
+  color: var(--hairline, #A8844A);
+  line-height: 0;
+}
+.qh-loader--sm { --qh-loader-size: 24px; --qh-loader-stroke: 8.3333; }
+.qh-loader--lg { --qh-loader-size: 96px; --qh-loader-stroke: 2.0833; }
+.qh-loader svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.qh-loader__thread {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: var(--qh-loader-stroke);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1 1;
+  stroke-dashoffset: 1;
+  animation: qh-thread-draw var(--qh-dur-loader, 1600ms) linear infinite;
+}
+@keyframes qh-thread-draw {
+  0%     { stroke-dashoffset: 1; opacity: 1; animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1); }
+  62.5%  { stroke-dashoffset: 0; opacity: 1; animation-timing-function: linear; }
+  81.25% { stroke-dashoffset: 0; opacity: 1; animation-timing-function: cubic-bezier(0.4, 0, 1, 1); }
+  100%   { stroke-dashoffset: 0; opacity: 0; }
+}
+
+/* ---------- page transition ---------- */
+.qh-page-enter {
+  animation: qh-page-enter var(--qh-dur-page-enter, 500ms) var(--ease-quiet, cubic-bezier(0.2, 0, 0, 1)) both;
+}
+@keyframes qh-page-enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes qh-fade-in { from { opacity: 0; } to { opacity: 1; } }
+
+/* ---------- placeholder shimmer (pearl mist) ---------- */
+.qh-shimmer {
+  --qh-shimmer-ratio: 4 / 5;
+  position: relative;
+  display: block;
+  aspect-ratio: var(--qh-shimmer-ratio);
+  background-color: var(--pearl, #E8E2D8);
+  border-radius: 2px;
+  overflow: hidden;
+  isolation: isolate;
+}
+.qh-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  /* ivory sheen — a loading effect, never gold */
+  background: linear-gradient(105deg,
+    rgba(245, 240, 232, 0) 30%,
+    rgba(245, 240, 232, 1) 50%,
+    rgba(245, 240, 232, 0) 70%);
+  transform: translateX(-100%);
+  animation: qh-shimmer var(--qh-dur-shimmer, 1800ms) linear infinite;
+}
+@keyframes qh-shimmer {
+  0%   { transform: translateX(-100%); animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1); }
+  70%  { transform: translateX(100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* ---------- snapshot: flash ---------- */
+.qh-snap-flash {
+  position: absolute;
+  inset: 0;
+  background: var(--ivory, #F5F0E8);
+  opacity: 0;
+  pointer-events: none;
+}
+.qh-snap-flash.is-active {
+  animation: qh-snap-flash var(--qh-dur-snap-flash, 280ms) linear both;
+}
+@keyframes qh-snap-flash {
+  0%   { opacity: 0;   animation-timing-function: cubic-bezier(0.2, 0, 0, 1); }
+  25%  { opacity: 0.85; animation-timing-function: cubic-bezier(0.4, 0, 1, 1); }
+  100% { opacity: 0; }
+}
+@keyframes qh-snap-flash-soft {
+  0%   { opacity: 0; }
+  25%  { opacity: 0.5; }
+  100% { opacity: 0; }
+}
+
+/* ---------- snapshot: fly to look-board ---------- */
+.qh-snap-fly {
+  --qh-fly-x: 0px;
+  --qh-fly-y: 0px;
+  --qh-fly-scale: 0.1;
+  transform-origin: 50% 50%;
+  will-change: transform, opacity;
+}
+.qh-snap-fly.is-active {
+  animation: qh-snap-fly var(--qh-dur-snap-fly, 520ms) var(--ease-draw, cubic-bezier(0.65, 0, 0.35, 1)) forwards;
+}
+@keyframes qh-snap-fly {
+  0%   { transform: translate(0, 0) scale(1); opacity: 1; }
+  80%  { opacity: 1; }
+  100% { transform: translate(var(--qh-fly-x), var(--qh-fly-y)) scale(var(--qh-fly-scale)); opacity: 0; }
+}
+@keyframes qh-fade-out { from { opacity: 1; } to { opacity: 0; } }
+
+.qh-snap-target.is-receiving {
+  animation: qh-snap-receive 200ms var(--ease-quiet, cubic-bezier(0.2, 0, 0, 1));
+}
+@keyframes qh-snap-receive {
+  0%, 100% { transform: scale(1); }
+  45%      { transform: scale(1.12); }
+}
+
+/* ---------- reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .qh-loader__thread { animation: none; stroke-dashoffset: 0; opacity: 0.6; }
+  .qh-page-enter { animation: qh-fade-in 200ms var(--ease-quiet, cubic-bezier(0.2, 0, 0, 1)) both; }
+  .qh-shimmer::after { animation: none; opacity: 0; }
+  .qh-snap-flash.is-active { animation: qh-snap-flash-soft var(--qh-dur-snap-flash, 280ms) linear both; }
+  .qh-snap-fly.is-active { animation: qh-fade-out 200ms var(--ease-exit, cubic-bezier(0.4, 0, 1, 1)) forwards; }
+  .qh-snap-target.is-receiving { animation: none; }
+}

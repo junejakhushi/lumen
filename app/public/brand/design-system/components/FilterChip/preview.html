@@ -1,0 +1,24 @@
+<!-- @dsCard group="Selection" height=302 subtitle="Pill · toggles a filter" -->
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>FilterChip — preview</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@400;500&family=Tiro+Devanagari+Hindi&display=swap">
+</head>
+<body>
+<div id="root"></div>
+<script>
+var Q = window.QuietHeritage, h = React.createElement;
+function cell(cap, el, style) { return h("div", { className: "qh-demo__cell", style: style }, el, h("span", { className: "qh-demo__cap" }, cap)); }
+function row(title, kids) { return h("div", { className: "qh-demo__row" }, title ? h("p", { className: "qh-demo__h" }, title) : null, kids); }
+function evening(kids, style) { return h("div", { "data-theme": "evening", className: "qh-evening-panel", style: Object.assign({ padding: 24 }, style || {}) }, kids); }
+var STATES = ["default", "hover", "pressed", "focus", "disabled"];
+
+function App() {
+  return h("div", { className: "qh-demo qh-demo--col" },
+    row("States", STATES.map(function (s) { return cell(s, h(Q.FilterChip, { state: s === "default" || s === "disabled" ? undefined : s, disabled: s === "disabled" }, "Earrings"), { key: s }); }).concat([cell("selected", h(Q.FilterChip, { defaultSelected: true }, "Earrings"), { key: "sel" })])),
+    row("In use", ["Jhumkas", "Chandbalis", "Polki", "Pearls", "Peacock"].map(function (t, i) { return h(Q.FilterChip, { key: t, defaultSelected: i === 0 || i === 3, count: [12, 8, 15, 9, 4][i] }, t); })));
+}
+ReactDOM.createRoot(document.getElementById("root")).render(App());
+</script>
+</body>
+</html>

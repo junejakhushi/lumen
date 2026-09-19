@@ -1,0 +1,276 @@
+/* ==========================================================================
+   Quiet Heritage · Lumen — AR motion states (evening mode)
+   ar-states.css  (pairs with tokens.css; literal fallbacks throughout)
+   --------------------------------------------------------------------------
+   TOKENS (declared on :root below)
+     --ease-quiet cubic-bezier(0.2,0,0,1) · --ease-draw cubic-bezier(0.65,0,0.35,1)
+     --ease-exit  cubic-bezier(0.4,0,1,1)
+     --qh-dur-calib-breathe 2400ms  searching corners, one in-out cycle
+     --qh-dur-calib-settle   600ms  corners travel onto the target
+     --qh-dur-calib-hold     400ms  (JS timer) settled corners stay before fading
+     --qh-dur-calib-fade     300ms  corners fade away
+     --qh-dur-track          240ms  tracking pill label/indicator crossfade + 4px rise
+     --qh-dur-track-lost    2400ms  lost-tracking pulse cycle
+     --qh-dur-switch-out     300ms  piece dissolves into its gold thread
+     --qh-dur-switch-in      500ms  next thread draws, then piece fades in
+
+   (a) CALIBRATION  —  .qh-calib > .qh-calib__corner.qh-calib__corner--{tl|tr|br}
+       Default is THREE corners — top-left, top-right, bottom-right: an open, asymmetric
+       bracket that reads as "settling", not a closed box. .qh-calib__corner--bl is
+       optional and hidden by default; add .qh-calib--four to .qh-calib to show it.
+       .qh-calib is an absolutely-positioned overlay (inset 0) over the camera view.
+       Target box, relative to .qh-calib (px or %), set by JS from the tracker:
+         --qh-target-x, --qh-target-y, --qh-target-w, --qh-target-h
+       --qh-calib-spread (default 40px) how far outside the target the corners wait.
+       --qh-calib-arm    (default 22px) length of each L-bracket arm; line = 1.5px gold.
+       Timeline / JS hooks:
+         t0          add .is-searching   corners wait wide and breathe (2400ms loop,
+                                         spread ×1 ↔ ×0.6, opacity .55 ↔ 1).
+         lock event  replace with .is-locked   corners settle onto the target,
+                                         600ms ease-draw (translate spread → 0).
+         +600ms      (animationend)  hold settled for 400ms (setTimeout).
+         +1000ms     replace with .is-done  corners fade 300ms ease-exit; then hide/unmount.
+       Changing --qh-target-* while locked glides the corners (200ms ease-quiet).
+
+   (b) TRACKING PILL  —  .qh-track[data-status="finding|good|closer|lost"]
+       Children: .qh-track__item[data-for="<status>"] (one per status, stacked in one grid
+       cell), each holding .qh-track__ind (inline SVG indicator) + .qh-track__label.
+       Give .qh-track role="status" aria-live="polite".
+       JS hook: set el.dataset.status = 'good' (etc.). The matching item crossfades in and
+       rises 4px (240ms ease-quiet); the outgoing item fades out in place (240ms ease-exit),
+       then resets its offset invisibly. data-status="lost" adds a gentle pill pulse
+       (opacity 1 ↔ .72, 2400ms loop).
+
+   (c) PIECE SWITCH  —  .qh-switch > .qh-switch__piece + svg.qh-switch__thread > path
+       .qh-switch__piece  the rendered model (canvas / img / svg).
+       .qh-switch__thread overlay SVG whose <path pathLength="1"> is the piece's outline.
+       --qh-switch-stroke thread width in the overlay's user units (default 1.25).
+       Timeline / JS hooks:
+         tap next    add .qh-switch-out   piece opacity 1 → 0 (300ms ease-exit) while the
+                                          gold outline appears and unwinds
+                                          (dashoffset 0 → -1, 300ms ease-draw).
+         animationend on .qh-switch__piece (300ms):
+                     swap the model + set the thread path d to the next outline;
+                     remove .qh-switch-out, add .qh-switch-in.
+         .qh-switch-in (500ms): thread draws 0–300ms (dashoffset 1 → 0, ease-draw),
+                     piece fades in 200–500ms (ease-quiet), thread fades 300–500ms.
+         animationend on .qh-switch__piece (500ms): remove .qh-switch-in.
+
+   REDUCED MOTION
+     calibration  no breathing or travel: corners sit on the target, fade in 200ms on
+                  lock, fade out 300ms on done.
+     pill         plain 120ms crossfade, no slide; no lost pulse.
+     switch       no thread: piece crossfades (out 200ms, in 200ms); JS still keys off
+                  animationend on .qh-switch__piece.
+   Gold appears only as lines (borders / strokes); no gold fills, gradients or text.
+   ========================================================================== */
+
+:root {
+  --ease-quiet: cubic-bezier(0.2, 0, 0, 1);
+  --ease-draw: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
+  --qh-dur-calib-breathe: 2400ms;
+  --qh-dur-calib-settle: 600ms;
+  --qh-dur-calib-hold: 400ms;
+  --qh-dur-calib-fade: 300ms;
+  --qh-dur-track: 240ms;
+  --qh-dur-track-lost: 2400ms;
+  --qh-dur-switch-out: 300ms;
+  --qh-dur-switch-in: 500ms;
+}
+
+/* ======================= (a) calibration ======================= */
+.qh-calib {
+  --qh-target-x: 25%;
+  --qh-target-y: 30%;
+  --qh-target-w: 50%;
+  --qh-target-h: 40%;
+  --qh-calib-spread: 40px;
+  --qh-calib-arm: 22px;
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.qh-calib__corner {
+  --dx: -1;
+  --dy: -1;
+  position: absolute;
+  width: var(--qh-calib-arm);
+  height: var(--qh-calib-arm);
+  border: 0 solid var(--hairline, #A8844A);
+  box-sizing: border-box;
+  translate: calc(var(--dx) * var(--qh-calib-spread)) calc(var(--dy) * var(--qh-calib-spread));
+  opacity: 0.8;
+  transition: left 200ms var(--ease-quiet, cubic-bezier(0.2, 0, 0, 1)),
+              top 200ms var(--ease-quiet, cubic-bezier(0.2, 0, 0, 1));
+}
+.qh-calib__corner--tl { --dx: -1; --dy: -1; left: var(--qh-target-x); top: var(--qh-target-y);
+  border-top-width: 1.5px; border-left-width: 1.5px; }
+.qh-calib__corner--tr { --dx: 1; --dy: -1;
+  left: calc(var(--qh-target-x) + var(--qh-target-w) - var(--qh-calib-arm)); top: var(--qh-target-y);
+  border-top-width: 1.5px; border-right-width: 1.5px; }
+.qh-calib__corner--bl { display: none; } /* optional 4th corner */
+.qh-calib--four .qh-calib__corner--bl { display: block; }
+.qh-calib__corner--bl { --dx: -1; --dy: 1;
+  left: var(--qh-target-x); top: calc(var(--qh-target-y) + var(--qh-target-h) - var(--qh-calib-arm));
+  border-bottom-width: 1.5px; border-left-width: 1.5px; }
+.qh-calib__corner--br { --dx: 1; --dy: 1;
+  left: calc(var(--qh-target-x) + var(--qh-target-w) - var(--qh-calib-arm));
+  top: calc(var(--qh-target-y) + var(--qh-target-h) - var(--qh-calib-arm));
+  border-bottom-width: 1.5px; border-right-width: 1.5px; }
+
+.qh-calib.is-searching .qh-calib__corner {
+  animation: qh-calib-breathe var(--qh-dur-calib-breathe, 2400ms) var(--ease-draw, cubic-bezier(0.65, 0, 0.35, 1)) infinite;
+}
+.qh-calib.is-locked .qh-calib__corner {
+  translate: 0 0;
+  opacity: 1;
+  animation: qh-calib-settle var(--qh-dur-calib-settle, 600ms) var(--ease-draw, cubic-bezier(0.65, 0, 0.35, 1)) both;
+}
+.qh-calib.is-done .qh-calib__corner {
+  translate: 0 0;
+  animation: qh-calib-fade var(--qh-dur-calib-fade, 300ms) var(--ease-exit, cubic-bezier(0.4, 0, 1, 1)) both;
+}
+@keyframes qh-calib-breathe {
+  0%, 100% { translate: calc(var(--dx) * var(--qh-calib-spread)) calc(var(--dy) * var(--qh-calib-spread)); opacity: 0.55; }
+  50%      { translate: calc(var(--dx) * var(--qh-calib-spread) * 0.6) calc(var(--dy) * var(--qh-calib-spread) * 0.6); opacity: 1; }
+}
+@keyframes qh-calib-settle {
+  from { translate: calc(var(--dx) * var(--qh-calib-spread)) calc(var(--dy) * var(--qh-calib-spread)); opacity: 0.8; }
+  to   { translate: 0 0; opacity: 1; }
+}
+@keyframes qh-calib-fade {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+@keyframes qh-calib-appear {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ======================= (b) tracking pill ======================= */
+.qh-track {
+  display: inline-grid;
+  align-items: center;
+  justify-items: center;
+  min-height: 40px;
+  padding: 0 20px;
+  box-sizing: border-box;
+  border: 1px solid var(--hairline, #A8844A);
+  border-radius: 999px;
+  background: var(--surface-control, rgba(27, 25, 22, 0.86));
+  color: var(--text, #F5F0E8);
+  font-family: var(--font-ui, Jost, "Futura PT", Futura, system-ui, sans-serif);
+  font-size: 15px;
+  line-height: 20px;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+.qh-track__item {
+  grid-area: 1 / 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  opacity: 0;
+  transform: translateY(4px);
+  /* leaving: fade in place, then reset the offset while invisible */
+  transition: opacity var(--qh-dur-track, 240ms) var(--ease-exit, cubic-bezier(0.4, 0, 1, 1)),
+              transform 0s linear var(--qh-dur-track, 240ms);
+}
+.qh-track[data-status="finding"] .qh-track__item[data-for="finding"],
+.qh-track[data-status="good"]    .qh-track__item[data-for="good"],
+.qh-track[data-status="closer"]  .qh-track__item[data-for="closer"],
+.qh-track[data-status="lost"]    .qh-track__item[data-for="lost"] {
+  opacity: 1;
+  transform: none;
+  /* arriving: crossfade + 4px rise */
+  transition: opacity var(--qh-dur-track, 240ms) var(--ease-quiet, cubic-bezier(0.2, 0, 0, 1)),
+              transform var(--qh-dur-track, 240ms) var(--ease-quiet, cubic-bezier(0.2, 0, 0, 1));
+}
+.qh-track__ind { width: 14px; height: 14px; flex: none; overflow: visible; fill: none;
+  stroke: var(--hairline, #A8844A); stroke-width: 1.25; stroke-linecap: round; stroke-linejoin: round; }
+.qh-track__item[data-for="good"] .qh-track__ind { stroke: var(--status-positive, #8DB5A3); }
+.qh-track__item[data-for="finding"] .qh-track__ind {
+  transform-origin: 50% 50%;
+  animation: qh-track-seek 1800ms var(--ease-draw, cubic-bezier(0.65, 0, 0.35, 1)) infinite;
+}
+@keyframes qh-track-seek {
+  0%, 100% { transform: scale(0.7); opacity: 0.6; }
+  50%      { transform: scale(1);   opacity: 1; }
+}
+.qh-track[data-status="lost"] {
+  animation: qh-track-lost var(--qh-dur-track-lost, 2400ms) var(--ease-draw, cubic-bezier(0.65, 0, 0.35, 1)) infinite;
+}
+@keyframes qh-track-lost {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.72; }
+}
+
+/* ======================= (c) piece switch ======================= */
+.qh-switch { position: relative; }
+.qh-switch__piece,
+.qh-switch__thread {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.qh-switch__thread { pointer-events: none; overflow: visible; }
+.qh-switch__thread path {
+  fill: none;
+  stroke: var(--hairline, #A8844A);
+  stroke-width: var(--qh-switch-stroke, 1.25);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1 1;
+  stroke-dashoffset: 0;
+  opacity: 0;
+}
+.qh-switch.qh-switch-out .qh-switch__piece {
+  animation: qh-piece-out var(--qh-dur-switch-out, 300ms) var(--ease-exit, cubic-bezier(0.4, 0, 1, 1)) forwards;
+}
+.qh-switch.qh-switch-out .qh-switch__thread path {
+  animation: qh-thread-out var(--qh-dur-switch-out, 300ms) var(--ease-draw, cubic-bezier(0.65, 0, 0.35, 1)) forwards;
+}
+.qh-switch.qh-switch-in .qh-switch__piece {
+  animation: qh-piece-in var(--qh-dur-switch-in, 500ms) linear both;
+}
+.qh-switch.qh-switch-in .qh-switch__thread path {
+  animation: qh-thread-in var(--qh-dur-switch-in, 500ms) linear both;
+}
+@keyframes qh-piece-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+@keyframes qh-thread-out {
+  0%   { stroke-dashoffset: 0;  opacity: 1; }
+  100% { stroke-dashoffset: -1; opacity: 1; }
+}
+@keyframes qh-piece-in {
+  0%   { opacity: 0; }
+  40%  { opacity: 0; animation-timing-function: cubic-bezier(0.2, 0, 0, 1); }
+  100% { opacity: 1; }
+}
+@keyframes qh-thread-in {
+  0%   { stroke-dashoffset: 1; opacity: 1; animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1); }
+  60%  { stroke-dashoffset: 0; opacity: 1; animation-timing-function: cubic-bezier(0.4, 0, 1, 1); }
+  100% { stroke-dashoffset: 0; opacity: 0; }
+}
+
+/* ======================= reduced motion ======================= */
+@media (prefers-reduced-motion: reduce) {
+  .qh-calib__corner { translate: 0 0; transition: none; }
+  .qh-calib.is-searching .qh-calib__corner { animation: none; opacity: 0.6; }
+  .qh-calib.is-locked .qh-calib__corner { animation: qh-calib-appear 200ms var(--ease-quiet, cubic-bezier(0.2, 0, 0, 1)) both; }
+  .qh-calib.is-done .qh-calib__corner { animation: qh-calib-fade 300ms var(--ease-exit, cubic-bezier(0.4, 0, 1, 1)) both; }
+
+  .qh-track__item,
+  .qh-track[data-status] .qh-track__item[data-for] { transform: none; transition: opacity 120ms linear; }
+  .qh-track__item[data-for="finding"] .qh-track__ind,
+  .qh-track[data-status="lost"] { animation: none; }
+
+  .qh-switch.qh-switch-out .qh-switch__thread path,
+  .qh-switch.qh-switch-in .qh-switch__thread path { animation: none; opacity: 0; }
+  .qh-switch.qh-switch-out .qh-switch__piece { animation: qh-piece-out 200ms var(--ease-exit, cubic-bezier(0.4, 0, 1, 1)) forwards; }
+  .qh-switch.qh-switch-in .qh-switch__piece { animation: qh-calib-appear 200ms var(--ease-quiet, cubic-bezier(0.2, 0, 0, 1)) both; }
+}

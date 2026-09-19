@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Book a consultation</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/quietheritage/tokens.css">
+<link rel="stylesheet" href="ds/quietheritage/components/bundle.css">
+<script src="ds/quietheritage/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&amp;family=Jost:wght@300;400;500&amp;family=Tiro+Devanagari+Hindi&amp;display=swap">
+<style>
+body{margin:0;background:#F5F0E8;color:#1B1916;font-family:Jost,Futura,sans-serif}
+a{color:#1B1916}a:hover{color:#6E1E2A}
+.sc{font-family:"Cormorant Garamond",Georgia,serif;font-variant-caps:all-small-caps;font-weight:600;letter-spacing:.16em;color:#655E54}
+.disp{font-family:"Cormorant Garamond",Georgia,serif;font-weight:400;margin:0}
+.num{font-variant-numeric:tabular-nums}
+</style>
+</helmet>
+<div style="width: 390px; height: 2240px; box-sizing: border-box; position: relative; overflow: hidden; background: #F5F0E8; color: #1B1916; font-family: Jost, Futura, sans-serif; ">
+<header style="height: 56px; box-sizing: border-box; padding: 0 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #A8844A;">
+<a href="Welcome.dc.html" aria-label="Home" style="display: flex; align-items: center; width: 44px; height: 44px;"><x-import component-from-global-scope="QuietHeritage.LumenMonogram" size="{{n28}}"></x-import></a>
+<span class="sc" style="font-size: 16px; color: #1B1916;">Book</span>
+<span style="display: flex; width: 44px; justify-content: flex-end;"></span>
+</header>
+<main style="padding: 24px 24px 120px; display: flex; flex-direction: column; gap: 28px;">
+<div><h1 class="disp" style="font-size: 32px; line-height: 38px;">Book a consultation</h1><p style="margin: 8px 0 0; font-size: 16px; line-height: 24px; color: #655E54;">Forty minutes with the atelier, to settle the design and the price.</p></div>
+<section style="border: 1px solid #A8844A; padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+<span class="sc" style="font-size: 14px;">Your looks · 2 selected</span>
+<div style="display: flex; gap: 12px; align-items: center;"><span style="width: 56px; height: 70px; overflow: hidden; background: #2a2622; flex: none;"><img src="/_blob/648bb246e053e216ae5d5c4f053e081d" alt="" style="width: 234px; height: 506px; margin: -200px 0 0 -70px;"></span><span style="display: flex; flex-direction: column;"><span class="disp" style="font-size: 18px;">The Quiet River</span><span style="font-size: 13px; color: #655E54;">Rose 18K · 15.5 cm · lighter · one diamond</span></span></div>
+<div style="display: flex; gap: 12px; align-items: center;"><span style="width: 56px; height: 70px; border: 1px solid #DCD3C4; flex: none;"><img src="/_blob/bf23b136b22118815a801daaa2ead233" alt="" style="width: 100%; height: 100%; object-fit: cover;"></span><span style="display: flex; flex-direction: column;"><span class="disp" style="font-size: 18px;">Temple Dawn</span><span style="font-size: 13px; color: #655E54;">Yellow 18K · 2.4</span></span></div>
+<span class="num" style="font-size: 14px;">Together, indicative ₹3.5–4.0L</span>
+</section>
+<x-import component-from-global-scope="QuietHeritage.SegmentedControl" label="Visit" options="{{visits}}" default-value="video"></x-import>
+<p style="margin: -16px 0 0; font-size: 13px; line-height: 18px; color: #655E54;">We’ll send a private video link. Keep a ring you already wear nearby for sizing.</p>
+<section style="display: flex; flex-direction: column; gap: 8px;"><span class="sc" style="font-size: 15px;">Choose a time</span><x-import component-from-global-scope="QuietHeritage.SlotPicker" slots="{{slots}}" unavailable="{{taken}}" default-value="2026-09-22T14:00:00Z" local-time-zone="America/New_York"></x-import></section>
+<x-import component-from-global-scope="QuietHeritage.TextField" label="Your name" auto-complete="name" default-value="{{client}}"></x-import>
+<x-import component-from-global-scope="QuietHeritage.TextField" label="Phone" type="tel" auto-complete="tel" default-value="+1 555 0142" error="Please add the country code, e.g. +91 or +1."></x-import>
+<x-import component-from-global-scope="QuietHeritage.ConsentCheckbox" default-checked="{{yes}}">I prefer WhatsApp for reminders</x-import>
+<x-import component-from-global-scope="QuietHeritage.TextField" label="Email" type="email" auto-complete="email" placeholder="you@example.com"></x-import>
+<x-import component-from-global-scope="QuietHeritage.Select" label="Occasion" options="{{occ}}" default-value="Wedding"></x-import>
+<x-import component-from-global-scope="QuietHeritage.TextField" label="Needed by" type="date" default-value="2026-12-12" hint="We’ll tell you at the consultation if the date is tight."></x-import>
+<section style="display: flex; flex-direction: column; gap: 8px;"><span class="sc" style="font-size: 15px;">Budget</span><div style="display: flex; flex-wrap: wrap; gap: 8px;"><x-import component-from-global-scope="QuietHeritage.FilterChip" >Under ₹1L</x-import><x-import component-from-global-scope="QuietHeritage.FilterChip" >₹1–2L</x-import><x-import component-from-global-scope="QuietHeritage.FilterChip" default-selected="{{yes}}">₹2–3L</x-import><x-import component-from-global-scope="QuietHeritage.FilterChip" >₹3–5L</x-import><x-import component-from-global-scope="QuietHeritage.FilterChip" >₹5L+</x-import></div></section>
+<x-import component-from-global-scope="QuietHeritage.ConsentCheckbox" required="{{yes}}">I agree to the atelier using my looks and details to prepare for this consultation.</x-import>
+<a href="Confirmation.dc.html" style="text-decoration: none;"><x-import component-from-global-scope="QuietHeritage.Button" block="{{yes}}">Request this consultation</x-import></a>
+</main>
+<nav aria-label="Primary" style="position: absolute; left: 0; right: 0; bottom: 0; height: 64px; display: flex; background: #F5F0E8; border-top: 1px solid #A8844A;"><a href="Collection.dc.html" style="flex-grow: 1; min-height: 56px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; text-decoration: none; color: #655E54; "><x-import component-from-global-scope="QuietHeritage.Icon" name="search" size="{{n20}}" ></x-import><span style="font-size: 12px; line-height: 16px; font-weight: 400;">Collection</span></a><a href="ARCalibrating.dc.html" style="flex-grow: 1; min-height: 56px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; text-decoration: none; color: #655E54; "><x-import component-from-global-scope="QuietHeritage.Icon" name="ar-try-on" size="{{n20}}" ></x-import><span style="font-size: 12px; line-height: 16px; font-weight: 400;">Try on</span></a><a href="LookBoard.dc.html" style="flex-grow: 1; min-height: 56px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; text-decoration: none; color: #655E54; "><x-import component-from-global-scope="QuietHeritage.Icon" name="save-look" size="{{n20}}" ></x-import><span style="font-size: 12px; line-height: 16px; font-weight: 400;">Look board</span></a><a href="Booking.dc.html" style="flex-grow: 1; min-height: 56px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; text-decoration: none; color: #1B1916; box-shadow: inset 0 1px 0 #1B1916;"><x-import component-from-global-scope="QuietHeritage.Icon" name="calendar" size="{{n20}}" ></x-import><span style="font-size: 12px; line-height: 16px; font-weight: 500;">Book</span></a></nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":2240}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { yes: true, no: false, noop: () => {}, n16: 16, n20: 20, n24: 24, n28: 28, n32: 32, n36: 36, n40: 40, n48: 48, n56: 56, n64: 64, visits: [{"value": "studio", "label": "In-studio"}, {"value": "video", "label": "Video call"}], slots: ["2026-09-22T05:30:00Z", "2026-09-22T07:00:00Z", "2026-09-22T09:30:00Z", "2026-09-22T11:00:00Z", "2026-09-22T12:30:00Z", "2026-09-22T14:00:00Z", "2026-09-23T05:30:00Z", "2026-09-23T09:30:00Z", "2026-09-24T07:00:00Z", "2026-09-25T09:30:00Z"], taken: ["2026-09-22T09:30:00Z"], occ: ["Wedding", "Engagement", "Anniversary", "Festival", "Everyday", "A gift"], client: "{{client_name}}" };
+  }
+}
+</script>
+</body>
+</html>

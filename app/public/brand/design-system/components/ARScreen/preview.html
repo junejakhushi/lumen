@@ -1,0 +1,39 @@
+<!-- @dsCard group="Screens" height=872 width=860 page subtitle="Evening mode · the try-on camera composed" -->
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>ARScreen — preview</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@400;500&family=Tiro+Devanagari+Hindi&display=swap">
+</head>
+<body>
+<div id="root"></div>
+<script>
+var Q = window.QuietHeritage, h = React.createElement;
+function cell(cap, el, style) { return h("div", { className: "qh-demo__cell", style: style }, el, h("span", { className: "qh-demo__cap" }, cap)); }
+function row(title, kids) { return h("div", { className: "qh-demo__row" }, title ? h("p", { className: "qh-demo__h" }, title) : null, kids); }
+function evening(kids, style) { return h("div", { "data-theme": "evening", className: "qh-evening-panel", style: Object.assign({ padding: 24 }, style || {}) }, kids); }
+var STATES = ["default", "hover", "pressed", "focus", "disabled"];
+
+function camera(kids, h2) {
+  return h("div", { "data-theme": "evening", className: "qh-camera", style: { width: 390, height: h2 || 200 } },
+    h("svg", { viewBox: "0 0 390 " + (h2 || 200), width: 390, height: h2 || 200, style: { position: "absolute", inset: 0 }, "aria-hidden": "true" },
+      h("path", { d: "M120 " + (h2 || 200) + "c10-90 20-150 60-200 30-40 90-50 130-10 30 30 40 80 30 130-6 30-2 50 20 80", fill: "none", stroke: "rgba(245,240,232,.10)", strokeWidth: 60, strokeLinecap: "round" })),
+    h("div", { style: { position: "relative", height: "100%" } }, kids));
+}
+function screen(status, extra) {
+  return h("div", { "data-theme": "evening", className: "qh-camera", style: { width: 390, height: 800, display: "flex", flexDirection: "column" } },
+    h("svg", { viewBox: "0 0 390 800", width: 390, height: 800, style: { position: "absolute", inset: 0 }, "aria-hidden": "true" },
+      h("path", { d: "M70 800c10-120 20-240 70-330 40-70 120-110 190-60", fill: "none", stroke: "rgba(245,240,232,.08)", strokeWidth: 120, strokeLinecap: "round" }),
+      h("g", { transform: "translate(236 300)", stroke: "var(--gold)", fill: "none", strokeWidth: 1.2 }, h("path", { d: "M20 0v14" }), h("circle", { cx: 20, cy: 20, r: 6 }), h("path", { d: "M2 70c0-22 8-40 18-42 10 2 18 20 18 42z" }), h("path", { d: "M2 70h36" }))),
+    h("div", { style: { position: "relative" } }, h(Q.ARTopBar, { pieceName: "Peacock jhumka", detail: "22K yellow · ruby" })),
+    h("div", { style: { position: "relative", display: "flex", justifyContent: "center", paddingTop: 8 } }, h(Q.TrackingPill, { status: status })),
+    h("div", { style: { flex: 1 } }),
+    extra ? h("div", { style: { position: "relative", display: "flex", justifyContent: "center", padding: "0 16px 12px" } }, extra) : null,
+    h("div", { style: { position: "relative" } }, h(Q.ARControlRail, { defaultStone: "ruby", leading: h(Q.TextLink, { href: "#" }, "Look book"), trailing: h(Q.Button, { size: "sm", variant: "secondary" }, "Book") })));
+}
+function App() {
+  return h("div", { className: "qh-demo" }, cell("tracking · move closer", screen("closer")), cell("after snapshot", screen("good", h(Q.Toast, { tone: "positive", action: "View" }, "Snapshot saved"))));
+}
+ReactDOM.createRoot(document.getElementById("root")).render(App());
+</script>
+</body>
+</html>

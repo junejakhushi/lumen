@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>AR · lost tracking</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/quietheritage/tokens.css">
+<link rel="stylesheet" href="ds/quietheritage/components/bundle.css">
+<script src="ds/quietheritage/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&amp;family=Jost:wght@300;400;500&amp;family=Tiro+Devanagari+Hindi&amp;display=swap">
+<style>
+body{margin:0;background:#F5F0E8;color:#1B1916;font-family:Jost,Futura,sans-serif}
+a{color:#1B1916}a:hover{color:#6E1E2A}
+.sc{font-family:"Cormorant Garamond",Georgia,serif;font-variant-caps:all-small-caps;font-weight:600;letter-spacing:.16em;color:#655E54}
+.disp{font-family:"Cormorant Garamond",Georgia,serif;font-weight:400;margin:0}
+.num{font-variant-numeric:tabular-nums}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #F5F0E8; color: #1B1916; font-family: Jost, Futura, sans-serif; ">
+<div data-theme="evening" style="position: absolute; inset: 0; background: #2a2622; color: #F5F0E8;">
+<img src="/_blob/e3a7336498163c5a96427a16a6eb244b" alt="" style="position: absolute; inset: 0; width: 390px; height: 844px;">
+<img src="/_blob/61c3212e8ec0b931527daa645ed9bd9e" alt="" style="position: absolute; left: 75px; top: 210px; width: 240px; height: 360px; opacity: .5;">
+<div style="position: absolute; left: 0; right: 0; top: 0;"><x-import component-from-global-scope="QuietHeritage.ARTopBar" piece-name="The Quiet River" detail="18K yellow · wrist 16.5 cm"></x-import></div>
+<div style="position: absolute; left: 0; right: 0; top: 150px; display: flex; justify-content: center;"><x-import component-from-global-scope="QuietHeritage.TrackingPill" status="finding">Bring your wrist back into the arch</x-import></div><div style="position: absolute; right: 16px; top: 76px;"><x-import component-from-global-scope="QuietHeritage.PricePill" low="1.9" high="2.2"></x-import></div>
+<div style="position: absolute; left: 0; right: 0; bottom: 0; padding: 8px 0 20px; display: flex; flex-direction: column; gap: 8px; background: rgba(27, 25, 22, 0.86); border-top: 1px solid #A8844A;">
+<x-import component-from-global-scope="QuietHeritage.PieceCarousel" pieces="{{pieces}}" default-value="cuff"></x-import>
+<div style="display: flex; align-items: center; justify-content: space-between; padding: 0 12px;">
+<x-import component-from-global-scope="QuietHeritage.SwatchGroup" kind="metal" default-value="yellow"></x-import>
+<x-import component-from-global-scope="QuietHeritage.SegmentedControl" aria-label="Karat" options="{{karats}}" default-value="18"></x-import>
+</div>
+<div style="display: flex; align-items: flex-end; justify-content: space-between; padding: 0 16px;">
+<x-import component-from-global-scope="QuietHeritage.Stepper" label="Wrist" min="{{n14}}" max="{{n20}}" step="{{half}}" default-value="{{w165}}" format="{{fmtCm}}"></x-import>
+<x-import component-from-global-scope="QuietHeritage.ShutterButton" label="Take snapshot"></x-import>
+</div>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { yes: true, no: false, noop: () => {}, n16: 16, n20: 20, n24: 24, n28: 28, n32: 32, n36: 36, n40: 40, n48: 48, n56: 56, n64: 64, pieces: [{"id": "cuff", "name": "Quiet River", "thumb": "/_blob/38021576471c7b0b8f0d629e44075476"}, {"id": "bangle", "name": "Temple Dawn", "thumb": "/_blob/bf23b136b22118815a801daaa2ead233"}, {"id": "tennis", "name": "Courtyard Rain", "thumb": "/_blob/c0f9fb38ae82e58aa208ec7b82e5e352"}, {"id": "band", "name": "Kite String", "thumb": "/_blob/963e6f7909951f6fab4e4c1a927b5002"}, {"id": "sol", "name": "First Light", "thumb": "/_blob/57bdf5a1bb857dcc58a7877bd62c59b3"}], karats: [{"value": "14", "label": "14K"}, {"value": "18", "label": "18K"}, {"value": "22", "label": "22K"}], half: 0.5, w165: 16.5, n14: 14, n8: 8, n12: 12, fmtCm: (v) => v + " cm", fmtRing: (v) => "IN " + v + " · US " + ({8:4.5,9:5,10:5.5,11:6,12:6,13:6.5,14:7,15:7.5,16:7.5,17:8,18:8.5,19:9,20:9}[v]) };
+  }
+}
+</script>
+</body>
+</html>

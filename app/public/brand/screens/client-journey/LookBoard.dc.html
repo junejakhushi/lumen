@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Look board</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/quietheritage/tokens.css">
+<link rel="stylesheet" href="ds/quietheritage/components/bundle.css">
+<script src="ds/quietheritage/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&amp;family=Jost:wght@300;400;500&amp;family=Tiro+Devanagari+Hindi&amp;display=swap">
+<style>
+body{margin:0;background:#F5F0E8;color:#1B1916;font-family:Jost,Futura,sans-serif}
+a{color:#1B1916}a:hover{color:#6E1E2A}
+.sc{font-family:"Cormorant Garamond",Georgia,serif;font-variant-caps:all-small-caps;font-weight:600;letter-spacing:.16em;color:#655E54}
+.disp{font-family:"Cormorant Garamond",Georgia,serif;font-weight:400;margin:0}
+.num{font-variant-numeric:tabular-nums}
+</style>
+</helmet>
+<div style="width: 390px; height: 1200px; box-sizing: border-box; position: relative; overflow: hidden; background: #F5F0E8; color: #1B1916; font-family: Jost, Futura, sans-serif; ">
+<header style="height: 56px; box-sizing: border-box; padding: 0 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #A8844A;">
+<a href="Welcome.dc.html" aria-label="Home" style="display: flex; align-items: center; width: 44px; height: 44px;"><x-import component-from-global-scope="QuietHeritage.LumenMonogram" size="{{n28}}"></x-import></a>
+<span class="sc" style="font-size: 16px; color: #1B1916;">Look board</span>
+<span style="display: flex; width: 44px; justify-content: flex-end;"></span>
+</header>
+<main style="padding: 24px 24px 120px;">
+<h1 class="disp" style="font-size: 32px; line-height: 38px;">Your look board</h1>
+<p style="margin: 8px 0 24px; font-size: 16px; line-height: 24px; color: #655E54;">Four looks from this visit. Bring them to the atelier, or book a consultation now.</p>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 16px;">
+<article style="display: flex; flex-direction: column; gap: 6px;"><span style="display: block; height: 196px; overflow: hidden; background: #2a2622;"><img src="/_blob/648bb246e053e216ae5d5c4f053e081d" alt="" style="width: 390px; height: 844px; margin: -340px 0 0 -110px;"></span><span class="sc" style="font-size: 12px;">AR snapshot</span><h3 class="disp" style="font-size: 18px; line-height: 22px; font-weight: 500;">The Quiet River</h3><span style="font-size: 13px; line-height: 18px; color: #655E54;">Rose 18K · 15.5 cm · lighter · one diamond</span><span class="num" style="font-size: 14px;">₹1.8–2.1L</span></article>
+<article style="display: flex; flex-direction: column; gap: 6px;"><span style="display: block; height: 196px; border: 1px solid #DCD3C4;"><img src="/_blob/bf23b136b22118815a801daaa2ead233" alt="" style="width: 100%; height: 100%; object-fit: cover;"></span><span class="sc" style="font-size: 12px;">Customised</span><h3 class="disp" style="font-size: 18px; line-height: 22px; font-weight: 500;">Temple Dawn</h3><span style="font-size: 13px; line-height: 18px; color: #655E54;">Yellow 22K → 18K · 2.4</span><span class="num" style="font-size: 14px;">₹1.7–1.9L</span></article>
+<article style="display: flex; flex-direction: column; gap: 6px;"><span style="display: block; height: 196px; overflow: hidden; background: #2a2622;"><img src="/_blob/648bb246e053e216ae5d5c4f053e081d" alt="" style="width: 390px; height: 844px; margin: -340px 0 0 -110px;"></span><span class="sc" style="font-size: 12px;">AR snapshot</span><h3 class="disp" style="font-size: 18px; line-height: 22px; font-weight: 500;">The Quiet River</h3><span style="font-size: 13px; line-height: 18px; color: #655E54;">Yellow 18K · 16.5 cm · as shown</span><span class="num" style="font-size: 14px;">₹1.9–2.2L</span></article>
+<article style="display: flex; flex-direction: column; gap: 6px;"><span style="display: block; height: 196px; border: 1px solid #DCD3C4;"><img src="/_blob/c0f9fb38ae82e58aa208ec7b82e5e352" alt="" style="width: 100%; height: 100%; object-fit: cover;"></span><span class="sc" style="font-size: 12px;">Customised</span><h3 class="disp" style="font-size: 18px; line-height: 22px; font-weight: 500;">Courtyard Rain</h3><span style="font-size: 13px; line-height: 18px; color: #655E54;">White 18K · 16 cm</span><span class="num" style="font-size: 14px;">₹2.7–3.2L</span></article>
+</div>
+<div style="display: flex; justify-content: center; margin: 32px 0 24px;"><img src="/_blob/21013726ac6ad41819b16c33f5b322ca" alt="" style="width: 240px; height: 17px;"></div>
+<a href="Booking.dc.html" style="text-decoration: none;"><x-import component-from-global-scope="QuietHeritage.Button" block="{{yes}}" icon="arrow-right">Book a consultation with these looks</x-import></a>
+<p style="margin: 12px 0 0; font-size: 13px; line-height: 18px; color: #655E54; text-align: center;">Your looks travel with the booking as a design brief.</p>
+</main>
+<nav aria-label="Primary" style="position: absolute; left: 0; right: 0; bottom: 0; height: 64px; display: flex; background: #F5F0E8; border-top: 1px solid #A8844A;"><a href="Collection.dc.html" style="flex-grow: 1; min-height: 56px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; text-decoration: none; color: #655E54; "><x-import component-from-global-scope="QuietHeritage.Icon" name="search" size="{{n20}}" ></x-import><span style="font-size: 12px; line-height: 16px; font-weight: 400;">Collection</span></a><a href="ARCalibrating.dc.html" style="flex-grow: 1; min-height: 56px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; text-decoration: none; color: #655E54; "><x-import component-from-global-scope="QuietHeritage.Icon" name="ar-try-on" size="{{n20}}" ></x-import><span style="font-size: 12px; line-height: 16px; font-weight: 400;">Try on</span></a><a href="LookBoard.dc.html" style="flex-grow: 1; min-height: 56px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; text-decoration: none; color: #1B1916; box-shadow: inset 0 1px 0 #1B1916;"><x-import component-from-global-scope="QuietHeritage.Icon" name="save-look" size="{{n20}}" ></x-import><span style="font-size: 12px; line-height: 16px; font-weight: 500;">Look board</span></a><a href="Booking.dc.html" style="flex-grow: 1; min-height: 56px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; text-decoration: none; color: #655E54; "><x-import component-from-global-scope="QuietHeritage.Icon" name="calendar" size="{{n20}}" ></x-import><span style="font-size: 12px; line-height: 16px; font-weight: 400;">Book</span></a></nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1200}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { yes: true, no: false, noop: () => {}, n16: 16, n20: 20, n24: 24, n28: 28, n32: 32, n36: 36, n40: 40, n48: 48, n56: 56, n64: 64 };
+  }
+}
+</script>
+</body>
+</html>

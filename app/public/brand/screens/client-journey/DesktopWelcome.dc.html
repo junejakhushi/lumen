@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Welcome · desktop</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/quietheritage/tokens.css">
+<link rel="stylesheet" href="ds/quietheritage/components/bundle.css">
+<script src="ds/quietheritage/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&amp;family=Jost:wght@300;400;500&amp;family=Tiro+Devanagari+Hindi&amp;display=swap">
+<style>
+body{margin:0;background:#F5F0E8;color:#1B1916;font-family:Jost,Futura,sans-serif}
+a{color:#1B1916}a:hover{color:#6E1E2A}
+.sc{font-family:"Cormorant Garamond",Georgia,serif;font-variant-caps:all-small-caps;font-weight:600;letter-spacing:.16em;color:#655E54}
+.disp{font-family:"Cormorant Garamond",Georgia,serif;font-weight:400;margin:0}
+.num{font-variant-numeric:tabular-nums}
+</style>
+</helmet>
+<div style="width: 1440px; height: 1100px; box-sizing: border-box; position: relative; overflow: hidden; background: #F5F0E8; color: #1B1916; font-family: Jost, Futura, sans-serif; ">
+<header style="height: 80px; box-sizing: border-box; padding: 0 120px; display: flex; align-items: center; gap: 40px; border-bottom: 1px solid #A8844A;">
+<a href="DesktopWelcome.dc.html" aria-label="Home" style="display: flex; align-items: center; gap: 12px; text-decoration: none;"><x-import component-from-global-scope="QuietHeritage.LumenMonogram" size="{{n32}}"></x-import><span class="sc" style="font-size: 17px; color: #1B1916; letter-spacing: .2em;">The Atelier</span></a>
+<nav aria-label="Primary" style="margin-left: auto; display: flex; gap: 32px; align-items: center;"><a href="DesktopCollection.dc.html" style="font-size: 15px; font-weight: 400; text-decoration: none; padding: 12px 4px; ">Collection</a><a href="ARCalibrating.dc.html" style="font-size: 15px; font-weight: 400; text-decoration: none; padding: 12px 4px; ">Try on</a><a href="LookBoard.dc.html" style="font-size: 15px; font-weight: 400; text-decoration: none; padding: 12px 4px; ">Look board</a><a href="Booking.dc.html" style="text-decoration: none;"><x-import component-from-global-scope="QuietHeritage.Button" variant="secondary" size="sm">Book</x-import></a></nav>
+</header>
+<div style="position: absolute; left: 0; top: 80px; width: 560px; height: 740px; opacity: .05; background-image: url(/_blob/8aa055fb9db7934303e0d6477bc8b74b); background-size: 256px;"></div>
+<main style="position: relative; padding: 72px 120px 0; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px; align-items: center;">
+<div style="grid-column: 1 / span 6; display: flex; flex-direction: column; gap: 24px;">
+<span class="sc" style="font-size: 17px;">A private viewing</span>
+<h1 class="disp" style="font-size: 80px; line-height: 84px; letter-spacing: -0.015em;">Wear it before it’s made.</h1>
+<p style="margin: 0; font-size: 18px; line-height: 30px; color: #655E54; max-width: 34em;">Try a piece on your wrist or hand, change the metal and the size, then bring your looks to a consultation with the atelier.</p>
+<div style="display: flex; gap: 16px;"><a href="ARCalibrating.dc.html" style="text-decoration: none;"><x-import component-from-global-scope="QuietHeritage.Button" icon="arrow-right">Start trying on</x-import></a><a href="DesktopCollection.dc.html" style="text-decoration: none;"><x-import component-from-global-scope="QuietHeritage.Button" variant="secondary">Explore the collection</x-import></a></div>
+</div>
+<div style="grid-column: 8 / span 5; position: relative; height: 600px;">
+<img src="/_blob/61c3212e8ec0b931527daa645ed9bd9e" alt="" style="position: absolute; inset: 0; width: 400px; height: 600px;">
+<img src="/_blob/38021576471c7b0b8f0d629e44075476" alt="Line drawing of a cuff" style="position: absolute; left: 60px; top: 170px; width: 280px; height: 350px; mix-blend-mode: multiply;">
+</div>
+</main>
+<footer style="margin-top: 96px; padding: 48px 120px; border-top: 1px solid #A8844A; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px; align-items: center;">
+<div style="grid-column: span 5;"><x-import component-from-global-scope="QuietHeritage.LumenLockup" atelier="The Atelier" height="{{n32}}"></x-import></div>
+<div style="grid-column: span 4; display: flex; align-items: center; gap: 12px;"><img src="/_blob/ea41c167ec82a05c5b06ead5179c7969" alt="Hallmarked and certified seal" style="width: 64px; height: 64px;"><span class="sc" style="font-size: 15px;">Hallmarked &amp; certified</span></div>
+<p style="grid-column: span 3; margin: 0; font-size: 13px; line-height: 18px; color: #655E54;">By appointment only. Prices are indicative until the atelier confirms weight and stones.</p>
+</footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { yes: true, no: false, noop: () => {}, n16: 16, n20: 20, n24: 24, n28: 28, n32: 32, n36: 36, n40: 40, n48: 48, n56: 56, n64: 64 };
+  }
+}
+</script>
+</body>
+</html>

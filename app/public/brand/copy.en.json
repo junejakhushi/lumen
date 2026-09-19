@@ -1,0 +1,872 @@
+{
+  "global": {
+    "brand": {
+      "product_name": "Lumen",
+      "tagline": "Wear it before it's made."
+    },
+    "nav": {
+      "collection": "Collection",
+      "try_on": "Try on",
+      "look_board": "Look board",
+      "book": "Book",
+      "menu_open": "Open menu",
+      "menu_close": "Close menu",
+      "nav_aria": "Main",
+      "look_board_count_aria": "Look board, {{count}} pieces saved"
+    },
+    "footer": {
+      "atelier_line": "for {{studio_name}}",
+      "hallmark": "Hallmarked & certified",
+      "legal": "© {{year}} {{studio_name}}. Designs, images and 3D models are for private viewing only. Indicative prices include GST and may change with the gold rate.",
+      "privacy_link": "Privacy",
+      "terms_link": "Terms of viewing",
+      "contact_link": "Contact the atelier"
+    },
+    "skip_link": "Skip to content",
+    "loading": "A moment…",
+    "loading_aria": "Loading",
+    "actions": {
+      "back": "Back",
+      "close": "Close",
+      "continue": "Continue",
+      "cancel": "Cancel",
+      "save": "Save",
+      "undo": "Undo",
+      "retry": "Try again",
+      "edit": "Edit",
+      "done": "Done",
+      "learn_more": "Learn more"
+    },
+    "units": {
+      "grams": "{{value}} g",
+      "millimetres": "{{value}} mm",
+      "centimetres": "{{value}} cm",
+      "carats": "{{value}} ct",
+      "karat": "{{value}}K"
+    },
+    "price": {
+      "indicative": "Indicative {{price_low}}–{{price_high}}",
+      "on_consultation": "Price on consultation"
+    },
+    "time": {
+      "ist_line": "{{time_ist}} IST",
+      "local_line": "{{time_local}} {{tz_local}}, your time",
+      "date_time_ist": "{{date_ist}} · {{time_ist}} IST"
+    },
+    "toast_dismiss_aria": "Dismiss message"
+  },
+  "access_gate": {
+    "title": "A private viewing",
+    "body": "This preview is private.",
+    "subline": "Enter the code from your invitation to see the collection.",
+    "code_label": "Access code",
+    "code_hint": "Six letters and numbers, as written in your invitation. Not case-sensitive.",
+    "code_placeholder": "e.g. RAAG42",
+    "submit": "Enter",
+    "busy": "Checking…",
+    "request_invitation": "Request an invitation",
+    "request_invitation_helper": "The atelier will write to you, usually within a day.",
+    "errors": {
+      "wrong_code": "That code doesn't match an invitation. Check the letters and try again.",
+      "expired_code": "This code has expired. Ask the atelier for a fresh one, or request an invitation below.",
+      "too_many_attempts": "Too many tries for now. Please wait {{minutes}} minutes, then try again.",
+      "network": "We couldn't reach the atelier. Check your connection and try again.",
+      "empty": "Enter your access code to continue."
+    }
+  },
+  "welcome": {
+    "title": "Wear it before it's made.",
+    "subline": "See each piece on your own hand and ear, shape it to your taste, then talk it through with the atelier.",
+    "greeting_named": "Welcome, {{client_name}}.",
+    "path_explore": "Explore the collection",
+    "path_explore_helper": "{{count}} pieces across Heirloom, Fine and Playful.",
+    "path_try_on": "Start trying on",
+    "path_try_on_helper": "Uses your camera. Nothing leaves this device.",
+    "paths_aria": "Choose where to begin"
+  },
+  "collection": {
+    "title": "The collection",
+    "intro": "Every piece is made to order in the atelier. Try it on here, then make it yours.",
+    "intros": {
+      "heirloom": "Traditional motifs, made light enough to wear every day.",
+      "fine": "Quiet lines and single stones, for the days that ask for less.",
+      "playful": "Small pieces with a wink: stack them, mix them, lend them out."
+    },
+    "collection_names": {
+      "all": "All",
+      "heirloom": "Heirloom",
+      "fine": "Fine",
+      "playful": "Playful"
+    },
+    "filters": {
+      "heading": "Refine",
+      "open": "Filters",
+      "open_with_count": "Filters ({{count}})",
+      "collection_label": "Collection",
+      "type_label": "Type",
+      "metal_label": "Metal",
+      "metal_options": {
+        "yellow": "Yellow gold",
+        "white": "White gold",
+        "rose": "Rose gold"
+      },
+      "karat_label": "Karat",
+      "price_label": "Indicative price",
+      "price_options": {
+        "under_1l": "Under ₹1L",
+        "1_2l": "₹1–2L",
+        "2_3l": "₹2–3L",
+        "above_3l": "Above ₹3L",
+        "on_consultation": "On consultation"
+      },
+      "ar_only": "Can be tried on",
+      "apply": "Show {{count}} pieces",
+      "clear": "Clear filters"
+    },
+    "types": {
+      "all": "All",
+      "bracelets": "Bracelets",
+      "rings": "Rings",
+      "tops": "Tops",
+      "necklaces": "Necklaces",
+      "maang_tikka": "Maang tikka"
+    },
+    "types_aria": "Filter by type",
+    "ar_badge": "AR",
+    "ar_badge_aria": "Can be tried on with your camera",
+    "result_count": {
+      "zero": "No pieces",
+      "one": "{{count}} piece",
+      "other": "{{count}} pieces"
+    },
+    "result_count_simple": "{{count}} pieces",
+    "clear_filters": "Clear filters",
+    "card": {
+      "code_aria": "Piece code {{code}}",
+      "open_aria": "{{piece_name}}, {{collection}}, {{price}}",
+      "save_aria": "Save {{piece_name}} to look board",
+      "saved_aria": "Saved to look board"
+    },
+    "sort": {
+      "label": "Order",
+      "curated": "As the atelier arranged",
+      "price_low": "Price, lowest first",
+      "price_high": "Price, highest first",
+      "weight_light": "Lightest first"
+    }
+  },
+  "piece_detail": {
+    "story_heading": "The story",
+    "details_heading": "Details",
+    "spec_labels": {
+      "code": "Code",
+      "collection": "Collection",
+      "metal": "Metal",
+      "karat": "Karat",
+      "weight": "Weight",
+      "length": "Length",
+      "width": "Width",
+      "size": "Size",
+      "stones": "Stones",
+      "dimensions": "Dimensions",
+      "form": "Form"
+    },
+    "price_indicative": "Indicative {{price_low}}–{{price_high}}",
+    "price_on_consultation": "Price on consultation",
+    "price_disclaimer": "Indicative, including GST, at today's gold rate. Your final price is confirmed at consultation, once weight and stones are set.",
+    "try_on": "Try it on",
+    "try_on_unavailable": "Shown in 3D for now",
+    "customise": "Customise",
+    "complete_the_set": "Complete the set",
+    "complete_the_set_intro": "Pieces drawn from the same motif.",
+    "save_to_look_board": "Save to look board",
+    "saved_to_look_board": "Saved to look board",
+    "share": "Share",
+    "share_copied": "Link copied. It opens only with your access code.",
+    "view_in_3d": "View in 3D",
+    "made_to_order": "Made to order in {{weeks}} weeks",
+    "hallmark_note": "Hallmarked & certified",
+    "gallery_aria": "Images of {{piece_name}}",
+    "sample_title": "{{piece_name}} · {{code}}"
+  },
+  "viewer_3d": {
+    "orbit_hint": "Drag to turn. Pinch or scroll to look closer.",
+    "orbit_hint_keyboard": "Use the arrow keys to turn, plus and minus to look closer.",
+    "reset_view": "Reset view",
+    "wear_on_hand": "Wear on hand",
+    "ear_stand_caption": "Shown as a pair beside the ear stand",
+    "neck_stand_caption": "Shown on the neck stand, at true length",
+    "loading": "Bringing the piece to the light…",
+    "canvas_aria": "3D view of {{piece_name}}. Drag to turn.",
+    "weight_by_metal_heading": "Weight by metal",
+    "weight_by_metal_row": "{{metal}} {{karat}} · {{weight}} g",
+    "weight_by_metal_note": "Weights are estimated from the design and may vary by a few tenths of a gram.",
+    "price_breakdown": {
+      "heading": "How the price is made",
+      "gold_value": "Gold value",
+      "making": "Making (18%)",
+      "stones": "Stones",
+      "gst": "GST (3%)",
+      "indicative_total": "Indicative total",
+      "rate_note": "Gold value uses today's indicative 24K rate of {{gold_rate_24k}} per gram, adjusted for purity. It is not a quote.",
+      "stones_none": "None"
+    }
+  },
+  "ar": {
+    "camera_intro": {
+      "title": "Try it on",
+      "body": "We'll use your camera to place the piece on you, live.",
+      "privacy_promise": "Your camera stays on this device. Nothing is recorded or uploaded.",
+      "allow": "Allow camera",
+      "not_now": "Not now, show it in 3D"
+    },
+    "instructions": {
+      "bracelet": {
+        "step_1": "Hold your wrist in view, palm down.",
+        "step_2": "Now turn your wrist, slowly.",
+        "done": "That's it. Move as you like."
+      },
+      "ring": {
+        "step_1": "Hold your hand in view.",
+        "step_2": "Spread your fingers a little.",
+        "choose_finger": "Tap a finger to move the ring."
+      },
+      "tops": {
+        "step_1": "Face the camera, then turn a little to one side.",
+        "step_2": "Tuck your hair behind your ear."
+      },
+      "necklace": {
+        "note": "Necklaces are shown in 3D only for now. Try-on for necklaces is being made.",
+        "action": "View in 3D"
+      },
+      "maang_tikka": {
+        "note": "Maang tikkas are shown in 3D only for now.",
+        "action": "View in 3D"
+      }
+    },
+    "tracking": {
+      "finding": "Finding you…",
+      "good": "Looking good",
+      "closer": "Move a little closer",
+      "farther": "Move back a little",
+      "lost": "We've lost you for a moment. Hold still.",
+      "light": "A little more light would help.",
+      "status_aria": "Tracking status"
+    },
+    "rough_preview": {
+      "badge": "Rough preview",
+      "explainer": "A close impression, true to shape and colour; the final piece is made for you.",
+      "badge_aria": "About this preview"
+    },
+    "camera_privacy": "Your camera stays on this device. Nothing is recorded or uploaded.",
+    "controls": {
+      "close": "Close try-on",
+      "snapshot": "Take a snapshot",
+      "metal_label": "Metal",
+      "metal": {
+        "yellow": "Yellow",
+        "white": "White",
+        "rose": "Rose"
+      },
+      "karat_label": "Karat",
+      "karat": {
+        "k14": "14K",
+        "k18": "18K",
+        "k22": "22K"
+      },
+      "wrist_size": "Wrist {{cm}} cm",
+      "wrist_size_label": "Wrist size",
+      "ring_size": "IN {{in}} · US {{us}}",
+      "ring_size_label": "Ring size",
+      "switch_piece": "Switch piece",
+      "switch_piece_aria": "Choose another piece to try on",
+      "flip_camera": "Flip camera",
+      "hand_toggle": {
+        "left": "Left hand",
+        "right": "Right hand"
+      }
+    },
+    "snapshot_saved": "Snapshot saved to your look board. It stays on this device.",
+    "snapshot_saved_action": "View"
+  },
+  "customise": {
+    "sheet_title": "Make it yours",
+    "sheet_intro": "Changes here go into your design brief. The atelier confirms each one with you.",
+    "metal_colour": {
+      "label": "Metal colour",
+      "helper": "Yellow, white or rose. The shape stays the same.",
+      "options": {
+        "yellow": "Yellow gold",
+        "white": "White gold",
+        "rose": "Rose gold"
+      }
+    },
+    "karat": {
+      "label": "Karat",
+      "helper": "22K is richer in colour and softer; 18K and 14K hold stones more firmly.",
+      "options": {
+        "k14": "14K",
+        "k18": "18K",
+        "k22": "22K"
+      }
+    },
+    "stones": {
+      "label": "Stones",
+      "helper": "Keep the stones as drawn, change them, or leave them out.",
+      "options": {
+        "as_shown": "As shown",
+        "none": "No stones",
+        "diamond": "Diamond",
+        "polki": "Polki",
+        "pearl": "Pearl",
+        "coloured": "Coloured stone"
+      },
+      "placement_placeholder": "Where would you like the stone?"
+    },
+    "length_size": {
+      "label_length": "Length",
+      "label_size": "Size",
+      "helper_length": "Measured end to end, clasp included.",
+      "helper_wrist": "Measure your wrist snugly and we'll add the ease.",
+      "helper_ring": "Not sure? Bring a ring you already wear to the consultation.",
+      "unsure": "I'm not sure yet"
+    },
+    "weight_preference": {
+      "label": "Weight preference",
+      "options": {
+        "lighter": "Lighter",
+        "as_shown": "As shown",
+        "statement": "Statement"
+      },
+      "helpers": {
+        "lighter": "Slimmer walls and a hollow back, for everyday wear. Est. {{weight_low}}–{{weight_high}} g.",
+        "as_shown": "The weight as designed, {{weight}} g.",
+        "statement": "A fuller profile with more presence. Est. {{weight_low}}–{{weight_high}} g."
+      }
+    },
+    "occasion": {
+      "label": "Occasion",
+      "options": {
+        "wedding": "A wedding",
+        "own_wedding": "My own wedding",
+        "festival": "A festival",
+        "anniversary": "An anniversary",
+        "gift": "A gift",
+        "everyday": "Everyday wear",
+        "other": "Something else"
+      }
+    },
+    "notes": {
+      "label": "Notes for the atelier",
+      "placeholder": "A motif you love, an heirloom to rework, how you'll wear it…",
+      "counter": "{{count}} of 500 characters"
+    },
+    "price_update": "Indicative {{price_low}}–{{price_high}} with your changes",
+    "price_update_aria": "Indicative price updated",
+    "reset": "Back to the original",
+    "done": "Done",
+    "changes_count": {
+      "zero": "No changes yet",
+      "one": "{{count}} change",
+      "other": "{{count}} changes"
+    }
+  },
+  "look_board": {
+    "title": "Your look board",
+    "intro": "The pieces you've saved and tried on, kept together for your consultation.",
+    "book_cta": "Book a consultation with these looks",
+    "remove": "Remove",
+    "remove_aria": "Remove {{piece_name}} from look board",
+    "removed_toast": "{{piece_name}} removed.",
+    "undo": "Undo",
+    "empty_title": "Nothing saved yet",
+    "empty_body": "Save a piece, or take a snapshot while trying on, and it will wait for you here.",
+    "empty_cta": "Explore the collection",
+    "count": {
+      "one": "{{count}} piece",
+      "other": "{{count}} pieces"
+    },
+    "snapshot_label": "Snapshot · {{date}}",
+    "customised_label": "With your changes",
+    "stays_on_device": "Your look board stays on this device until you book."
+  },
+  "booking": {
+    "title": "Book a consultation",
+    "intro": "An unhurried conversation with the atelier about the pieces on your look board.",
+    "steps": {
+      "visit": "Visit",
+      "time": "Time",
+      "details": "Your details",
+      "review": "Review",
+      "progress": "Step {{current}} of {{total}}"
+    },
+    "visit_type": {
+      "label": "How would you like to meet?",
+      "in_studio": "In-studio",
+      "in_studio_helper": "At the atelier, {{studio_city}}. About 60 minutes, with the pieces in hand where we have them.",
+      "video_call": "Video call",
+      "video_call_helper": "From wherever you are. About 45 minutes; we'll send a private link."
+    },
+    "slots": {
+      "header": "Times in IST, the atelier's time",
+      "local_header": "Yours beneath · {{city}}",
+      "slot_local": "{{time_local}} {{tz_local}}",
+      "previous_week": "Earlier dates",
+      "next_week": "Later dates",
+      "none_this_day": "No times left on this day. Try another date.",
+      "slot_aria": "{{date_ist}}, {{time_ist}} IST, {{time_local}} your time",
+      "selected": "Selected"
+    },
+    "contact": {
+      "name_label": "Name",
+      "name_placeholder": "As you'd like us to address you",
+      "phone_label": "Phone",
+      "phone_helper": "With country code. We'll only use it about this consultation.",
+      "whatsapp": "I prefer WhatsApp",
+      "email_label": "Email",
+      "email_helper": "Your confirmation and design brief go here."
+    },
+    "occasion_label": "Occasion",
+    "occasion_options": {
+      "wedding": "A wedding",
+      "own_wedding": "My own wedding",
+      "festival": "A festival",
+      "anniversary": "An anniversary",
+      "gift": "A gift",
+      "everyday": "Everyday wear",
+      "other": "Something else"
+    },
+    "needed_by": {
+      "label": "Needed by",
+      "helper": "Most pieces take 4 to 6 weeks to make.",
+      "flexible": "I'm flexible"
+    },
+    "budget": {
+      "label": "Budget range",
+      "helper": "A range helps the atelier suggest what fits. It stays private.",
+      "options": {
+        "under_1l": "Under ₹1L",
+        "1_2l": "₹1–2L",
+        "2_3l": "₹2–3L",
+        "3_5l": "₹3–5L",
+        "above_5l": "Above ₹5L",
+        "open": "I'd rather discuss it"
+      }
+    },
+    "consent": {
+      "brief": "Share my look board and changes with the atelier as a design brief.",
+      "contact": "The atelier may contact me about this consultation.",
+      "updates": "Send me occasional notes about new pieces. You can stop these at any time.",
+      "privacy_note": "Your details are shared only with {{studio_name}}. Try-on images never leave your device."
+    },
+    "summary": {
+      "heading": "Your consultation",
+      "visit": "Visit",
+      "when": "When",
+      "when_value": "{{date_ist}} · {{time_ist}} IST",
+      "when_local": "{{time_local}} {{tz_local}}, your time",
+      "pieces": "Pieces",
+      "pieces_value": {
+        "one": "{{count}} piece",
+        "other": "{{count}} pieces"
+      },
+      "changes": "Your changes",
+      "occasion": "Occasion",
+      "needed_by": "Needed by",
+      "budget": "Budget",
+      "edit": "Edit"
+    },
+    "submit": "Request this consultation",
+    "submit_busy": "Sending your brief…",
+    "errors": {
+      "visit_type_required": "Choose how you'd like to meet.",
+      "slot_required": "Choose a time that suits you.",
+      "slot_taken": "Someone has just taken that time. Please choose another; we've kept everything else.",
+      "name_required": "Tell us your name.",
+      "name_too_long": "Please keep your name under 80 characters.",
+      "phone_required": "Add a phone number so the atelier can reach you.",
+      "phone_invalid": "That number doesn't look complete. Include the country code, e.g. +91.",
+      "email_required": "Add your email for the confirmation.",
+      "email_invalid": "That email doesn't look quite right. Check for a missing @ or dot.",
+      "occasion_required": "Choose an occasion, or \"Something else\".",
+      "needed_by_past": "Choose a date after today.",
+      "needed_by_too_soon": "That's sooner than most pieces can be made. We'll talk it through at your consultation.",
+      "budget_required": "Choose a range, or \"I'd rather discuss it\".",
+      "consent_required": "We need your agreement to share the brief with the atelier.",
+      "look_board_empty": "Your look board is empty. Save at least one piece to book.",
+      "submit_failed": "Your request didn't reach the atelier. Nothing is lost; try again in a moment.",
+      "summary_heading": "A few details need a look"
+    }
+  },
+  "confirmation": {
+    "title": "Your consultation is booked.",
+    "brief_line": "Your design brief is on its way to the atelier.",
+    "date_line": "{{date_ist}}",
+    "time_line": "{{time_ist}} IST",
+    "local_time_line": "{{time_local}} {{tz_local}}, your time",
+    "visit_in_studio": "In-studio at {{studio_address}}",
+    "visit_video": "Video call · the link is in your confirmation email",
+    "add_to_calendar": "Add to calendar",
+    "calendar_options": {
+      "apple": "Apple Calendar (.ics)",
+      "google": "Google Calendar",
+      "outlook": "Outlook (.ics)"
+    },
+    "download_brief": "Download your brief",
+    "email_sent": "A confirmation is on its way to {{email}}.",
+    "next_heading": "What happens next",
+    "next_steps": {
+      "one": "The atelier reads your brief and prepares your pieces, usually within a day.",
+      "two": "The day before, we'll send a reminder with everything you need.",
+      "three": "At the consultation, we'll settle sizes, stones and weight, and confirm a price.",
+      "four": "Nothing is made until you say yes."
+    },
+    "change_or_cancel": "Need to change the time? Reply to your confirmation email.",
+    "back_to_collection": "Back to the collection"
+  },
+  "empty_states": {
+    "look_board": {
+      "title": "Nothing saved yet",
+      "body": "Save a piece, or take a snapshot while trying on, and it will wait for you here.",
+      "action": "Explore the collection"
+    },
+    "no_consultations": {
+      "title": "No consultations yet",
+      "body": "When a client books, their brief will arrive here with their looks and changes.",
+      "action": "Create an access code"
+    },
+    "no_results": {
+      "title": "Nothing matches just now",
+      "body": "Try fewer filters, or another collection.",
+      "action": "Clear filters"
+    },
+    "offline": {
+      "title": "You're offline",
+      "body": "Your look board is safe on this device. We'll pick up where you left off when you're back.",
+      "action": "Try again"
+    }
+  },
+  "errors": {
+    "camera_blocked": {
+      "title": "The camera is turned off for this page",
+      "body": "To try pieces on, allow camera access for this site.",
+      "how_to": {
+        "ios_safari": "On iPhone: tap aA in the address bar, then Website settings, then Camera: Allow.",
+        "android_chrome": "On Android: tap the lock beside the address, then Permissions, then Camera: Allow.",
+        "desktop": "On a computer: click the camera or lock icon in the address bar and choose Allow."
+      },
+      "then_reload": "Then reload this page.",
+      "reload": "Reload",
+      "fallback": "View in 3D instead"
+    },
+    "device_too_slow": {
+      "title": "Try-on needs a little more from this device",
+      "body": "We'll show the piece in 3D instead, turned and lit as it would be on you.",
+      "action": "View in 3D"
+    },
+    "offline": {
+      "title": "You're offline",
+      "body": "Check your connection. Your look board is safe on this device.",
+      "action": "Try again"
+    },
+    "access_code_expired": {
+      "title": "This viewing has closed",
+      "body": "Your access code has expired. Ask the atelier for a new one.",
+      "action": "Request an invitation"
+    },
+    "not_found": {
+      "title": "This piece has wandered off the tray.",
+      "body": "It may have been moved or retired. The rest of the collection is where you left it.",
+      "action": "Back to the collection"
+    },
+    "generic": {
+      "title": "Something went wrong on our side",
+      "body": "Please try again. If it keeps happening, the atelier is a message away.",
+      "action": "Try again",
+      "reference": "Reference {{error_id}}"
+    },
+    "model_failed": {
+      "title": "The 3D view didn't load",
+      "body": "The photos and details are all here.",
+      "action": "Try again"
+    }
+  },
+  "dashboard": {
+    "passcode": {
+      "title": "The atelier",
+      "subline": "Enter your passcode to open the dashboard.",
+      "label": "Passcode",
+      "submit": "Open",
+      "busy": "Checking…",
+      "error_wrong": "That passcode isn't right. Try again.",
+      "error_locked": "Locked for {{minutes}} minutes after several tries.",
+      "remember_device": "Keep me signed in on this device for 12 hours"
+    },
+    "nav": {
+      "consultations": "Consultations",
+      "briefs": "Briefs",
+      "insights": "Insights",
+      "catalog": "Catalog",
+      "sessions": "Sessions",
+      "security": "Security",
+      "sign_out": "Sign out"
+    },
+    "consultations": {
+      "title": "Consultations",
+      "columns": {
+        "date_ist": "Date (IST)",
+        "time_ist": "Time (IST)",
+        "client_time": "Client's time",
+        "client": "Client",
+        "visit": "Visit",
+        "occasion": "Occasion",
+        "needed_by": "Needed by",
+        "budget": "Budget",
+        "pieces": "Pieces",
+        "status": "Status",
+        "brief": "Brief",
+        "actions": "Actions"
+      },
+      "status": {
+        "new": "New",
+        "confirmed": "Confirmed",
+        "completed": "Completed",
+        "no_show": "No-show"
+      },
+      "quick_confirm": "Confirm",
+      "quick_confirm_done": "Confirmed. {{client_name}} will get an email.",
+      "filters": {
+        "upcoming": "Upcoming",
+        "past": "Past",
+        "all": "All"
+      },
+      "mark_completed": "Mark completed",
+      "mark_no_show": "Mark no-show",
+      "open_brief": "Open brief",
+      "count": {
+        "zero": "No consultations",
+        "one": "{{count}} consultation",
+        "other": "{{count}} consultations"
+      }
+    },
+    "brief": {
+      "title": "Design brief {{brief_id}}",
+      "labels": {
+        "client": "Client",
+        "contact": "Contact",
+        "prefers_whatsapp": "Prefers WhatsApp",
+        "visit": "Visit",
+        "when": "When",
+        "occasion": "Occasion",
+        "needed_by": "Needed by",
+        "budget": "Budget",
+        "pieces": "Pieces",
+        "piece_code": "Code",
+        "changes": "Changes",
+        "attribute": "Attribute",
+        "original": "Original",
+        "requested": "Requested",
+        "notes": "Client's notes",
+        "snapshots": "Try-on snapshots",
+        "indicative_total": "Indicative total"
+      },
+      "snapshots_none": "The client kept their snapshots on their device.",
+      "talking_points_heading": "Talking points for the consultation",
+      "talking_points_examples": {
+        "weight": "Asked for a lighter piece: show the hollow-back option and its feel in hand.",
+        "metal": "Compared rose and yellow several times: bring both samples.",
+        "sizing": "Wrist size given, ring size unsure: have the sizing set ready."
+      },
+      "download_pdf": "Download brief (PDF)",
+      "copy_link": "Copy link",
+      "print": "Print"
+    },
+    "insights": {
+      "title": "Insights",
+      "range": {
+        "last_7": "Last 7 days",
+        "last_30": "Last 30 days",
+        "last_90": "Last 90 days"
+      },
+      "headings": {
+        "overview": "At a glance",
+        "most_tried": "Most tried on",
+        "most_saved": "Most saved",
+        "what_clients_ask": "What clients are asking for",
+        "metal_preference": "Metal preference",
+        "weight_preference": "Weight preference",
+        "budget_mix": "Budgets",
+        "occasions": "Occasions",
+        "funnel": "From viewing to booking",
+        "devices": "Devices and try-on"
+      },
+      "metrics": {
+        "sessions": "Sessions",
+        "try_ons": "Try-ons",
+        "bookings": "Bookings",
+        "avg_session": "Average session",
+        "conversion": "Viewing to booking"
+      },
+      "what_clients_ask_examples": {
+        "lighter": "Lighter versions of Heirloom pieces",
+        "rose": "Rose gold in 18K",
+        "stones": "A single small diamond added"
+      },
+      "empty": "Not enough viewings yet to show a pattern."
+    },
+    "catalog": {
+      "title": "Catalog",
+      "upload": "Add models",
+      "upload_helper": "Name each file with its type first, e.g. bracelet-quiet-river.glb.",
+      "review_heading": "Review before publishing",
+      "labels": {
+        "type_from_filename": "Type (from filename)",
+        "type_detected": "Read as {{type}} from \"{{prefix}}\"",
+        "type_options": {
+          "bracelet": "Bracelet",
+          "ring": "Ring",
+          "tops": "Tops",
+          "necklace": "Necklace",
+          "maang_tikka": "Maang tikka"
+        },
+        "override": "Override",
+        "override_helper": "Use this if the filename is wrong.",
+        "stone_settings": "Stone settings",
+        "stone_count": "Stones found",
+        "stone_material": "Stone material",
+        "segment_ends": "Segment ends",
+        "segment_ends_helper": "Where the band opens or joins, for fitting on the wrist.",
+        "connector_type": "Connector type",
+        "connector_options": {
+          "hinge": "Hinge",
+          "clasp": "Clasp",
+          "open": "Open cuff",
+          "closed": "Closed band",
+          "screw_back": "Screw back"
+        },
+        "metal_variants": "Metal variants",
+        "scale": "Real-world size",
+        "ar_enabled": "Allow try-on",
+        "code": "Code",
+        "name": "Name",
+        "collection": "Collection"
+      },
+      "approve": "Approve",
+      "hide": "Hide",
+      "unhide": "Show again",
+      "approved": "Approved",
+      "hidden": "Hidden",
+      "warnings": {
+        "no_prefix": "The filename has no type prefix. Choose a type before approving.",
+        "scale": "This model looks {{factor}}× larger than a real {{type}}. Check its units.",
+        "polycount": "This model is heavy ({{count}} triangles) and may load slowly on phones.",
+        "no_stones_found": "No stone settings were found, though the details list stones.",
+        "segment_ends_missing": "Segment ends weren't found; try-on will treat it as a closed band.",
+        "missing_price": "No indicative price. It will show as \"Price on consultation\"."
+      }
+    },
+    "sessions": {
+      "title": "Sessions",
+      "live": "Viewing now",
+      "labels": {
+        "started": "Started (IST)",
+        "duration": "Duration",
+        "duration_value": "{{minutes}} min",
+        "pieces_worn": "Pieces worn",
+        "pieces_saved": "Saved",
+        "interest_score": "Interest score",
+        "interest_score_help": "From time spent, pieces worn, changes made and return visits. Out of 100.",
+        "device": "Device",
+        "tags": "Signals",
+        "open": "Open session",
+        "location": "Region"
+      },
+      "tag_examples": {
+        "price_sensitive": "price-sensitive",
+        "undecided_metal": "undecided: rose vs yellow",
+        "booked": "booked",
+        "returning": "returning",
+        "sizing_unsure": "sizing unsure"
+      },
+      "anonymous": "Guest {{number}}",
+      "talking_points_heading": "Talking points for the consultation",
+      "empty": "No sessions yet today."
+    },
+    "security": {
+      "title": "Security",
+      "access_codes": {
+        "heading": "Access codes",
+        "create": "Create access code",
+        "revoke": "Revoke",
+        "expiry_label": "Expires",
+        "expiry_options": {
+          "d1": "In 1 day",
+          "d7": "In 7 days",
+          "d30": "In 30 days",
+          "never": "Doesn't expire"
+        },
+        "label_label": "Label",
+        "label_placeholder": "Who is this for?",
+        "uses": "Uses",
+        "created": "Created",
+        "code": "Code",
+        "copied": "Code copied.",
+        "revoked_toast": "Code revoked. Anyone using it will be asked for a new one.",
+        "expired": "Expired",
+        "active": "Active"
+      },
+      "active_sessions": {
+        "heading": "Active sessions",
+        "device": "Device",
+        "last_seen": "Last seen",
+        "code_used": "Code used",
+        "end": "End session"
+      },
+      "revoke_all": {
+        "button": "Revoke all links",
+        "confirm_title": "Revoke every link and code?",
+        "confirm_body": "Everyone viewing now will be signed out and every access code will stop working. Booked consultations are kept. You'll need to send new codes to clients.",
+        "confirm_type": "Type REVOKE to confirm",
+        "confirm_action": "Revoke all links",
+        "cancel": "Keep them",
+        "done_toast": "All links and codes are revoked."
+      },
+      "passcode": {
+        "heading": "Dashboard passcode",
+        "change": "Change passcode"
+      }
+    }
+  },
+  "hindi_accents": {
+    "gate_welcome": {
+      "hi": "स्वागत",
+      "en": "Welcome",
+      "where": "access_gate, small line above the title"
+    },
+    "welcome_namaste": {
+      "hi": "नमस्ते",
+      "en": "Hello",
+      "where": "welcome, beside the named greeting"
+    },
+    "collection_sangrah": {
+      "hi": "संग्रह",
+      "en": "Collection",
+      "where": "collection, small label above the page title"
+    },
+    "piece_karigari": {
+      "hi": "कारीगरी",
+      "en": "Craftsmanship",
+      "where": "piece_detail, beside the story heading"
+    },
+    "look_board_pasand": {
+      "hi": "पसंद",
+      "en": "Your favourites",
+      "where": "look_board, small label above the title"
+    },
+    "confirmation_shubh": {
+      "hi": "शुभ",
+      "en": "Auspicious",
+      "where": "confirmation, small line above the title"
+    }
+  }
+}

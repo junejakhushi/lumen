@@ -1,0 +1,50 @@
+<!-- @dsCard height=288 -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Quiet Heritage</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=Jost:wght@400&display=swap">
+<style>
+  html, body { margin: 0; height: 100%; }
+  body { background: var(--surface); color: var(--text); font-family: var(--font-ui); overflow: hidden; }
+  .cover { position: relative; width: 960px; height: 288px; overflow: hidden; }
+  .art { position: absolute; top: 0; left: 480px; width: 480px; height: 288px; overflow: hidden; }
+  .art svg { display: block; width: 480px; height: 288px; overflow: visible; }
+  .slab { fill: var(--text); }
+  .ruby { fill: var(--ruby); }
+  .emerald { fill: var(--emerald); }
+  .pearl { fill: var(--pearl); }
+  .blk { rx: var(--radius-sm); }
+  .rule { stroke: var(--hairline); stroke-width: var(--hairline-w); fill: none; }
+  .words { position: absolute; left: var(--space-8); bottom: var(--space-6); max-width: 440px; }
+  .name { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 96px; line-height: .95; letter-spacing: -0.015em; color: var(--text); }
+  .tag { margin: var(--space-3) 0 0 3px; font-size: 14px; line-height: 20px; color: var(--text-muted); }
+</style>
+</head>
+<body>
+<div class="cover">
+<div class="art" aria-hidden="true">
+<svg viewBox="0 0 480 288" width="480" height="288">
+<!--
+  blocks      text (ink; ivory in Evening) 208×272 slab bled off the top and right · pearl 120×144 · ruby 96×96 (the one CTA colour: small, low) · emerald 96×80 — ≈ 40% of 960×288
+  arrangement a gallery hang: one tall slab with three satellites, bottoms on one line space-6 above the edge, space-4 gutters
+  pattern     hairline rules, from "elevation is a 1px hairline" and "gold is a line, never a fill": three hairline rules at a space-16 pitch crossing blocks and ground
+  scales      sides in space-4 multiples; gutters space-4; rule pitch space-16 (64px); corners radius-sm (2px); rule width hairline-w
+-->
+<rect class="pearl blk" x="24" y="120" width="120" height="144" rx="2"/>
+<rect class="emerald blk" x="160" y="72" width="96" height="80" rx="2"/>
+<rect class="ruby blk" x="160" y="168" width="96" height="96" rx="2"/>
+<rect class="slab blk" x="272" y="-8" width="224" height="272" rx="2"/>
+<line class="rule" x1="0" y1="48" x2="480" y2="48"/>
+<line class="rule" x1="0" y1="112" x2="480" y2="112"/>
+<line class="rule" x1="0" y1="176" x2="480" y2="176"/>
+</svg>
+</div>
+<div class="words">
+<h1 class="name">Quiet<br>Heritage</h1>
+<p class="tag">Wear it before it’s made.</p>
+</div>
+</div>
+</body>
+</html>

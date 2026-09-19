@@ -1,0 +1,56 @@
+{
+ "v": 4,
+ "createdOnFiles": {
+  "v": 1,
+  "at": "2026-09-19T21:41:51Z"
+ },
+ "title": "Lumen pitch deck",
+ "order": [
+  "cover",
+  "today",
+  "problem",
+  "lumen",
+  "how",
+  "dashboard",
+  "security",
+  "thanks"
+ ],
+ "cover": "cover",
+ "sections": {
+  "s1": {
+   "description": "Who Lumen is for and the promise",
+   "start": "cover"
+  },
+  "s2": {
+   "description": "How ateliers sell today and what slows them",
+   "start": "today"
+  },
+  "s3": {
+   "description": "Lumen and how it works",
+   "start": "lumen"
+  },
+  "s4": {
+   "description": "Dashboard, security and the business",
+   "start": "dashboard"
+  }
+ },
+ "faces": {
+  "cormorant-garamond": {
+   "family": "Cormorant Garamond",
+   "href": "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&display=swap"
+  },
+  "jost": {
+   "family": "Jost",
+   "href": "https://fonts.googleapis.com/css2?family=Jost:wght@400;500&display=swap"
+  }
+ },
+ "designSystems": [
+  {
+   "title": "Quiet Heritage",
+   "namespace": "quietheritage",
+   "artifact": "https://claude.ai/artifact/MU3614cqFZH7XnmjrnrfEz",
+   "version": null,
+   "copiedAt": "2026-09-19T21:41:51Z"
+  }
+ ]
+}

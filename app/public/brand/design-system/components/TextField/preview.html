@@ -1,0 +1,28 @@
+<!-- @dsCard group="Inputs" height=422 subtitle="Label in small caps · 48px field" -->
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>TextField — preview</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@400;500&family=Tiro+Devanagari+Hindi&display=swap">
+</head>
+<body>
+<div id="root"></div>
+<script>
+var Q = window.QuietHeritage, h = React.createElement;
+function cell(cap, el, style) { return h("div", { className: "qh-demo__cell", style: style }, el, h("span", { className: "qh-demo__cap" }, cap)); }
+function row(title, kids) { return h("div", { className: "qh-demo__row" }, title ? h("p", { className: "qh-demo__h" }, title) : null, kids); }
+function evening(kids, style) { return h("div", { "data-theme": "evening", className: "qh-evening-panel", style: Object.assign({ padding: 24 }, style || {}) }, kids); }
+var STATES = ["default", "hover", "pressed", "focus", "disabled"];
+
+function App() {
+  var w = { width: 280 };
+  return h("div", { className: "qh-demo" },
+    h(Q.TextField, { label: "Full name", placeholder: "As on your invitation", style: w }),
+    h(Q.TextField, { label: "Email", defaultValue: "meera@studio.in", state: "hover", style: w, hint: "hover" }),
+    h(Q.TextField, { label: "Phone", defaultValue: "+91 98200 ", state: "focus", style: w, hint: "focus · we only call to confirm" }),
+    h(Q.TextField, { label: "Access code", defaultValue: "LUMN", error: "That code didn’t match. Check your invitation.", style: w }),
+    h(Q.TextField, { label: "Atelier", defaultValue: "Assigned after booking", disabled: true, style: w, hint: "disabled" }));
+}
+ReactDOM.createRoot(document.getElementById("root")).render(App());
+</script>
+</body>
+</html>

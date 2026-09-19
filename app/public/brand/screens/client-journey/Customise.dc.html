@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Customise sheet</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/quietheritage/tokens.css">
+<link rel="stylesheet" href="ds/quietheritage/components/bundle.css">
+<script src="ds/quietheritage/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&amp;family=Jost:wght@300;400;500&amp;family=Tiro+Devanagari+Hindi&amp;display=swap">
+<style>
+body{margin:0;background:#F5F0E8;color:#1B1916;font-family:Jost,Futura,sans-serif}
+a{color:#1B1916}a:hover{color:#6E1E2A}
+.sc{font-family:"Cormorant Garamond",Georgia,serif;font-variant-caps:all-small-caps;font-weight:600;letter-spacing:.16em;color:#655E54}
+.disp{font-family:"Cormorant Garamond",Georgia,serif;font-weight:400;margin:0}
+.num{font-variant-numeric:tabular-nums}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #F5F0E8; color: #1B1916; font-family: Jost, Futura, sans-serif; ">
+<div data-theme="evening" style="position: absolute; inset: 0; background: #2a2622; color: #F5F0E8;">
+<img src="/_blob/648bb246e053e216ae5d5c4f053e081d" alt="" style="position: absolute; inset: 0; width: 390px; height: 844px;">
+
+<div style="position: absolute; left: 0; right: 0; top: 0;"><x-import component-from-global-scope="QuietHeritage.ARTopBar" piece-name="The Quiet River" detail="Rose 18K · wrist 15.5 cm"></x-import></div>
+
+<div style="position: absolute; left: 0; right: 0; bottom: 0; height: 520px;"><x-import component-from-global-scope="QuietHeritage.BottomSheet" inline="{{yes}}" title="Customise" on-close="{{noop}}"><div style="display: flex; flex-direction: column; gap: 20px;">
+<div style="display: flex; justify-content: space-between; align-items: center;"><span style="font-size: 14px; color: #655E54;">Updates live on your wrist</span><x-import component-from-global-scope="QuietHeritage.PricePill" low="1.8" high="2.1"></x-import></div>
+<x-import component-from-global-scope="QuietHeritage.SegmentedControl" label="Metal colour" options="{{metals}}" default-value="rose"></x-import>
+<x-import component-from-global-scope="QuietHeritage.SegmentedControl" label="Karat" options="{{karats}}" default-value="18"></x-import>
+<x-import component-from-global-scope="QuietHeritage.SwatchGroup" kind="stone" label="Stones · one at the polished edge" options="{{stones}}" default-value="diamond"></x-import>
+<x-import component-from-global-scope="QuietHeritage.Stepper" label="Wrist size" min="{{n14}}" max="{{n20}}" step="{{half}}" default-value="{{w155}}" format="{{fmtCm}}" hint="Measure snugly around the wrist bone."></x-import>
+<x-import component-from-global-scope="QuietHeritage.SegmentedControl" label="Weight" options="{{weights}}" default-value="lighter"></x-import>
+<p style="margin: -12px 0 0; font-size: 13px; line-height: 18px; color: #A39C90;">Lighter: a thinner gauge, about 16–17 g. The shape stays the same.</p>
+<x-import component-from-global-scope="QuietHeritage.Select" label="Occasion" options="{{occ}}" default-value="Wedding"></x-import>
+<x-import component-from-global-scope="QuietHeritage.TextField" label="Notes for the atelier" optional="{{yes}}" placeholder="Anything we should know"></x-import>
+<x-import component-from-global-scope="QuietHeritage.Button" block="{{yes}}">Done</x-import>
+</div></x-import></div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { yes: true, no: false, noop: () => {}, n16: 16, n20: 20, n24: 24, n28: 28, n32: 32, n36: 36, n40: 40, n48: 48, n56: 56, n64: 64, metals: [{"value": "yellow", "label": "Yellow", "swatch": "var(--metal-yellow)"}, {"value": "white", "label": "White", "swatch": "var(--metal-white)"}, {"value": "rose", "label": "Rose", "swatch": "var(--metal-rose)"}], karats: [{"value": "14", "label": "14K"}, {"value": "18", "label": "18K"}, {"value": "22", "label": "22K"}], stones: ["diamond", "ruby", "emerald", "pearl"], weights: [{"value": "lighter", "label": "Lighter"}, {"value": "shown", "label": "As shown"}, {"value": "statement", "label": "Statement"}], occ: ["Wedding", "Engagement", "Anniversary", "Festival", "Everyday", "A gift"], half: 0.5, w155: 15.5, n14: 14, fmtCm: (v) => v + " cm" };
+  }
+}
+</script>
+</body>
+</html>

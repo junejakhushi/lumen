@@ -1,0 +1,28 @@
+<!-- @dsCard group="Inputs" height=360 subtitle="Consent row · 44px target" -->
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>ConsentCheckbox — preview</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@400;500&family=Tiro+Devanagari+Hindi&display=swap">
+</head>
+<body>
+<div id="root"></div>
+<script>
+var Q = window.QuietHeritage, h = React.createElement;
+function cell(cap, el, style) { return h("div", { className: "qh-demo__cell", style: style }, el, h("span", { className: "qh-demo__cap" }, cap)); }
+function row(title, kids) { return h("div", { className: "qh-demo__row" }, title ? h("p", { className: "qh-demo__h" }, title) : null, kids); }
+function evening(kids, style) { return h("div", { "data-theme": "evening", className: "qh-evening-panel", style: Object.assign({ padding: 24 }, style || {}) }, kids); }
+var STATES = ["default", "hover", "pressed", "focus", "disabled"];
+
+function App() {
+  var txt = function () { return ["I agree to the atelier using my camera for this try-on. Nothing is recorded or stored. ", h(Q.TextLink, { key: "l", href: "#" }, "Privacy")]; };
+  return h("div", { className: "qh-demo qh-demo--col", style: { maxWidth: 560 } },
+    h(Q.ConsentCheckbox, { required: true }, txt()),
+    h(Q.ConsentCheckbox, { defaultChecked: true }, "Send me a reminder the day before my consultation."),
+    h("div", { className: "qh-demo__row" },
+      cell("hover", h(Q.ConsentCheckbox, { state: "hover" }, "Hover")), cell("pressed", h(Q.ConsentCheckbox, { state: "pressed" }, "Pressed")), cell("focus", h(Q.ConsentCheckbox, { state: "focus" }, "Focus")), cell("disabled", h(Q.ConsentCheckbox, { disabled: true, defaultChecked: true }, "Disabled"))),
+    h(Q.ConsentCheckbox, { required: true, error: "Please agree before we open the camera." }, "I agree to the camera being used for this try-on."));
+}
+ReactDOM.createRoot(document.getElementById("root")).render(App());
+</script>
+</body>
+</html>

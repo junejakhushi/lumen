@@ -20,10 +20,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: App checks
-        run: |
-          if [ ! -f app/package.json ]; then echo "app not scaffolded yet"; exit 0; fi
-          cd app && npm ci && npm run typecheck --if-present && npm test --if-present
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - name: Install
+        working-directory: app
+        run: npm ci
+      - name: Typecheck
+        working-directory: app
+        run: npm run typecheck
+      - name: Lint
+        working-directory: app
+        run: npm run lint
+      - name: Test
+        working-directory: app
+        run: npm test
   pipeline:
     runs-on: ubuntu-latest
     steps:

@@ -1,0 +1,171 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Session report LUM-0042</title><style>
+@font-face{font-family:"Cormorant Garamond";src:url(fonts/cormorant-garamond-latin-400-normal.woff) format("woff");font-weight:400;font-style:normal}
+@font-face{font-family:"Cormorant Garamond";src:url(fonts/cormorant-garamond-latin-500-normal.woff) format("woff");font-weight:500;font-style:normal}
+@font-face{font-family:"Cormorant Garamond";src:url(fonts/cormorant-garamond-latin-400-italic.woff) format("woff");font-weight:400;font-style:italic}
+@font-face{font-family:"Cormorant Garamond";src:url(fonts/cormorant-garamond-latin-ext-400-normal.woff) format("woff");font-weight:400;unicode-range:U+20B9}
+@font-face{font-family:"Cormorant Garamond";src:url(fonts/cormorant-garamond-latin-ext-500-normal.woff) format("woff");font-weight:500;unicode-range:U+20B9}
+@font-face{font-family:"Rupee";src:url(fonts/cormorant-garamond-latin-ext-500-normal.woff) format("woff");unicode-range:U+20B9}
+@font-face{font-family:"Cormorant SC";src:url(fonts/cormorant-sc-latin-600-normal.woff) format("woff");font-weight:600}
+@font-face{font-family:"Jost";src:url(fonts/jost-latin-300-normal.woff) format("woff");font-weight:300}
+@font-face{font-family:"Jost";src:url(fonts/jost-latin-400-normal.woff) format("woff");font-weight:400}
+@font-face{font-family:"Jost";src:url(fonts/jost-latin-500-normal.woff) format("woff");font-weight:500}
+:root{--ivory:#F5F0E8;--ink:#1B1916;--gold:#A8844A;--gold-deep:#8C6C3A;--pearl:#E8E2D8;--stone-deep:#655E54;--quiet:#DCD3C4}
+@page{size:A4;margin:0}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--ivory)}
+body{font-family:"Jost","Rupee",sans-serif;color:var(--ink);font-size:9.5pt;line-height:1.45;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.page{position:relative;width:595.28pt;height:841.89pt;overflow:hidden;background:var(--ivory);padding:44pt 56pt 0;page-break-after:always;break-after:page}
+.page:last-child{page-break-after:auto;break-after:auto}
+.sc{font-family:"Cormorant SC",serif;font-weight:600;text-transform:lowercase;letter-spacing:.16em;font-size:9pt;line-height:1.2;color:var(--ink)}
+.muted,.sc.muted{color:var(--stone-deep)}
+.sub{font-size:8pt;color:var(--stone-deep);line-height:1.35}
+.v{font-family:"Cormorant Garamond",serif;font-weight:500;font-size:14pt;line-height:1.2}
+.v-lg{font-family:"Cormorant Garamond",serif;font-weight:500;font-size:20pt;line-height:1.15}
+.arr{display:inline-block;width:11pt;height:6.3pt;vertical-align:.08em}
+.arr-t{font-size:.9em;color:var(--stone-deep)}
+/* masthead */
+.mast{display:flex;justify-content:space-between;align-items:flex-end;padding-bottom:12pt;border-bottom:.5pt solid var(--gold)}
+.mast-l{display:flex;align-items:center;gap:10pt}
+.brand{font-family:"Cormorant Garamond",serif;font-weight:500;font-size:17pt;line-height:1;letter-spacing:.02em;margin-bottom:3pt}
+.mast-r{text-align:right}
+.docno{font-family:"Cormorant Garamond",serif;font-weight:500;font-size:26pt;line-height:1;margin-top:3pt;letter-spacing:.01em}
+.run{display:flex;align-items:center;gap:8pt;padding-bottom:9pt;border-bottom:.5pt solid var(--gold)}
+.run-r{margin-left:auto;font-size:8.5pt;color:var(--stone-deep)}
+/* meta */
+.meta{display:grid;grid-template-columns:1.1fr 1fr .8fr;border-bottom:.5pt solid var(--gold)}
+.meta .cell{padding:12pt 12pt 12pt 0}
+.meta .cell+.cell{padding-left:12pt;border-left:.5pt solid var(--gold)}
+.meta .sc{margin-bottom:5pt}
+/* hero */
+.hero{display:flex;gap:24pt;margin-top:22pt}
+.hero-l{width:284pt;flex:none}
+.arch{display:block;width:284pt;height:426pt}
+.hero-l figcaption{margin-top:8pt;text-align:center}
+.cap-sub{text-align:center;font-size:8pt;color:var(--stone-deep);margin-top:2pt}
+.hero-r{flex:1;display:flex;flex-direction:column;justify-content:space-between}
+.tile45{width:140pt;height:175pt;border:.5pt solid var(--gold)}
+.tile45 svg{display:block;width:100%;height:100%}
+.orig figcaption{margin-top:6pt}
+.orig figcaption .sc{display:inline}
+.piece-id .sc.muted{margin-bottom:6pt}
+.lyr{font-family:"Cormorant Garamond",serif;font-weight:400;font-size:40pt;line-height:1.02;letter-spacing:-.005em}
+.code{margin-top:8pt}
+.rule-short{width:36pt;border-top:.5pt solid var(--gold);margin:12pt 0 10pt}
+.story{font-family:"Cormorant Garamond",serif;font-style:italic;font-size:12.5pt;line-height:1.35;max-width:175pt}
+/* sections */
+.sec-h{margin-top:20pt;margin-bottom:6pt;display:flex;align-items:baseline;gap:12pt}
+.sec-h h2{font-family:"Cormorant Garamond",serif;font-weight:500;font-size:20pt;line-height:1.1}
+.p3 .sec-h{flex-direction:column;gap:6pt;align-items:flex-start}
+.p3 .sec-h h2{font-size:24pt}
+table{border-collapse:collapse;width:100%}
+th,td{text-align:left;vertical-align:baseline;font-weight:400}
+.spec tr{border-bottom:.5pt solid var(--gold)}
+.spec tr:first-child{border-top:.5pt solid var(--gold)}
+.spec th{width:118pt;padding:5pt 0 4.5pt;color:var(--stone-deep)}
+.spec td{padding:5pt 0 4.5pt}
+.chg thead tr{border-top:.5pt solid var(--gold);border-bottom:.75pt solid var(--gold-deep)}
+.chg thead th{padding:6pt 0 5pt;color:var(--stone-deep)}
+.chg tbody tr{border-bottom:.5pt solid var(--gold)}
+.chg th.sc{width:118pt}
+.chg tbody th{padding:6pt 0 5.5pt;color:var(--stone-deep)}
+.chg td{padding:6pt 0 5.5pt}
+.chg td.o{width:130pt;color:var(--stone-deep)}
+.chg .a{width:26pt}
+.notes{font-family:"Cormorant Garamond",serif;font-style:italic;font-size:13pt;line-height:1.42;border-left:.5pt solid var(--gold);padding:2pt 0 2pt 14pt;margin-top:4pt}
+.three{display:grid;grid-template-columns:repeat(3,1fr);border-top:.5pt solid var(--gold);border-bottom:.5pt solid var(--gold);margin-top:20pt}
+.three>div{padding:10pt 12pt 11pt}
+.three>div:first-child{padding-left:0}
+.three>div+div{border-left:.5pt solid var(--gold)}
+.three .sc{margin-bottom:5pt;color:var(--stone-deep)}
+.three .v{font-size:16pt}
+.price{display:flex;gap:24pt;align-items:flex-end;margin-top:16pt}
+.price-l .sc{color:var(--stone-deep);margin-bottom:4pt}
+.price-v{font-family:"Cormorant Garamond",serif;font-weight:500;font-size:28pt;line-height:1.05;white-space:nowrap}
+.price-r{flex:1}
+.disc{font-size:8pt;color:var(--stone-deep);line-height:1.45;margin-top:4pt}
+/* looks */
+.intro{font-size:9pt;color:var(--stone-deep);max-width:330pt;margin-bottom:14pt}
+.looks{display:grid;grid-template-columns:1fr 1fr;column-gap:24pt;row-gap:20pt}
+.look-img{height:170pt;border:.5pt solid var(--gold);background:var(--ivory)}
+.look-img svg{display:block;width:100%;height:100%}
+.look-t{padding-top:9pt}
+.look h3{font-family:"Cormorant Garamond",serif;font-weight:500;font-size:19pt;line-height:1.1;margin:3pt 0 2pt}
+.cfg{font-size:9pt}
+.look-f{display:flex;justify-content:space-between;align-items:baseline;margin-top:6pt;padding-top:6pt;border-top:.5pt solid var(--gold)}
+.lp{font-family:"Cormorant Garamond",serif;font-weight:500;font-size:12.5pt}
+/* session report */
+.sr .sec-h{margin-top:16pt;margin-bottom:5pt}
+.strip{display:grid;grid-template-columns:1.55fr .9fr 1.05fr .95fr 1.2fr .95fr;border-bottom:.5pt solid var(--gold)}
+.strip>div{padding:11pt 6pt 11pt 8pt}
+.strip>div:first-child{padding-left:0}
+.strip>div+div{border-left:.5pt solid var(--gold)}
+.strip .sc{color:var(--stone-deep);margin-bottom:5pt;font-size:8pt;letter-spacing:.12em;white-space:nowrap}
+.strip .v{font-size:17pt;line-height:1.1}
+.strip>div:first-child .v{font-size:13pt}
+.of{font-size:10pt;color:var(--stone-deep)}
+.pp thead tr{border-top:.5pt solid var(--gold);border-bottom:.75pt solid var(--gold-deep)}
+.pp th{padding:5pt 8pt 4pt 0;color:var(--stone-deep);font-size:8.5pt}
+.pp tbody tr{border-bottom:.5pt solid var(--gold)}
+.pp td{padding:5pt 8pt 4.5pt 0;font-size:8.5pt;line-height:1.35}
+.pp td:first-child{width:128pt}
+.pp .num{width:58pt;font-variant-numeric:tabular-nums}
+.pp td:nth-child(3){width:128pt}
+.pp td:last-child,.pp th:last-child{padding-right:0}
+.pn{font-family:"Cormorant Garamond",serif;font-weight:500;font-size:11.5pt}
+.code-s{font-size:7.5pt;color:var(--stone-deep);letter-spacing:.04em}
+.tl{position:relative;display:grid;grid-template-columns:repeat(5,1fr);margin-top:6pt}
+.tl-line{position:absolute;left:10%;right:10%;top:17.5pt;border-top:.5pt solid var(--gold)}
+.tl-n{text-align:center;padding:0 4pt}
+.tl-n .sc{font-size:8pt;height:12pt}
+.dot{position:relative;width:8pt;height:8pt;margin:0 auto 7pt;border:.75pt solid var(--gold-deep);border-radius:50%;background:var(--ivory)}
+.tl-n.fin .dot{width:11pt;height:11pt;margin-top:-1.5pt;margin-bottom:5.5pt}
+.tl-n.fin .dot::after{content:"";position:absolute;inset:2pt;border:.5pt solid var(--gold-deep);border-radius:50%}
+.tl-s{font-family:"Cormorant SC",serif;font-weight:600;text-transform:lowercase;letter-spacing:.14em;font-size:8.5pt;color:var(--stone-deep)}
+.tl-d{font-size:8.5pt;line-height:1.35;margin-top:2pt;min-height:23pt}
+.tl-p{font-family:"Cormorant Garamond",serif;font-weight:500;font-size:12.5pt;margin-top:2pt}
+.sig{display:grid;grid-template-columns:1fr 1fr;column-gap:24pt;border-top:.5pt solid var(--gold)}
+.sig>div{padding:6pt 0 6pt;border-bottom:.5pt solid var(--gold)}
+.sig-h{font-family:"Cormorant Garamond",serif;font-weight:500;font-size:12.5pt;line-height:1.2}
+.sig-e{font-size:8.5pt;color:var(--stone-deep);line-height:1.4;margin-top:1pt}
+.tp{list-style:none}
+.tp li{position:relative;padding:3pt 0 3pt 16pt;font-size:9pt;line-height:1.4}
+.tp li::before{content:"";position:absolute;left:2pt;top:7.4pt;width:4pt;height:4pt;border:.75pt solid var(--gold);transform:rotate(45deg)}
+/* footer */
+.foot{position:absolute;left:56pt;right:56pt;bottom:30pt;height:68pt;padding-top:12pt;border-top:.5pt solid var(--gold);display:flex;align-items:center;justify-content:space-between}
+.foot-l{width:170pt}
+.atelier{font-family:"Jost",sans-serif;font-weight:300;font-size:10.5pt;line-height:1.2}
+.conf{font-size:7.5pt;color:var(--stone-deep);margin-top:3pt;letter-spacing:.01em}
+.foot-c{display:flex;align-items:center;gap:7pt}
+.foot-c .sc{font-size:8.5pt;white-space:nowrap}
+.seal{display:block;width:24pt;height:24pt}
+.seal svg{display:block}
+.foot-r{display:flex;align-items:center;gap:14pt;width:170pt;justify-content:flex-end}
+.pno{font-size:8.5pt;font-variant-numeric:tabular-nums;letter-spacing:.04em;line-height:1}
+.qr{position:relative;width:56pt;height:56pt;border:.5pt solid var(--gold-deep);flex:none}
+.qr .f{position:absolute;width:13pt;height:13pt;border:.5pt solid var(--gold-deep)}
+.qr .f b{position:absolute;left:3.5pt;top:3.5pt;width:5pt;height:5pt;border:.5pt solid var(--gold-deep)}
+.qr .ftl{left:4pt;top:4pt}.qr .ftr{right:4pt;top:4pt}.qr .fbl{left:4pt;bottom:4pt}
+.qr .sc{position:absolute;right:7pt;bottom:6pt;font-size:8pt;color:var(--stone-deep)}
+.rs{font-family:"Cormorant Garamond",serif;font-weight:500}
+.sub .rs,.sig-e .rs,.disc .rs{font-size:1.12em;line-height:1}
+</style></head><body><section class="page sr"><header class="mast">
+  <div class="mast-l"><svg class="mono" style="width:30pt;height:30pt" viewBox="0 0 32 32" aria-label="Lumen monogram"><g transform="translate(-2 -0.6)" fill="none" stroke="#A8844A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 8C9.5 6 12 5.5 12 7.5V21A4 4 0 0 0 16 25H21.5"/><circle cx="24" cy="25" r="2.5"/></g></svg><div><div class="brand">Lumen</div><div class="sc muted">Companion to design brief LUM-0042</div></div></div>
+  <div class="mast-r"><div class="sc ">Session report no.</div><div class="docno">LUM-0042</div></div>
+</header>
+<div class="strip"><div><div class="sc ">Session</div><div class="v">Sat 19 Sep 2026</div><div class="sub">9:12 PM IST · 11:42 AM EDT</div></div><div><div class="sc ">Duration</div><div class="v">18 min</div></div><div><div class="sc ">Pieces worn</div><div class="v">4</div></div><div><div class="sc ">Snapshots</div><div class="v">6</div></div><div><div class="sc ">Interest score</div><div class="v">86<span class="of">/100</span></div></div><div><div class="sc ">Outcome</div><div class="v">Booked</div></div></div>
+<div class="sec-h"><span class="sc">i · Pieces worn</span></div>
+<table class="pp"><thead><tr><th class="sc">Piece</th><th class="sc num">AR time</th><th class="sc">Customisations</th><th class="sc">Final configuration</th></tr></thead>
+<tbody><tr><td><span class="pn">The Quiet River</span> <span class="code-s">LX-104</span></td><td class="num">8 min 20 s</td><td>9 (metal 5, size 2, weight 1, stone 1)</td><td>Rose gold 18K · Wrist 15.5 cm · Lighter · 1 diamond</td></tr><tr><td><span class="pn">Temple Dawn</span> <span class="code-s">LX-130</span></td><td class="num">3 min 10 s</td><td>2 (karat 22K <span class="arr-t">and</span> 18K, back to 22K)</td><td>Yellow gold 22K · 2.4 (61 mm)</td></tr><tr><td><span class="pn">Courtyard Rain</span> <span class="code-s">LX-122</span></td><td class="num">2 min 30 s</td><td>1 (size 17 <svg class="arr" viewBox="0 0 14 8" aria-label="to"><path d="M0.5 4H13M9.5 0.8L13 4L9.5 7.2" fill="none" stroke="#8C6C3A" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/></svg> 16 cm)</td><td>White gold 18K · Wrist 16 cm</td></tr><tr><td><span class="pn">First Light</span> <span class="code-s">LX-301</span></td><td class="num">1 min 20 s</td><td>None</td><td>White gold 18K · IN 12 · US 6</td></tr></tbody></table>
+<div class="sec-h"><span class="sc">ii · Configuration journey · The Quiet River</span></div>
+<div class="tl"><div class="tl-line"></div><div class="tl-n"><div class="sc muted">Start</div><div class="dot"></div><div class="tl-s">As catalogued</div><div class="tl-d">Yellow 18K<br>Wrist 16.5 cm</div><div class="tl-p"><span class="rs">₹1.9–2.2L</span></div></div><div class="tl-n"><div class="sc muted">Step 1</div><div class="dot"></div><div class="tl-s">Metal</div><div class="tl-d">Yellow 18K <svg class="arr" viewBox="0 0 14 8" aria-label="to"><path d="M0.5 4H13M9.5 0.8L13 4L9.5 7.2" fill="none" stroke="#8C6C3A" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/></svg> Rose 18K</div><div class="tl-p"><span class="rs">₹1.9–2.2L</span></div></div><div class="tl-n"><div class="sc muted">Step 2</div><div class="dot"></div><div class="tl-s">Size</div><div class="tl-d">16.5 <svg class="arr" viewBox="0 0 14 8" aria-label="to"><path d="M0.5 4H13M9.5 0.8L13 4L9.5 7.2" fill="none" stroke="#8C6C3A" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/></svg> 15.5 cm</div><div class="tl-p"><span class="rs">₹1.85–2.15L</span></div></div><div class="tl-n"><div class="sc muted">Step 3</div><div class="dot"></div><div class="tl-s">Weight</div><div class="tl-d">Lighter<br>est. 16–17 g</div><div class="tl-p"><span class="rs">₹1.7–1.95L</span></div></div><div class="tl-n fin"><div class="sc muted">Step 4</div><div class="dot"></div><div class="tl-s">Stone</div><div class="tl-d">+ one 2 mm<br>diamond</div><div class="tl-p"><span class="rs">₹1.8–2.1L</span></div></div></div>
+<div class="sec-h"><span class="sc">iii · Derived signals</span></div>
+<div class="sig"><div><div class="sig-h">Undecided: rose vs yellow</div><div class="sig-e">Switched metal 5 times; 62% of AR time on the cuff was in rose.</div></div><div><div class="sig-h">Weight-conscious</div><div class="sig-e">Chose “Lighter” 40 s after opening weight; opened the weight note twice.</div></div><div><div class="sig-h">Within budget, with room</div><div class="sig-e">Final range <span class="rs">₹1.8–2.1L</span> sits under the stated <span class="rs">₹2–3L</span> budget.</div></div><div><div class="sig-h">Fixed date, calm lead time</div><div class="sig-e">Needed by 12 Dec 2026: about 11 weeks after the consultation.</div></div></div>
+<div class="sec-h"><span class="sc">iv · Talking points for the consultation</span></div>
+<ul class="tp"><li>Show rose and yellow side by side on camera, in warm light, before discussing price.</li><li>Confirm the wrist at 15.5 cm with a tape on the call; explain how the cuff opening flexes.</li><li>Explain what “lighter” means in hand: a thinner gauge, est. 16–17 g, and how it wears over three days.</li><li>Walk through the 2 mm diamond at the polished edge: setting, sparkle at arm’s length, effect on range.</li><li>Note Temple Dawn was worn with the cuff; ask whether it is part of the same wedding look.</li></ul><footer class="foot">
+  <div class="foot-l"><div class="atelier">for {{studio_name}}</div><div class="conf">Confidential — prepared for the atelier</div></div>
+  <div class="foot-c"><span class="seal"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%" aria-hidden="true" role="img" aria-label="Hallmarked · Certified seal">
+<g fill="none" stroke="#A8844A" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><circle cx="60" cy="60" r="58.5"/><circle cx="60" cy="60" r="56"/><circle cx="60" cy="60" r="41"/><path d="M60 49 L67 56 L60 71 L53 56 Z M53 56 H67 M57 52.5 L60 56 L63 52.5 M60 56 V71"/></g><g fill="#A8844A"><path transform="translate(26.39 29.33) rotate(-47.61)" d="M0.68 -5.24Q0.65 -5.24 0.65 -5.31Q0.65 -5.38 0.68 -5.38L1.21 -5.37Q1.67 -5.35 1.96 -5.35Q2.24 -5.35 2.7 -5.37L3.24 -5.38Q3.27 -5.38 3.27 -5.31Q3.27 -5.24 3.24 -5.24Q2.89 -5.24 2.73 -5.18Q2.57 -5.12 2.51 -4.96Q2.44 -4.8 2.44 -4.45V-0.93Q2.44 -0.59 2.5 -0.42Q2.56 -0.25 2.73 -0.2Q2.89 -0.14 3.24 -0.14Q3.27 -0.14 3.27 -0.07Q3.27 0 3.24 0Q2.89 0 2.7 -0.01L1.96 -0.02L1.22 -0.01Q1.03 0 0.68 0Q0.65 0 0.65 -0.07Q0.65 -0.14 0.68 -0.14Q1.03 -0.14 1.18 -0.2Q1.34 -0.25 1.4 -0.42Q1.45 -0.59 1.45 -0.93V-4.43Q1.45 -4.77 1.4 -4.94Q1.34 -5.11 1.18 -5.17Q1.02 -5.24 0.68 -5.24ZM-2 -2.85H1.9V-2.58H-2ZM-3.24 -5.24Q-3.26 -5.24 -3.26 -5.31Q-3.26 -5.38 -3.24 -5.38L-2.69 -5.37Q-2.23 -5.35 -1.97 -5.35Q-1.67 -5.35 -1.21 -5.37L-0.68 -5.38Q-0.66 -5.38 -0.66 -5.31Q-0.66 -5.24 -0.68 -5.24Q-1.02 -5.24 -1.18 -5.17Q-1.35 -5.11 -1.41 -4.94Q-1.47 -4.77 -1.47 -4.43V-0.93Q-1.47 -0.59 -1.41 -0.42Q-1.35 -0.25 -1.19 -0.2Q-1.03 -0.14 -0.68 -0.14Q-0.66 -0.14 -0.66 -0.07Q-0.66 0 -0.68 0Q-1.03 0 -1.22 -0.01L-1.97 -0.02L-2.69 -0.01Q-2.89 0 -3.25 0Q-3.27 0 -3.27 -0.07Q-3.27 -0.14 -3.25 -0.14Q-2.9 -0.14 -2.74 -0.2Q-2.57 -0.25 -2.51 -0.42Q-2.46 -0.59 -2.46 -0.93V-4.45Q-2.46 -4.8 -2.51 -4.96Q-2.57 -5.12 -2.74 -5.18Q-2.9 -5.24 -3.24 -5.24Z"/><path transform="translate(33.09 23.31) rotate(-36.26)" d="M-1.1 -2.78H1.01L1.09 -2.52H-1.27ZM3.2 0Q2.97 0 2.49 -0.02Q2.01 -0.05 1.8 -0.05Q1.6 -0.05 1.24 -0.02Q0.87 0 0.71 0Q0.66 0 0.66 -0.07Q0.66 -0.14 0.71 -0.14Q0.98 -0.14 1.1 -0.21Q1.22 -0.28 1.22 -0.43Q1.22 -0.59 1.05 -0.97L-0.5 -4.32L-0.07 -4.99L-1.56 -1.41Q-1.75 -0.93 -1.75 -0.68Q-1.75 -0.39 -1.55 -0.26Q-1.35 -0.14 -0.94 -0.14Q-0.88 -0.14 -0.88 -0.07Q-0.88 0 -0.94 0Q-1.1 0 -1.4 -0.02Q-1.72 -0.05 -2 -0.05Q-2.28 -0.05 -2.67 -0.02Q-3.02 0 -3.24 0Q-3.29 0 -3.29 -0.07Q-3.29 -0.14 -3.24 -0.14Q-2.88 -0.14 -2.66 -0.24Q-2.44 -0.34 -2.26 -0.63Q-2.08 -0.91 -1.82 -1.52L-0.12 -5.55Q-0.1 -5.6 -0.05 -5.6Q-0.01 -5.6 0.01 -5.55L1.86 -1.58Q2.14 -0.95 2.33 -0.66Q2.52 -0.36 2.71 -0.25Q2.9 -0.14 3.2 -0.14Q3.25 -0.14 3.25 -0.07Q3.25 0 3.2 0Z"/><path transform="translate(40 19.13) rotate(-26.08)" d="M0.22 -0.22H0.56Q1.2 -0.22 1.68 -0.63Q2.16 -1.05 2.37 -1.75Q2.37 -1.77 2.43 -1.77Q2.45 -1.77 2.48 -1.75Q2.51 -1.74 2.51 -1.72Q2.43 -1.15 2.43 -0.17Q2.43 -0.08 2.39 -0.04Q2.35 0 2.25 0H-2.31Q-2.33 0 -2.33 -0.07Q-2.33 -0.14 -2.31 -0.14Q-1.99 -0.14 -1.84 -0.2Q-1.69 -0.25 -1.63 -0.42Q-1.58 -0.59 -1.58 -0.93V-4.45Q-1.58 -4.8 -1.63 -4.96Q-1.69 -5.12 -1.84 -5.18Q-1.99 -5.24 -2.31 -5.24Q-2.33 -5.24 -2.33 -5.31Q-2.33 -5.38 -2.31 -5.38L-1.76 -5.37Q-1.3 -5.35 -1.05 -5.35Q-0.75 -5.35 -0.29 -5.37L0.23 -5.38Q0.26 -5.38 0.26 -5.31Q0.26 -5.24 0.23 -5.24Q-0.13 -5.24 -0.3 -5.18Q-0.47 -5.12 -0.53 -4.95Q-0.59 -4.78 -0.59 -4.44V-0.98Q-0.59 -0.52 -0.43 -0.37Q-0.28 -0.22 0.22 -0.22Z"/><path transform="translate(47.03 16.39) rotate(-16.56)" d="M0.22 -0.22H0.56Q1.2 -0.22 1.68 -0.63Q2.16 -1.05 2.37 -1.75Q2.37 -1.77 2.43 -1.77Q2.45 -1.77 2.48 -1.75Q2.51 -1.74 2.51 -1.72Q2.43 -1.15 2.43 -0.17Q2.43 -0.08 2.39 -0.04Q2.35 0 2.25 0H-2.31Q-2.33 0 -2.33 -0.07Q-2.33 -0.14 -2.31 -0.14Q-1.99 -0.14 -1.84 -0.2Q-1.69 -0.25 -1.63 -0.42Q-1.58 -0.59 -1.58 -0.93V-4.45Q-1.58 -4.8 -1.63 -4.96Q-1.69 -5.12 -1.84 -5.18Q-1.99 -5.24 -2.31 -5.24Q-2.33 -5.24 -2.33 -5.31Q-2.33 -5.38 -2.31 -5.38L-1.76 -5.37Q-1.3 -5.35 -1.05 -5.35Q-0.75 -5.35 -0.29 -5.37L0.23 -5.38Q0.26 -5.38 0.26 -5.31Q0.26 -5.24 0.23 -5.24Q-0.13 -5.24 -0.3 -5.18Q-0.47 -5.12 -0.53 -4.95Q-0.59 -4.78 -0.59 -4.44V-0.98Q-0.59 -0.52 -0.43 -0.37Q-0.28 -0.22 0.22 -0.22Z"/><path transform="translate(55.68 14.71) rotate(-5.45)" d="M-2.71 -5.13 -2.48 -5.09 -2.56 -1.39Q-2.58 -0.74 -2.37 -0.44Q-2.17 -0.14 -1.74 -0.14Q-1.7 -0.14 -1.7 -0.07Q-1.7 0 -1.74 0Q-2 0 -2.15 -0.01L-2.68 -0.02L-3.21 -0.01Q-3.36 0 -3.66 0Q-3.68 0 -3.68 -0.07Q-3.68 -0.14 -3.66 -0.14Q-3.21 -0.14 -3.01 -0.44Q-2.81 -0.74 -2.79 -1.39ZM3.6 0Q3.29 0 3.1 -0.01L2.41 -0.02L1.63 -0.01Q1.44 0 1.09 0Q1.07 0 1.07 -0.07Q1.07 -0.14 1.09 -0.14Q1.46 -0.14 1.63 -0.2Q1.81 -0.26 1.86 -0.43Q1.92 -0.59 1.9 -0.93L1.7 -4.9L1.99 -5.24L-0.14 -0.08Q-0.16 -0.03 -0.22 -0.03Q-0.29 -0.03 -0.31 -0.08L-2.54 -4.43Q-2.78 -4.9 -3.05 -5.07Q-3.31 -5.24 -3.6 -5.24Q-3.63 -5.24 -3.63 -5.31Q-3.63 -5.38 -3.6 -5.38L-2.76 -5.37L-2.1 -5.38Q-1.96 -5.38 -1.86 -5.27Q-1.76 -5.16 -1.56 -4.78L0.23 -1.3L-0.23 -0.4L1.7 -5.09Q1.75 -5.22 1.85 -5.3Q1.94 -5.38 2.05 -5.38L2.73 -5.37L3.56 -5.38Q3.59 -5.38 3.59 -5.31Q3.59 -5.24 3.56 -5.24Q3.1 -5.24 2.92 -5.09Q2.73 -4.93 2.75 -4.47L2.93 -0.93Q2.96 -0.57 3 -0.41Q3.05 -0.25 3.18 -0.2Q3.31 -0.14 3.6 -0.14Q3.62 -0.14 3.62 -0.07Q3.62 0 3.6 0Z"/><path transform="translate(65.01 14.78) rotate(6.32)" d="M-1.1 -2.78H1.01L1.09 -2.52H-1.27ZM3.2 0Q2.97 0 2.49 -0.02Q2.01 -0.05 1.8 -0.05Q1.6 -0.05 1.24 -0.02Q0.87 0 0.71 0Q0.66 0 0.66 -0.07Q0.66 -0.14 0.71 -0.14Q0.98 -0.14 1.1 -0.21Q1.22 -0.28 1.22 -0.43Q1.22 -0.59 1.05 -0.97L-0.5 -4.32L-0.07 -4.99L-1.56 -1.41Q-1.75 -0.93 -1.75 -0.68Q-1.75 -0.39 -1.55 -0.26Q-1.35 -0.14 -0.94 -0.14Q-0.88 -0.14 -0.88 -0.07Q-0.88 0 -0.94 0Q-1.1 0 -1.4 -0.02Q-1.72 -0.05 -2 -0.05Q-2.28 -0.05 -2.67 -0.02Q-3.02 0 -3.24 0Q-3.29 0 -3.29 -0.07Q-3.29 -0.14 -3.24 -0.14Q-2.88 -0.14 -2.66 -0.24Q-2.44 -0.34 -2.26 -0.63Q-2.08 -0.91 -1.82 -1.52L-0.12 -5.55Q-0.1 -5.6 -0.05 -5.6Q-0.01 -5.6 0.01 -5.55L1.86 -1.58Q2.14 -0.95 2.33 -0.66Q2.52 -0.36 2.71 -0.25Q2.9 -0.14 3.2 -0.14Q3.25 -0.14 3.25 -0.07Q3.25 0 3.2 0Z"/><path transform="translate(73.34 16.5) rotate(17.05)" d="M-0.18 0Q-0.52 0 -0.71 -0.01L-1.47 -0.02L-2.18 -0.01Q-2.39 0 -2.75 0Q-2.77 0 -2.77 -0.07Q-2.77 -0.14 -2.75 -0.14Q-2.4 -0.14 -2.24 -0.2Q-2.08 -0.25 -2.02 -0.42Q-1.97 -0.59 -1.97 -0.93V-4.45Q-1.97 -4.8 -2.02 -4.96Q-2.08 -5.12 -2.24 -5.18Q-2.4 -5.24 -2.74 -5.24Q-2.76 -5.24 -2.76 -5.31Q-2.76 -5.38 -2.74 -5.38L-2.17 -5.37Q-1.74 -5.35 -1.47 -5.35Q-1.25 -5.35 -1.07 -5.36Q-0.89 -5.37 -0.75 -5.38Q-0.37 -5.42 -0.06 -5.42Q0.79 -5.42 1.24 -5.13Q1.68 -4.84 1.68 -4.3Q1.68 -3.83 1.37 -3.43Q1.06 -3.02 0.52 -2.79Q-0.02 -2.55 -0.67 -2.55Q-1.03 -2.55 -1.3 -2.6L-1.31 -2.84Q-1.02 -2.76 -0.59 -2.76Q0.09 -2.76 0.36 -3.07Q0.62 -3.38 0.62 -3.99Q0.62 -5.21 -0.33 -5.21Q-0.71 -5.21 -0.83 -5.05Q-0.94 -4.9 -0.94 -4.43V-0.93Q-0.94 -0.57 -0.89 -0.41Q-0.84 -0.25 -0.68 -0.2Q-0.53 -0.14 -0.18 -0.14Q-0.16 -0.14 -0.16 -0.07Q-0.16 0 -0.18 0ZM3.3 0H1.6Q1.41 0 0.93 -0.72Q0.44 -1.44 -0.22 -2.67L0.59 -2.91Q1.23 -1.83 1.68 -1.24Q2.14 -0.64 2.51 -0.39Q2.89 -0.14 3.3 -0.14Q3.34 -0.14 3.34 -0.07Q3.34 0 3.3 0Z"/><path transform="translate(81.17 19.72) rotate(27.72)" d="M-2.79 -0.14Q-2.44 -0.14 -2.28 -0.2Q-2.11 -0.25 -2.05 -0.42Q-2 -0.59 -2 -0.93V-4.45Q-2 -4.8 -2.05 -4.96Q-2.11 -5.12 -2.28 -5.18Q-2.44 -5.24 -2.78 -5.24Q-2.8 -5.24 -2.8 -5.31Q-2.8 -5.38 -2.78 -5.38L-2.23 -5.37Q-1.77 -5.35 -1.51 -5.35Q-1.21 -5.35 -0.75 -5.37L-0.22 -5.38Q-0.2 -5.38 -0.2 -5.31Q-0.2 -5.24 -0.22 -5.24Q-0.56 -5.24 -0.72 -5.17Q-0.89 -5.11 -0.95 -4.94Q-1.01 -4.77 -1.01 -4.43V-0.93Q-1.01 -0.59 -0.95 -0.42Q-0.89 -0.25 -0.73 -0.2Q-0.57 -0.14 -0.22 -0.14Q-0.2 -0.14 -0.2 -0.07Q-0.2 0 -0.22 0Q-0.57 0 -0.76 -0.01L-1.51 -0.02L-2.23 -0.01Q-2.43 0 -2.79 0Q-2.81 0 -2.81 -0.07Q-2.81 -0.14 -2.79 -0.14ZM0.19 -1.67 -0.71 -2.85 0.01 -3.53 0.97 -2.28Q1.74 -1.26 2.1 -0.85Q2.46 -0.43 2.69 -0.28Q2.93 -0.14 3.24 -0.14Q3.27 -0.14 3.27 -0.07Q3.27 0 3.24 0H1.81Q1.47 0 1.39 -0.04Q1.32 -0.08 0.99 -0.57Q0.66 -1.06 0.19 -1.67ZM1.01 -5.04Q1.01 -5.24 0.59 -5.24Q0.56 -5.24 0.56 -5.31Q0.56 -5.38 0.59 -5.38L1.04 -5.37Q1.45 -5.35 1.85 -5.35Q2.34 -5.35 2.71 -5.37Q2.81 -5.38 2.96 -5.38Q3 -5.38 3 -5.31Q3 -5.24 2.96 -5.24Q2.54 -5.24 1.9 -4.95Q1.26 -4.66 0.79 -4.2L-1.34 -2.08L-1.68 -2.13L0.53 -4.35Q1.01 -4.8 1.01 -5.04Z"/><path transform="translate(87.9 24.06) rotate(37.83)" d="M-2.3 -0.14Q-1.96 -0.14 -1.79 -0.2Q-1.63 -0.25 -1.58 -0.42Q-1.52 -0.59 -1.52 -0.93V-4.45Q-1.52 -4.8 -1.58 -4.96Q-1.63 -5.12 -1.79 -5.18Q-1.96 -5.24 -2.3 -5.24Q-2.32 -5.24 -2.32 -5.31Q-2.32 -5.38 -2.3 -5.38H1.77Q1.89 -5.38 1.89 -5.29L1.9 -4.58Q1.91 -4.36 1.91 -4.03Q1.91 -3.99 1.85 -3.99Q1.78 -3.99 1.77 -4.03Q1.61 -4.54 1.2 -4.89Q0.79 -5.23 0.32 -5.23H0.16Q-0.15 -5.23 -0.29 -5.17Q-0.43 -5.11 -0.48 -4.95Q-0.53 -4.78 -0.53 -4.44V-0.98Q-0.53 -0.63 -0.48 -0.47Q-0.43 -0.31 -0.29 -0.25Q-0.15 -0.18 0.16 -0.18H0.44Q0.95 -0.18 1.43 -0.57Q1.9 -0.95 2.1 -1.53Q2.12 -1.56 2.17 -1.56Q2.23 -1.56 2.23 -1.53Q2.15 -0.7 2.15 -0.17Q2.15 -0.08 2.12 -0.04Q2.08 0 1.98 0H-2.3Q-2.32 0 -2.32 -0.07Q-2.32 -0.14 -2.3 -0.14ZM-0.97 -2.61V-2.88Q0.28 -2.88 0.76 -2.94Q1.25 -3 1.31 -3Q1.35 -3 1.36 -2.92Q1.38 -2.84 1.38 -2.75Q1.38 -2.65 1.36 -2.55Q1.35 -2.46 1.31 -2.46Q1.25 -2.46 0.76 -2.54Q0.28 -2.61 -0.97 -2.61Z"/><path transform="translate(93.85 29.59) rotate(48.06)" d="M-0.8 0.01Q-0.94 0 -1.14 -0.01Q-1.35 -0.02 -1.62 -0.02L-2.33 -0.01Q-2.54 0 -2.89 0Q-2.92 0 -2.92 -0.07Q-2.92 -0.14 -2.89 -0.14Q-2.54 -0.14 -2.37 -0.2Q-2.21 -0.25 -2.16 -0.42Q-2.1 -0.59 -2.1 -0.93V-4.45Q-2.1 -4.8 -2.16 -4.96Q-2.21 -5.12 -2.37 -5.18Q-2.54 -5.24 -2.88 -5.24Q-2.9 -5.24 -2.9 -5.31Q-2.9 -5.38 -2.88 -5.38L-2.33 -5.37Q-1.87 -5.35 -1.62 -5.35Q-1.26 -5.35 -0.9 -5.38Q-0.44 -5.41 -0.21 -5.41Q0.75 -5.41 1.45 -5.06Q2.16 -4.71 2.52 -4.11Q2.89 -3.5 2.89 -2.73Q2.89 -1.93 2.51 -1.3Q2.13 -0.67 1.46 -0.31Q0.79 0.05 -0.07 0.05Q-0.4 0.05 -0.8 0.01ZM1.74 -2.6Q1.74 -3.73 1.23 -4.46Q0.72 -5.2 -0.3 -5.2Q-0.75 -5.2 -0.93 -5.03Q-1.11 -4.86 -1.11 -4.43V-1.06Q-1.11 -0.57 -0.93 -0.37Q-0.75 -0.17 -0.21 -0.17Q0.71 -0.17 1.22 -0.8Q1.74 -1.43 1.74 -2.6Z"/><path transform="translate(32.27 103.63) rotate(32.44)" d="M2.24 -5.19Q2.32 -5.15 2.34 -5.11Q2.36 -5.07 2.36 -4.99L2.44 -3.81Q2.44 -3.77 2.38 -3.76Q2.32 -3.75 2.31 -3.79Q1.95 -4.55 1.47 -4.92Q0.98 -5.29 0.32 -5.29Q-0.53 -5.29 -1.02 -4.62Q-1.51 -3.96 -1.51 -2.89Q-1.51 -2.17 -1.29 -1.53Q-1.06 -0.89 -0.59 -0.48Q-0.11 -0.08 0.59 -0.08Q1.22 -0.08 1.66 -0.45Q2.09 -0.82 2.42 -1.61Q2.43 -1.66 2.49 -1.64Q2.55 -1.63 2.55 -1.6L2.43 -0.38Q2.42 -0.29 2.4 -0.25Q2.37 -0.22 2.27 -0.17Q1.39 0.14 0.43 0.14Q-0.66 0.14 -1.36 -0.3Q-2.06 -0.74 -2.38 -1.39Q-2.7 -2.05 -2.7 -2.71Q-2.7 -3.5 -2.28 -4.14Q-1.86 -4.78 -1.13 -5.15Q-0.4 -5.52 0.49 -5.52Q0.91 -5.52 1.41 -5.43Q1.91 -5.34 2.24 -5.19Z"/><path transform="translate(39.26 107.36) rotate(23.65)" d="M-2.3 -0.14Q-1.96 -0.14 -1.79 -0.2Q-1.63 -0.25 -1.58 -0.42Q-1.52 -0.59 -1.52 -0.93V-4.45Q-1.52 -4.8 -1.58 -4.96Q-1.63 -5.12 -1.79 -5.18Q-1.96 -5.24 -2.3 -5.24Q-2.32 -5.24 -2.32 -5.31Q-2.32 -5.38 -2.3 -5.38H1.77Q1.89 -5.38 1.89 -5.29L1.9 -4.58Q1.91 -4.36 1.91 -4.03Q1.91 -3.99 1.85 -3.99Q1.78 -3.99 1.77 -4.03Q1.61 -4.54 1.2 -4.89Q0.79 -5.23 0.32 -5.23H0.16Q-0.15 -5.23 -0.29 -5.17Q-0.43 -5.11 -0.48 -4.95Q-0.53 -4.78 -0.53 -4.44V-0.98Q-0.53 -0.63 -0.48 -0.47Q-0.43 -0.31 -0.29 -0.25Q-0.15 -0.18 0.16 -0.18H0.44Q0.95 -0.18 1.43 -0.57Q1.9 -0.95 2.1 -1.53Q2.12 -1.56 2.17 -1.56Q2.23 -1.56 2.23 -1.53Q2.15 -0.7 2.15 -0.17Q2.15 -0.08 2.12 -0.04Q2.08 0 1.98 0H-2.3Q-2.32 0 -2.32 -0.07Q-2.32 -0.14 -2.3 -0.14ZM-0.97 -2.61V-2.88Q0.28 -2.88 0.76 -2.94Q1.25 -3 1.31 -3Q1.35 -3 1.36 -2.92Q1.38 -2.84 1.38 -2.75Q1.38 -2.65 1.36 -2.55Q1.35 -2.46 1.31 -2.46Q1.25 -2.46 0.76 -2.54Q0.28 -2.61 -0.97 -2.61Z"/><path transform="translate(46.8 109.99) rotate(14.8)" d="M-0.18 0Q-0.52 0 -0.71 -0.01L-1.47 -0.02L-2.18 -0.01Q-2.39 0 -2.75 0Q-2.77 0 -2.77 -0.07Q-2.77 -0.14 -2.75 -0.14Q-2.4 -0.14 -2.24 -0.2Q-2.08 -0.25 -2.02 -0.42Q-1.97 -0.59 -1.97 -0.93V-4.45Q-1.97 -4.8 -2.02 -4.96Q-2.08 -5.12 -2.24 -5.18Q-2.4 -5.24 -2.74 -5.24Q-2.76 -5.24 -2.76 -5.31Q-2.76 -5.38 -2.74 -5.38L-2.17 -5.37Q-1.74 -5.35 -1.47 -5.35Q-1.25 -5.35 -1.07 -5.36Q-0.89 -5.37 -0.75 -5.38Q-0.37 -5.42 -0.06 -5.42Q0.79 -5.42 1.24 -5.13Q1.68 -4.84 1.68 -4.3Q1.68 -3.83 1.37 -3.43Q1.06 -3.02 0.52 -2.79Q-0.02 -2.55 -0.67 -2.55Q-1.03 -2.55 -1.3 -2.6L-1.31 -2.84Q-1.02 -2.76 -0.59 -2.76Q0.09 -2.76 0.36 -3.07Q0.62 -3.38 0.62 -3.99Q0.62 -5.21 -0.33 -5.21Q-0.71 -5.21 -0.83 -5.05Q-0.94 -4.9 -0.94 -4.43V-0.93Q-0.94 -0.57 -0.89 -0.41Q-0.84 -0.25 -0.68 -0.2Q-0.53 -0.14 -0.18 -0.14Q-0.16 -0.14 -0.16 -0.07Q-0.16 0 -0.18 0ZM3.3 0H1.6Q1.41 0 0.93 -0.72Q0.44 -1.44 -0.22 -2.67L0.59 -2.91Q1.23 -1.83 1.68 -1.24Q2.14 -0.64 2.51 -0.39Q2.89 -0.14 3.3 -0.14Q3.34 -0.14 3.34 -0.07Q3.34 0 3.3 0Z"/><path transform="translate(54.85 111.44) rotate(5.72)" d="M-2.46 -3.82Q-2.47 -3.78 -2.53 -3.78Q-2.59 -3.78 -2.59 -3.82Q-2.54 -4.17 -2.49 -4.76Q-2.44 -5.34 -2.44 -5.63Q-2.44 -5.69 -2.37 -5.69Q-2.31 -5.69 -2.31 -5.63Q-2.31 -5.49 -2.14 -5.45Q-1.97 -5.41 -1.7 -5.41Q-0.71 -5.38 0.03 -5.38L1.04 -5.39Q1.23 -5.41 1.56 -5.41Q2 -5.41 2.22 -5.46Q2.44 -5.51 2.5 -5.68Q2.51 -5.72 2.57 -5.72Q2.63 -5.72 2.63 -5.68Q2.63 -5.61 2.61 -5.34Q2.6 -5.05 2.58 -4.62Q2.55 -4.19 2.54 -3.82Q2.54 -3.78 2.47 -3.78Q2.4 -3.78 2.4 -3.82Q2.35 -4.44 2 -4.81Q1.64 -5.17 1.13 -5.17Q0.77 -5.17 0.66 -5.03Q0.54 -4.88 0.54 -4.45V-0.93Q0.54 -0.57 0.6 -0.41Q0.67 -0.25 0.85 -0.2Q1.04 -0.14 1.44 -0.14Q1.47 -0.14 1.47 -0.07Q1.47 0 1.44 0Q1.07 0 0.85 -0.01L0.01 -0.02L-0.79 -0.01Q-1.01 0 -1.4 0Q-1.43 0 -1.43 -0.07Q-1.43 -0.14 -1.4 -0.14Q-1 -0.14 -0.81 -0.2Q-0.62 -0.25 -0.55 -0.42Q-0.48 -0.59 -0.48 -0.93V-4.47Q-0.48 -4.78 -0.52 -4.92Q-0.56 -5.06 -0.68 -5.12Q-0.79 -5.17 -1.05 -5.17Q-2.07 -5.17 -2.46 -3.82Z"/><path transform="translate(61.64 111.67) rotate(-1.82)" d="M1.29 -0.14Q1.31 -0.14 1.31 -0.07Q1.31 0 1.29 0Q0.94 0 0.75 -0.01L-0.01 -0.02L-0.72 -0.01Q-0.93 0 -1.29 0Q-1.31 0 -1.31 -0.07Q-1.31 -0.14 -1.29 -0.14Q-0.93 -0.14 -0.77 -0.2Q-0.61 -0.25 -0.55 -0.42Q-0.49 -0.59 -0.49 -0.93V-4.45Q-0.49 -4.8 -0.55 -4.96Q-0.61 -5.12 -0.78 -5.18Q-0.94 -5.24 -1.29 -5.24Q-1.31 -5.24 -1.31 -5.31Q-1.31 -5.38 -1.29 -5.38L-0.72 -5.37Q-0.29 -5.35 -0.01 -5.35Q0.3 -5.35 0.76 -5.37L1.29 -5.38Q1.31 -5.38 1.31 -5.31Q1.31 -5.24 1.29 -5.24Q0.94 -5.24 0.78 -5.17Q0.62 -5.11 0.56 -4.94Q0.51 -4.77 0.51 -4.43V-0.93Q0.51 -0.59 0.56 -0.42Q0.62 -0.25 0.78 -0.2Q0.94 -0.14 1.29 -0.14Z"/><path transform="translate(67.96 111.08) rotate(-8.86)" d="M-2.06 -0.14Q-1.72 -0.14 -1.56 -0.2Q-1.4 -0.25 -1.34 -0.42Q-1.28 -0.59 -1.28 -0.93V-4.45Q-1.28 -4.8 -1.34 -4.96Q-1.4 -5.12 -1.56 -5.18Q-1.72 -5.24 -2.06 -5.24Q-2.09 -5.24 -2.09 -5.31Q-2.09 -5.38 -2.06 -5.38H2.01Q2.12 -5.38 2.12 -5.29L2.13 -4.58Q2.14 -4.36 2.14 -4.03Q2.14 -3.99 2.08 -3.99Q2.02 -3.99 2.01 -4.03Q1.63 -5.23 0.56 -5.23H0.4Q0.09 -5.23 -0.05 -5.17Q-0.19 -5.11 -0.24 -4.95Q-0.29 -4.78 -0.29 -4.44V-0.98Q-0.29 -0.62 -0.22 -0.45Q-0.14 -0.28 0.08 -0.21Q0.3 -0.14 0.76 -0.14Q0.8 -0.14 0.8 -0.07Q0.8 0 0.76 0Q0.34 0 0.1 -0.01L-0.79 -0.02L-1.5 -0.01Q-1.71 0 -2.06 0Q-2.09 0 -2.09 -0.07Q-2.09 -0.14 -2.06 -0.14ZM-0.78 -2.47V-2.75Q0.45 -2.75 0.94 -2.8Q1.43 -2.85 1.5 -2.85Q1.54 -2.85 1.55 -2.77Q1.57 -2.69 1.57 -2.6Q1.57 -2.5 1.55 -2.4Q1.54 -2.31 1.5 -2.31Q1.44 -2.31 0.95 -2.39Q0.47 -2.47 -0.78 -2.47Z"/><path transform="translate(74.17 109.72) rotate(-15.91)" d="M1.29 -0.14Q1.31 -0.14 1.31 -0.07Q1.31 0 1.29 0Q0.94 0 0.75 -0.01L-0.01 -0.02L-0.72 -0.01Q-0.93 0 -1.29 0Q-1.31 0 -1.31 -0.07Q-1.31 -0.14 -1.29 -0.14Q-0.93 -0.14 -0.77 -0.2Q-0.61 -0.25 -0.55 -0.42Q-0.49 -0.59 -0.49 -0.93V-4.45Q-0.49 -4.8 -0.55 -4.96Q-0.61 -5.12 -0.78 -5.18Q-0.94 -5.24 -1.29 -5.24Q-1.31 -5.24 -1.31 -5.31Q-1.31 -5.38 -1.29 -5.38L-0.72 -5.37Q-0.29 -5.35 -0.01 -5.35Q0.3 -5.35 0.76 -5.37L1.29 -5.38Q1.31 -5.38 1.31 -5.31Q1.31 -5.24 1.29 -5.24Q0.94 -5.24 0.78 -5.17Q0.62 -5.11 0.56 -4.94Q0.51 -4.77 0.51 -4.43V-0.93Q0.51 -0.59 0.56 -0.42Q0.62 -0.25 0.78 -0.2Q0.94 -0.14 1.29 -0.14Z"/><path transform="translate(80.38 107.51) rotate(-23.21)" d="M-2.3 -0.14Q-1.96 -0.14 -1.79 -0.2Q-1.63 -0.25 -1.58 -0.42Q-1.52 -0.59 -1.52 -0.93V-4.45Q-1.52 -4.8 -1.58 -4.96Q-1.63 -5.12 -1.79 -5.18Q-1.96 -5.24 -2.3 -5.24Q-2.32 -5.24 -2.32 -5.31Q-2.32 -5.38 -2.3 -5.38H1.77Q1.89 -5.38 1.89 -5.29L1.9 -4.58Q1.91 -4.36 1.91 -4.03Q1.91 -3.99 1.85 -3.99Q1.78 -3.99 1.77 -4.03Q1.61 -4.54 1.2 -4.89Q0.79 -5.23 0.32 -5.23H0.16Q-0.15 -5.23 -0.29 -5.17Q-0.43 -5.11 -0.48 -4.95Q-0.53 -4.78 -0.53 -4.44V-0.98Q-0.53 -0.63 -0.48 -0.47Q-0.43 -0.31 -0.29 -0.25Q-0.15 -0.18 0.16 -0.18H0.44Q0.95 -0.18 1.43 -0.57Q1.9 -0.95 2.1 -1.53Q2.12 -1.56 2.17 -1.56Q2.23 -1.56 2.23 -1.53Q2.15 -0.7 2.15 -0.17Q2.15 -0.08 2.12 -0.04Q2.08 0 1.98 0H-2.3Q-2.32 0 -2.32 -0.07Q-2.32 -0.14 -2.3 -0.14ZM-0.97 -2.61V-2.88Q0.28 -2.88 0.76 -2.94Q1.25 -3 1.31 -3Q1.35 -3 1.36 -2.92Q1.38 -2.84 1.38 -2.75Q1.38 -2.65 1.36 -2.55Q1.35 -2.46 1.31 -2.46Q1.25 -2.46 0.76 -2.54Q0.28 -2.61 -0.97 -2.61Z"/><path transform="translate(87.57 103.74) rotate(-32.22)" d="M-0.8 0.01Q-0.94 0 -1.14 -0.01Q-1.35 -0.02 -1.62 -0.02L-2.33 -0.01Q-2.54 0 -2.89 0Q-2.92 0 -2.92 -0.07Q-2.92 -0.14 -2.89 -0.14Q-2.54 -0.14 -2.37 -0.2Q-2.21 -0.25 -2.16 -0.42Q-2.1 -0.59 -2.1 -0.93V-4.45Q-2.1 -4.8 -2.16 -4.96Q-2.21 -5.12 -2.37 -5.18Q-2.54 -5.24 -2.88 -5.24Q-2.9 -5.24 -2.9 -5.31Q-2.9 -5.38 -2.88 -5.38L-2.33 -5.37Q-1.87 -5.35 -1.62 -5.35Q-1.26 -5.35 -0.9 -5.38Q-0.44 -5.41 -0.21 -5.41Q0.75 -5.41 1.45 -5.06Q2.16 -4.71 2.52 -4.11Q2.89 -3.5 2.89 -2.73Q2.89 -1.93 2.51 -1.3Q2.13 -0.67 1.46 -0.31Q0.79 0.05 -0.07 0.05Q-0.4 0.05 -0.8 0.01ZM1.74 -2.6Q1.74 -3.73 1.23 -4.46Q0.72 -5.2 -0.3 -5.2Q-0.75 -5.2 -0.93 -5.03Q-1.11 -4.86 -1.11 -4.43V-1.06Q-1.11 -0.57 -0.93 -0.37Q-0.75 -0.17 -0.21 -0.17Q0.71 -0.17 1.22 -0.8Q1.74 -1.43 1.74 -2.6Z"/><circle cx="109" cy="60" r="0.9"/><circle cx="11" cy="60" r="0.9"/></g>
+</svg>
+</span><span class="sc">Hallmarked &amp; certified</span></div>
+  <div class="foot-r"><span class="pno">1 / 1</span><div class="qr" aria-label="QR code placeholder"><i class="f ftl"><b></b></i><i class="f ftr"><b></b></i><i class="f fbl"><b></b></i><span class="sc">qr</span></div></div>
+</footer></section></body></html>

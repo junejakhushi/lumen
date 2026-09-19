@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Collection · desktop</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/quietheritage/tokens.css">
+<link rel="stylesheet" href="ds/quietheritage/components/bundle.css">
+<script src="ds/quietheritage/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&amp;family=Jost:wght@300;400;500&amp;family=Tiro+Devanagari+Hindi&amp;display=swap">
+<style>
+body{margin:0;background:#F5F0E8;color:#1B1916;font-family:Jost,Futura,sans-serif}
+a{color:#1B1916}a:hover{color:#6E1E2A}
+.sc{font-family:"Cormorant Garamond",Georgia,serif;font-variant-caps:all-small-caps;font-weight:600;letter-spacing:.16em;color:#655E54}
+.disp{font-family:"Cormorant Garamond",Georgia,serif;font-weight:400;margin:0}
+.num{font-variant-numeric:tabular-nums}
+</style>
+</helmet>
+<div style="width: 1440px; height: 2150px; box-sizing: border-box; position: relative; overflow: hidden; background: #F5F0E8; color: #1B1916; font-family: Jost, Futura, sans-serif; ">
+<header style="height: 80px; box-sizing: border-box; padding: 0 120px; display: flex; align-items: center; gap: 40px; border-bottom: 1px solid #A8844A;">
+<a href="DesktopWelcome.dc.html" aria-label="Home" style="display: flex; align-items: center; gap: 12px; text-decoration: none;"><x-import component-from-global-scope="QuietHeritage.LumenMonogram" size="{{n32}}"></x-import><span class="sc" style="font-size: 17px; color: #1B1916; letter-spacing: .2em;">The Atelier</span></a>
+<nav aria-label="Primary" style="margin-left: auto; display: flex; gap: 32px; align-items: center;"><a href="DesktopCollection.dc.html" style="font-size: 15px; font-weight: 500; text-decoration: none; padding: 12px 4px; box-shadow: inset 0 -1px 0 #1B1916;">Collection</a><a href="ARCalibrating.dc.html" style="font-size: 15px; font-weight: 400; text-decoration: none; padding: 12px 4px; ">Try on</a><a href="LookBoard.dc.html" style="font-size: 15px; font-weight: 400; text-decoration: none; padding: 12px 4px; ">Look board</a><a href="Booking.dc.html" style="text-decoration: none;"><x-import component-from-global-scope="QuietHeritage.Button" variant="secondary" size="sm">Book</x-import></a></nav>
+</header>
+<main style="padding: 56px 120px 0;">
+<div style="display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px; align-items: end;">
+<div style="grid-column: span 6;"><h1 class="disp" style="font-size: 60px; line-height: 64px;">The collection</h1><p style="margin: 12px 0 0; font-size: 18px; line-height: 30px; color: #655E54;"><span class="disp" style="font-style: italic; font-size: 22px; color: #1B1916;">Heirloom.</span> Traditional motifs, made light enough to wear every day.</p></div>
+<div style="grid-column: 8 / span 5; display: flex; justify-content: flex-end;"><x-import component-from-global-scope="QuietHeritage.SegmentedControl" aria-label="Collection" options="{{cols}}" default-value="Heirloom"></x-import></div>
+</div>
+<div style="display: flex; gap: 8px; margin: 32px 0 40px; align-items: center;"><x-import component-from-global-scope="QuietHeritage.FilterChip" default-selected="{{yes}}">Bracelets</x-import><x-import component-from-global-scope="QuietHeritage.FilterChip" >Rings</x-import><x-import component-from-global-scope="QuietHeritage.FilterChip" >Tops</x-import><x-import component-from-global-scope="QuietHeritage.FilterChip" >Necklaces</x-import><x-import component-from-global-scope="QuietHeritage.FilterChip" >Maang tikka</x-import><span style="margin-left: auto; font-size: 14px; color: #655E54;">12 pieces</span></div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); column-gap: 24px; align-items: start;"><div style="display: flex; flex-direction: column; gap: 32px; "><a href="Piece.dc.html" style="display: flex; flex-direction: column; gap: 8px; text-decoration: none; color: #1B1916;">
+<span style="position: relative; display: block; height: 340px; border: 1px solid #DCD3C4; overflow: hidden;"><img src="/_blob/38021576471c7b0b8f0d629e44075476" alt="" style="width: 100%; height: 100%; object-fit: cover;"><span style="position: absolute; top: 8px; right: 8px; display: inline-flex; align-items: center; gap: 4px; height: 28px; padding: 0 10px; border: 1px solid #8C6C3A; border-radius: 999px; background: #F5F0E8; font-size: 12px; font-weight: 500; letter-spacing: .06em;" aria-label="Try on in AR"><x-import component-from-global-scope="QuietHeritage.Icon" name="ar-try-on" size="{{n16}}" ></x-import>AR</span></span>
+<span class="disp" style="font-size: 18px; line-height: 22px;">The Quiet River</span>
+<span class="sc" style="font-size: 13px; line-height: 14px;">Fine · Cuff</span>
+</a><a href="Piece.dc.html" style="display: flex; flex-direction: column; gap: 8px; text-decoration: none; color: #1B1916;">
+<span style="position: relative; display: block; height: 300px; border: 1px solid #DCD3C4; overflow: hidden;"><img src="/_blob/44e0a132156d412f51436fd73cf5608c" alt="" style="width: 100%; height: 100%; object-fit: cover;"></span>
+<span class="disp" style="font-size: 18px; line-height: 22px;">Evening Raag</span>
+<span class="sc" style="font-size: 13px; line-height: 14px;">Heirloom · Choker</span>
+</a><a href="Piece.dc.html" style="display: flex; flex-direction: column; gap: 8px; text-decoration: none; color: #1B1916;">
+<span style="position: relative; display: block; height: 360px; border: 1px solid #DCD3C4; overflow: hidden;"><img src="/_blob/0547fac7ea1682dd50111fe67c3002d4" alt="" style="width: 100%; height: 100%; object-fit: cover;"></span>
+<span class="disp" style="font-size: 18px; line-height: 22px;">Small Hours</span>
+<span class="sc" style="font-size: 13px; line-height: 14px;">Fine · Pendant</span>
+</a></div><div style="display: flex; flex-direction: column; gap: 32px; padding-top: 64px;"><a href="Piece.dc.html" style="display: flex; flex-direction: column; gap: 8px; text-decoration: none; color: #1B1916;">
+<span style="position: relative; display: block; height: 280px; border: 1px solid #DCD3C4; overflow: hidden;"><img src="/_blob/3b7dd9d479b8ef36d4ae08d40715af19" alt="" style="width: 100%; height: 100%; object-fit: cover;"></span>
+<span class="disp" style="font-size: 18px; line-height: 22px;">Monsoon Bells</span>
+<span class="sc" style="font-size: 13px; line-height: 14px;">Heirloom · Jhumka</span>
+</a><a href="Piece.dc.html" style="display: flex; flex-direction: column; gap: 8px; text-decoration: none; color: #1B1916;">
+<span style="position: relative; display: block; height: 380px; border: 1px solid #DCD3C4; overflow: hidden;"><img src="/_blob/963e6f7909951f6fab4e4c1a927b5002" alt="" style="width: 100%; height: 100%; object-fit: cover;"><span style="position: absolute; top: 8px; right: 8px; display: inline-flex; align-items: center; gap: 4px; height: 28px; padding: 0 10px; border: 1px solid #8C6C3A; border-radius: 999px; background: #F5F0E8; font-size: 12px; font-weight: 500; letter-spacing: .06em;" aria-label="Try on in AR"><x-import component-from-global-scope="QuietHeritage.Icon" name="ar-try-on" size="{{n16}}" ></x-import>AR</span></span>
+<span class="disp" style="font-size: 18px; line-height: 22px;">Kite String</span>
+<span class="sc" style="font-size: 13px; line-height: 14px;">Playful · Band</span>
+</a><a href="Piece.dc.html" style="display: flex; flex-direction: column; gap: 8px; text-decoration: none; color: #1B1916;">
+<span style="position: relative; display: block; height: 300px; border: 1px solid #DCD3C4; overflow: hidden;"><img src="/_blob/c0877e2e852c2303a2b002d4fab3cd77" alt="" style="width: 100%; height: 100%; object-fit: cover;"></span>
+<span class="disp" style="font-size: 18px; line-height: 22px;">Festival of Wicks</span>
+<span class="sc" style="font-size: 13px; line-height: 14px;">Playful · Chandelier</span>
+</a></div><div style="display: flex; flex-direction: column; gap: 32px; "><a href="Piece.dc.html" style="display: flex; flex-direction: column; gap: 8px; text-decoration: none; color: #1B1916;">
+<span style="position: relative; display: block; height: 380px; border: 1px solid #DCD3C4; overflow: hidden;"><img src="/_blob/57bdf5a1bb857dcc58a7877bd62c59b3" alt="" style="width: 100%; height: 100%; object-fit: cover;"><span style="position: absolute; top: 8px; right: 8px; display: inline-flex; align-items: center; gap: 4px; height: 28px; padding: 0 10px; border: 1px solid #8C6C3A; border-radius: 999px; background: #F5F0E8; font-size: 12px; font-weight: 500; letter-spacing: .06em;" aria-label="Try on in AR"><x-import component-from-global-scope="QuietHeritage.Icon" name="ar-try-on" size="{{n16}}" ></x-import>AR</span></span>
+<span class="disp" style="font-size: 18px; line-height: 22px;">First Light</span>
+<span class="sc" style="font-size: 13px; line-height: 14px;">Fine · Solitaire</span>
+</a><a href="Piece.dc.html" style="display: flex; flex-direction: column; gap: 8px; text-decoration: none; color: #1B1916;">
+<span style="position: relative; display: block; height: 280px; border: 1px solid #DCD3C4; overflow: hidden;"><img src="/_blob/c0f9fb38ae82e58aa208ec7b82e5e352" alt="" style="width: 100%; height: 100%; object-fit: cover;"><span style="position: absolute; top: 8px; right: 8px; display: inline-flex; align-items: center; gap: 4px; height: 28px; padding: 0 10px; border: 1px solid #8C6C3A; border-radius: 999px; background: #F5F0E8; font-size: 12px; font-weight: 500; letter-spacing: .06em;" aria-label="Try on in AR"><x-import component-from-global-scope="QuietHeritage.Icon" name="ar-try-on" size="{{n16}}" ></x-import>AR</span></span>
+<span class="disp" style="font-size: 18px; line-height: 22px;">Courtyard Rain</span>
+<span class="sc" style="font-size: 13px; line-height: 14px;">Fine · Tennis</span>
+</a><a href="Piece.dc.html" style="display: flex; flex-direction: column; gap: 8px; text-decoration: none; color: #1B1916;">
+<span style="position: relative; display: block; height: 280px; border: 1px solid #DCD3C4; overflow: hidden;"><img src="/_blob/e41954fd81b1e1562b20b5460dce5f1f" alt="" style="width: 100%; height: 100%; object-fit: cover;"></span>
+<span class="disp" style="font-size: 18px; line-height: 22px;">Brow of the Moon</span>
+<span class="sc" style="font-size: 13px; line-height: 14px;">Playful · Tikka</span>
+</a></div><div style="display: flex; flex-direction: column; gap: 32px; padding-top: 64px;"><a href="Piece.dc.html" style="display: flex; flex-direction: column; gap: 8px; text-decoration: none; color: #1B1916;">
+<span style="position: relative; display: block; height: 300px; border: 1px solid #DCD3C4; overflow: hidden;"><img src="/_blob/bf23b136b22118815a801daaa2ead233" alt="" style="width: 100%; height: 100%; object-fit: cover;"><span style="position: absolute; top: 8px; right: 8px; display: inline-flex; align-items: center; gap: 4px; height: 28px; padding: 0 10px; border: 1px solid #8C6C3A; border-radius: 999px; background: #F5F0E8; font-size: 12px; font-weight: 500; letter-spacing: .06em;" aria-label="Try on in AR"><x-import component-from-global-scope="QuietHeritage.Icon" name="ar-try-on" size="{{n16}}" ></x-import>AR</span></span>
+<span class="disp" style="font-size: 18px; line-height: 22px;">Temple Dawn</span>
+<span class="sc" style="font-size: 13px; line-height: 14px;">Heirloom · Bangle</span>
+</a><a href="Piece.dc.html" style="display: flex; flex-direction: column; gap: 8px; text-decoration: none; color: #1B1916;">
+<span style="position: relative; display: block; height: 340px; border: 1px solid #DCD3C4; overflow: hidden;"><img src="/_blob/cd6d7f7be1be4768ae9f60865de2b7a4" alt="" style="width: 100%; height: 100%; object-fit: cover;"></span>
+<span class="disp" style="font-size: 18px; line-height: 22px;">Seven Lanterns</span>
+<span class="sc" style="font-size: 13px; line-height: 14px;">Heirloom · Stud</span>
+</a><a href="Piece.dc.html" style="display: flex; flex-direction: column; gap: 8px; text-decoration: none; color: #1B1916;">
+<span style="position: relative; display: block; height: 340px; border: 1px solid #DCD3C4; overflow: hidden;"><img src="/_blob/913d41e05d846fc0248a532c9270a954" alt="" style="width: 100%; height: 100%; object-fit: cover;"></span>
+<span class="disp" style="font-size: 18px; line-height: 22px;">Three Monsoons</span>
+<span class="sc" style="font-size: 13px; line-height: 14px;">Heirloom · Layered haar</span>
+</a></div></div>
+</main>
+<footer style="margin-top: 96px; padding: 48px 120px; border-top: 1px solid #A8844A; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px; align-items: center;">
+<div style="grid-column: span 5;"><x-import component-from-global-scope="QuietHeritage.LumenLockup" atelier="The Atelier" height="{{n32}}"></x-import></div>
+<div style="grid-column: span 4; display: flex; align-items: center; gap: 12px;"><img src="/_blob/ea41c167ec82a05c5b06ead5179c7969" alt="Hallmarked and certified seal" style="width: 64px; height: 64px;"><span class="sc" style="font-size: 15px;">Hallmarked &amp; certified</span></div>
+<p style="grid-column: span 3; margin: 0; font-size: 13px; line-height: 18px; color: #655E54;">By appointment only. Prices are indicative until the atelier confirms weight and stones.</p>
+</footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2150}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { yes: true, no: false, noop: () => {}, n16: 16, n20: 20, n24: 24, n28: 28, n32: 32, n36: 36, n40: 40, n48: 48, n56: 56, n64: 64, cols: [{"value": "Heirloom", "label": "Heirloom"}, {"value": "Fine", "label": "Fine"}, {"value": "Playful", "label": "Playful"}] };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+<!-- @dsCard group="Inputs" height=272 subtitle="Size and length" -->
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Stepper — preview</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@400;500&family=Tiro+Devanagari+Hindi&display=swap">
+</head>
+<body>
+<div id="root"></div>
+<script>
+var Q = window.QuietHeritage, h = React.createElement;
+function cell(cap, el, style) { return h("div", { className: "qh-demo__cell", style: style }, el, h("span", { className: "qh-demo__cap" }, cap)); }
+function row(title, kids) { return h("div", { className: "qh-demo__row" }, title ? h("p", { className: "qh-demo__h" }, title) : null, kids); }
+function evening(kids, style) { return h("div", { "data-theme": "evening", className: "qh-evening-panel", style: Object.assign({ padding: 24 }, style || {}) }, kids); }
+var STATES = ["default", "hover", "pressed", "focus", "disabled"];
+
+function App() {
+  return h("div", { className: "qh-demo" },
+    h(Q.Stepper, { label: "Ring size", min: 4, max: 13, step: 0.5, defaultValue: 6.5, format: function (v) { return "US " + v; } }),
+    h(Q.Stepper, { label: "Chain length", min: 35, max: 55, step: 5, defaultValue: 45, format: function (v) { return v + " cm"; }, hint: "Choker 35 · princess 45 · matinee 55" }),
+    cell("hover · focus", h(Q.Stepper, { label: "Length", min: 35, max: 55, step: 5, defaultValue: 40, format: function (v) { return v + " cm"; }, states: { minus: "hover", plus: "focus" } })),
+    cell("at max · pressed", h(Q.Stepper, { label: "Length", min: 35, max: 55, step: 5, defaultValue: 55, format: function (v) { return v + " cm"; }, states: { minus: "pressed" } })),
+    cell("disabled", h(Q.Stepper, { label: "Length", defaultValue: 45, min: 35, max: 55, disabled: true, format: function (v) { return v + " cm"; } })));
+}
+ReactDOM.createRoot(document.getElementById("root")).render(App());
+</script>
+</body>
+</html>

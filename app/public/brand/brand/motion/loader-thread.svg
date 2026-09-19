@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="48" height="48" role="img" aria-labelledby="qh-loader-title"><title id="qh-loader-title">Loading</title>
+<!-- Quiet Heritage · Lumen signature loader. A gold thread draws the paisley mark (160 grid),
+     holds, then fades. 1600ms loop: draw 0–1000ms (ease-draw), hold 1000–1300ms, fade 1300–1600ms (ease-exit).
+     stroke-width 4.1667 user units = 1.25px at the intrinsic 48px size (160/48 × 1.25).
+     Reduced motion: complete mark, static, at 60% opacity. -->
+<style>
+.t{fill:none;stroke:#A8844A;stroke-width:4.1667;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1 1;stroke-dashoffset:1;animation:qh-thread-draw 1600ms linear infinite}
+@keyframes qh-thread-draw{
+0%{stroke-dashoffset:1;opacity:1;animation-timing-function:cubic-bezier(0.65,0,0.35,1)}
+62.5%{stroke-dashoffset:0;opacity:1;animation-timing-function:linear}
+81.25%{stroke-dashoffset:0;opacity:1;animation-timing-function:cubic-bezier(0.4,0,1,1)}
+100%{stroke-dashoffset:0;opacity:0}}
+@media (prefers-reduced-motion:reduce){.t{animation:none;stroke-dashoffset:0;opacity:.6}}
+</style>
+<path class="t" pathLength="1" d="M104 34 C100 30 104 24 110 26 C116 28 116 36 110 40 C130 52 138 88 124 116 C112 140 80 150 56 142 C32 134 24 106 36 86 C46 70 68 66 84 56 C96 48 104 40 110 40 C110 56 118 86 108 108 C98 128 72 132 58 122 C44 112 46 94 58 86 C70 78 86 78 96 66 C100 60 102 54 102 50 C100 70 102 90 90 104 C80 116 64 116 58 106 C54 98 60 90 68 92 C74 94 74 100 70 102"/>
+</svg>

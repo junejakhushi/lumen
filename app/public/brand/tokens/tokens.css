@@ -1,0 +1,207 @@
+/* Quiet Heritage — design tokens (CSS custom properties)
+ * Lumen · white-label AR try-on for fine-jewellery ateliers.
+ * Paper is the default mode. Evening (AR camera) applies to any subtree with
+ * data-theme="evening" or class .qh-evening.
+ * Generated from tokens.json; keep the two in sync. */
+
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@400;500&family=Tiro+Devanagari+Hindi&display=swap');
+
+:root,
+[data-theme="paper"] {
+  /* colour — primitives & paper semantics */
+  --ivory: #f5f0e8;
+  --ink: #1b1916;
+  --pearl: #e8e2d8;
+  --gold: #a8844a;
+  --gold-deep: #8c6c3a;
+  --ruby: #6e1e2a;
+  --emerald: #1e4638;
+  --stone: #8a8378;
+  --stone-deep: #655e54;
+  --surface: var(--ivory);
+  --surface-alt: var(--pearl);
+  --surface-control: var(--pearl);
+  --scrim: rgba(27, 25, 22, 0.48);
+  --text: var(--ink);
+  --text-muted: var(--stone-deep);
+  --text-disabled: var(--stone);
+  --text-inverse: var(--ivory);
+  --hairline: var(--gold);
+  --hairline-quiet: #dcd3c4;
+  --control-line: var(--gold-deep);
+  --focus-ring: var(--gold-deep);
+  --action: var(--ruby);
+  --action-hover: #7c2634;
+  --action-pressed: #561520;
+  --on-action: var(--ivory);
+  --secondary: var(--emerald);
+  --on-secondary: var(--ivory);
+  --status-positive: var(--emerald);
+  --status-attention: var(--gold-deep);
+  --status-error: var(--ruby);
+  --metal-yellow: #d2ae68;
+  --metal-white: #d8d8d4;
+  --metal-rose: #d3a08a;
+  --gem-diamond: #eef0f1;
+  --gem-ruby: #9b1b30;
+  --gem-emerald: #1f6b4e;
+  --gem-sapphire: #233f73;
+  --gem-pearl: #efe7da;
+  --gem-polki: #cdc4ae;
+}
+
+[data-theme="evening"],
+.qh-evening {
+  /* colour — evening (AR camera) overrides */
+  --surface: var(--ink);
+  --surface-alt: #24211d;
+  --surface-control: rgba(27, 25, 22, 0.86);
+  --scrim: rgba(12, 11, 10, 0.64);
+  --text: var(--ivory);
+  --text-muted: #a39c90;
+  --text-disabled: #6b655c;
+  --text-inverse: var(--ink);
+  --hairline: var(--gold);
+  --hairline-quiet: #3a352e;
+  --control-line: var(--gold);
+  --focus-ring: var(--gold);
+  --action: var(--ruby);
+  --action-hover: #7c2634;
+  --action-pressed: #561520;
+  --on-action: var(--ivory);
+  --secondary: #8db5a3;
+  --on-secondary: var(--ink);
+  --status-positive: #8db5a3;
+  --status-attention: var(--gold);
+  --status-error: #e0a3ab;
+  color-scheme: dark;
+}
+
+:root {
+  /* type families */
+  --font-display: "Cormorant Garamond", "Cormorant", Garamond, "Times New Roman", serif;
+  --font-ui: Jost, "Futura PT", Futura, "Century Gothic", system-ui, sans-serif;
+  --font-accent: "Tiro Devanagari Hindi", "Noto Serif Devanagari", serif;
+
+  /* type scale — -d = 1440 desktop, -m = 390 mobile (size / line-height) */
+  --text-display-xl-d: 80px; --leading-display-xl-d: 84px; --tracking-display-xl-d: -0.015em; --weight-display-xl-d: 400;
+  --text-display-l-d: 60px; --leading-display-l-d: 64px; --tracking-display-l-d: -0.01em; --weight-display-l-d: 400;
+  --text-display-m-d: 44px; --leading-display-m-d: 50px; --tracking-display-m-d: -0.005em; --weight-display-m-d: 400;
+  --text-title-l-d: 32px; --leading-title-l-d: 40px; --tracking-title-l-d: 0; --weight-title-l-d: 500;
+  --text-title-m-d: 24px; --leading-title-m-d: 32px; --tracking-title-m-d: 0; --weight-title-m-d: 500;
+  --text-title-s-d: 20px; --leading-title-s-d: 28px; --tracking-title-s-d: 0; --weight-title-s-d: 500;
+  --text-display-xl-m: 48px; --leading-display-xl-m: 52px; --tracking-display-xl-m: -0.015em; --weight-display-xl-m: 400;
+  --text-display-l-m: 40px; --leading-display-l-m: 44px; --tracking-display-l-m: -0.01em; --weight-display-l-m: 400;
+  --text-display-m-m: 32px; --leading-display-m-m: 38px; --tracking-display-m-m: -0.005em; --weight-display-m-m: 400;
+  --text-title-l-m: 26px; --leading-title-l-m: 32px; --tracking-title-l-m: 0; --weight-title-l-m: 500;
+  --text-title-m-m: 21px; --leading-title-m-m: 28px; --tracking-title-m-m: 0; --weight-title-m-m: 500;
+  --text-title-s-m: 18px; --leading-title-s-m: 24px; --tracking-title-s-m: 0; --weight-title-s-m: 500;
+  --text-label-l: 17px; --leading-label-l: 20px; --tracking-label-l: 0.14em; --weight-label-l: 600;
+  --text-label-m: 15px; --leading-label-m: 18px; --tracking-label-m: 0.16em; --weight-label-m: 600;
+  --text-label-s: 13px; --leading-label-s: 16px; --tracking-label-s: 0.18em; --weight-label-s: 600;
+  --text-body-l-d: 18px; --leading-body-l-d: 30px; --tracking-body-l-d: 0; --weight-body-l-d: 400;
+  --text-body-m-d: 16px; --leading-body-m-d: 26px; --tracking-body-m-d: 0; --weight-body-m-d: 400;
+  --text-body-s-d: 14px; --leading-body-s-d: 22px; --tracking-body-s-d: 0.005em; --weight-body-s-d: 400;
+  --text-ui-m-d: 15px; --leading-ui-m-d: 20px; --tracking-ui-m-d: 0.04em; --weight-ui-m-d: 500;
+  --text-ui-s-d: 13px; --leading-ui-s-d: 18px; --tracking-ui-s-d: 0.03em; --weight-ui-s-d: 500;
+  --text-numeric-d: 16px; --leading-numeric-d: 24px; --tracking-numeric-d: 0.01em; --weight-numeric-d: 500;
+  --text-caption-d: 12px; --leading-caption-d: 16px; --tracking-caption-d: 0.02em; --weight-caption-d: 400;
+  --text-body-l-m: 17px; --leading-body-l-m: 28px; --tracking-body-l-m: 0; --weight-body-l-m: 400;
+  --text-body-m-m: 16px; --leading-body-m-m: 24px; --tracking-body-m-m: 0; --weight-body-m-m: 400;
+  --text-body-s-m: 14px; --leading-body-s-m: 20px; --tracking-body-s-m: 0.005em; --weight-body-s-m: 400;
+  --text-ui-m-m: 15px; --leading-ui-m-m: 20px; --tracking-ui-m-m: 0.04em; --weight-ui-m-m: 500;
+  --text-ui-s-m: 13px; --leading-ui-s-m: 18px; --tracking-ui-s-m: 0.03em; --weight-ui-s-m: 500;
+  --text-numeric-m: 15px; --leading-numeric-m: 22px; --tracking-numeric-m: 0.01em; --weight-numeric-m: 500;
+  --text-caption-m: 12px; --leading-caption-m: 16px; --tracking-caption-m: 0.02em; --weight-caption-m: 400;
+  --text-accent-d: 32px; --leading-accent-d: 44px; --tracking-accent-d: 0; --weight-accent-d: 400;
+  --text-accent-m: 24px; --leading-accent-m: 34px; --tracking-accent-m: 0; --weight-accent-m: 400;
+
+  /* spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+  --space-30: 120px;
+
+  /* radius */
+  --radius-none: 0;
+  --radius-sm: 2px;
+  --radius-pill: 999px;
+  --radius-round: 50%;
+
+  /* layout */
+  --grid-columns-m: 4;
+  --grid-columns-d: 12;
+  --grid-margin-m: 24px;
+  --grid-margin-d: 120px;
+  --grid-gutter-m: 16px;
+  --grid-gutter-d: 24px;
+  --content-max: 1200px;
+  --measure: 34em;
+
+  /* size */
+  --touch-min: 44px;
+  --control-h: 48px;
+  --chip-h: 44px;
+  --swatch: 28px;
+  --shutter: 72px;
+
+  /* stroke */
+  --hairline-w: 1px;
+  --focus-w: 2px;
+  --focus-offset: 2px;
+
+  /* motion */
+  --ease-quiet: cubic-bezier(0.2, 0, 0, 1); /* Default for state changes (hover, select). */
+  --ease-draw: cubic-bezier(0.65, 0, 0.35, 1); /* The gold link underline drawing in; sheet travel. */
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1); /* Dismissals: toast, modal, sheet out. */
+  --dur-fast: 120ms;
+  --dur-base: 200ms;
+  --dur-slow: 320ms;
+  --dur-draw: 480ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --dur-fast: 0ms; --dur-base: 0ms; --dur-slow: 0ms; --dur-draw: 0ms; }
+}
+
+/* type-style utility classes */
+.display-xl-d { font-family: var(--font-display); font-size: 80px; line-height: 84px; font-weight: 400; letter-spacing: -0.015em; }
+.display-l-d { font-family: var(--font-display); font-size: 60px; line-height: 64px; font-weight: 400; letter-spacing: -0.01em; }
+.display-m-d { font-family: var(--font-display); font-size: 44px; line-height: 50px; font-weight: 400; letter-spacing: -0.005em; }
+.title-l-d { font-family: var(--font-display); font-size: 32px; line-height: 40px; font-weight: 500; letter-spacing: 0; }
+.title-m-d { font-family: var(--font-display); font-size: 24px; line-height: 32px; font-weight: 500; letter-spacing: 0; }
+.title-s-d { font-family: var(--font-display); font-size: 20px; line-height: 28px; font-weight: 500; letter-spacing: 0; }
+.display-xl-m { font-family: var(--font-display); font-size: 48px; line-height: 52px; font-weight: 400; letter-spacing: -0.015em; }
+.display-l-m { font-family: var(--font-display); font-size: 40px; line-height: 44px; font-weight: 400; letter-spacing: -0.01em; }
+.display-m-m { font-family: var(--font-display); font-size: 32px; line-height: 38px; font-weight: 400; letter-spacing: -0.005em; }
+.title-l-m { font-family: var(--font-display); font-size: 26px; line-height: 32px; font-weight: 500; letter-spacing: 0; }
+.title-m-m { font-family: var(--font-display); font-size: 21px; line-height: 28px; font-weight: 500; letter-spacing: 0; }
+.title-s-m { font-family: var(--font-display); font-size: 18px; line-height: 24px; font-weight: 500; letter-spacing: 0; }
+.label-l { font-family: var(--font-display); font-size: 17px; line-height: 20px; font-weight: 600; letter-spacing: 0.14em; font-variant-caps: all-small-caps; }
+.label-m { font-family: var(--font-display); font-size: 15px; line-height: 18px; font-weight: 600; letter-spacing: 0.16em; font-variant-caps: all-small-caps; }
+.label-s { font-family: var(--font-display); font-size: 13px; line-height: 16px; font-weight: 600; letter-spacing: 0.18em; font-variant-caps: all-small-caps; }
+.body-l-d { font-family: var(--font-ui); font-size: 18px; line-height: 30px; font-weight: 400; letter-spacing: 0; }
+.body-m-d { font-family: var(--font-ui); font-size: 16px; line-height: 26px; font-weight: 400; letter-spacing: 0; }
+.body-s-d { font-family: var(--font-ui); font-size: 14px; line-height: 22px; font-weight: 400; letter-spacing: 0.005em; }
+.ui-m-d { font-family: var(--font-ui); font-size: 15px; line-height: 20px; font-weight: 500; letter-spacing: 0.04em; }
+.ui-s-d { font-family: var(--font-ui); font-size: 13px; line-height: 18px; font-weight: 500; letter-spacing: 0.03em; }
+.numeric-d { font-family: var(--font-ui); font-size: 16px; line-height: 24px; font-weight: 500; letter-spacing: 0.01em; font-variant-numeric: tabular-nums; }
+.caption-d { font-family: var(--font-ui); font-size: 12px; line-height: 16px; font-weight: 400; letter-spacing: 0.02em; }
+.body-l-m { font-family: var(--font-ui); font-size: 17px; line-height: 28px; font-weight: 400; letter-spacing: 0; }
+.body-m-m { font-family: var(--font-ui); font-size: 16px; line-height: 24px; font-weight: 400; letter-spacing: 0; }
+.body-s-m { font-family: var(--font-ui); font-size: 14px; line-height: 20px; font-weight: 400; letter-spacing: 0.005em; }
+.ui-m-m { font-family: var(--font-ui); font-size: 15px; line-height: 20px; font-weight: 500; letter-spacing: 0.04em; }
+.ui-s-m { font-family: var(--font-ui); font-size: 13px; line-height: 18px; font-weight: 500; letter-spacing: 0.03em; }
+.numeric-m { font-family: var(--font-ui); font-size: 15px; line-height: 22px; font-weight: 500; letter-spacing: 0.01em; font-variant-numeric: tabular-nums; }
+.caption-m { font-family: var(--font-ui); font-size: 12px; line-height: 16px; font-weight: 400; letter-spacing: 0.02em; }
+.accent-d { font-family: var(--font-accent); font-size: 32px; line-height: 44px; font-weight: 400; letter-spacing: 0; }
+.accent-m { font-family: var(--font-accent); font-size: 24px; line-height: 34px; font-weight: 400; letter-spacing: 0; }
