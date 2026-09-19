@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# Blocks private files, CAD/mesh files, large files, and forbidden terms.
+fail=0
+files=$(git diff --cached --name-only --diff-filter=ACM)
+for f in $files; do
+  lf=$(echo "$f" | tr 'A-Z' 'a-z')
+  case "$lf" in
+    private/*) echo "BLOCKED (private/ path): $f"; fail=1;;
+    *.stl|*.jcd|*.glb|*.gltf|*.drc) echo "BLOCKED (CAD/mesh file): $f"; fail=1;;
+  esac
+  if [ -f "$f" ] && [ "$(wc -c <"$f")" -gt 5242880 ]; then echo "BLOCKED (>5MB): $f"; fail=1; fi
+done
+if [ -s .forbidden-terms ]; then
+  terms=$(mktemp); grep -v '^[[:space:]]*#' .forbidden-terms | sed '/^[[:space:]]*$/d' > "$terms"
+  if [ -s "$terms" ]; then
+    for f in $files; do
+      [ -f "$f" ] || continue
+      if git show ":$f" | grep -i -F -q -f "$terms"; then echo "BLOCKED (forbidden term): $f"; fail=1; fi
+    done
+  fi
+  rm -f "$terms"
+fi
+[ $fail -eq 0 ] || { echo "Commit blocked. Fix the files above."; exit 1; }

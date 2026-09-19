@@ -1,0 +1,36 @@
+name: ci
+on: [push, pull_request]
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: No private or CAD files tracked
+        run: |
+          bad=$(git ls-files | grep -iE '(^private/|\.(stl|jcd|glb|gltf|drc)$)' || true)
+          if [ -n "$bad" ]; then echo "Forbidden files tracked:"; echo "$bad"; exit 1; fi
+      - name: Forbidden terms
+        env:
+          FORBIDDEN_TERMS: ${{ secrets.FORBIDDEN_TERMS }}
+        run: |
+          if [ -z "$FORBIDDEN_TERMS" ]; then echo "No FORBIDDEN_TERMS secret set; skipping"; exit 0; fi
+          printf '%s\n' "$FORBIDDEN_TERMS" | grep -v '^[[:space:]]*#' | sed '/^[[:space:]]*$/d' > /tmp/terms
+          if git ls-files -z | xargs -0 grep -I -i -l -F -f /tmp/terms; then echo "Forbidden terms found in files above"; exit 1; fi
+  app:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: App checks
+        run: |
+          if [ ! -f app/package.json ]; then echo "app not scaffolded yet"; exit 0; fi
+          cd app && npm ci && npm run typecheck --if-present && npm test --if-present
+  pipeline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - name: Pipeline checks
+        run: |
+          if [ ! -f pipeline/pyproject.toml ]; then echo "pipeline not scaffolded yet"; exit 0; fi
+          cd pipeline && pip install -e . pytest && pytest -q
