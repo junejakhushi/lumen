@@ -1,0 +1,57 @@
+# DigitalOcean App Platform spec for Lumen
+# Deploy: doctl apps create --spec .do/app.yaml
+# Or import the repo in the DO dashboard and point to this file.
+
+name: lumen
+region: blr  # Bangalore — closest to IST clients
+
+services:
+  - name: web
+    github:
+      repo: junejakhushi/lumen
+      branch: main
+      deploy_on_push: true
+    source_dir: app
+    build_command: npm ci && npm run build
+    run_command: npm start
+    environment_slug: node-js
+    instance_count: 1
+    instance_size_slug: professional-xs
+    http_port: 3000
+    routes:
+      - path: /
+    envs:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        type: SECRET
+      - key: SPACES_KEY
+        type: SECRET
+      - key: SPACES_SECRET
+        type: SECRET
+      - key: SPACES_BUCKET
+        value: lumen-assets
+      - key: SPACES_REGION
+        value: blr1
+      - key: SPACES_ENDPOINT
+        value: https://blr1.digitaloceanspaces.com
+      - key: SESSION_SECRET
+        type: SECRET
+      - key: ATELIER_PASSCODE_HASH
+        type: SECRET
+      - key: STUDIO_NAME
+        value: The Atelier
+      - key: RESEND_API_KEY
+        type: SECRET
+      - key: BOOKING_TZ
+        value: Asia/Kolkata
+      - key: CAMERA_FOV_DEG
+        value: "60"
+      - key: PALM_WIDTH_MM
+        value: "80"
+      - key: DEV_ACCESS_CODE
+        type: SECRET
+      - key: NEXT_PUBLIC_CAMERA_FOV_DEG
+        value: "60"
+      - key: NEXT_PUBLIC_PALM_WIDTH_MM
+        value: "80"
