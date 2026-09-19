@@ -7,6 +7,7 @@ cd pipeline
 python3.11 -m venv .venv && .venv/bin/pip install -e '.[dev]'
 .venv/bin/lumen probe ../private/stl_in/b_fixture_a.stl
 .venv/bin/lumen ingest ../private/stl_in ../private/assets_out --workers 2
+.venv/bin/lumen publish ../private/assets_out --dry-run
 .venv/bin/pytest -q
 ```
 
@@ -19,6 +20,12 @@ S1.1 — core:
 - `volume.py` — exact volume from mid-layer sections, `Σ area(unary_union) × t` (SPEC §4.2).
 - `reconstruct.py` — rasterise layers → boolean voxel grid → marching cubes → Taubin smoothing,
   z-chunked above 150M voxels, 0.03 mm retry if the volume is off by more than 3% (SPEC §4.3).
+
+S1.3 — settings, stones, publish:
+- `heads.py` — protrusions above the band → heads; prong classification from sections
+  perpendicular to the (radial) head axis; inferred stone Ø and carat; array detection (SPEC §4.6).
+- `publish.py` — upload piece assets to the private Spaces bucket and upsert `pieces` rows.
+- `export.py` also labels `web.glb` faces into `band` / `head_i` nodes.
 
 S1.2 — measurement and export:
 - `config.py` — alloy densities, filename-prefix → type map, Indian/US ring-size table.
@@ -50,3 +57,7 @@ manifests or GLB files.
   orthographic render (CI has no GL).
 - Draco needs `npx`; without it the GLBs are written uncompressed and a warning is recorded.
 - `--workers 2` is the default: large pieces peak around 5 GB per process.
+- `lumen publish` reads the repo-root `.env` (see `.env.example`) for `SPACES_*` and
+  `DATABASE_URL`, uploads only `web.glb`, `ar.glb`, `thumb.webp` and `manifest.json` to
+  `pieces/<id>/` (private ACL, AES256), and never uploads STLs or `_index.csv`. The upsert
+  leaves `approved`, `name` and `collection` alone: those belong to the atelier review tool.

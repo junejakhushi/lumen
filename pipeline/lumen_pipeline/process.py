@@ -6,13 +6,15 @@ import time
 from dataclasses import dataclass, field
 from pathlib import Path
 
+import numpy as np
 import trimesh
 
 from .curve import fit_curve
 from .detect_export import detect_export
 from .ends import segment_ends
-from .export import (AR_TRIS, WEB_TRIS, decimate, draco_compress, render_thumb, write_glb,
-                     write_manifest)
+from .export import (AR_TRIS, WEB_TRIS, decimate, draco_compress, render_thumb,
+                     split_head_nodes, write_glb, write_glb_nodes, write_manifest)
+from .heads import detect_array, detect_heads
 from .load import load_stl
 from .manifest import Manifest, piece_id
 from .measure import measure
@@ -39,10 +41,14 @@ class Result:
     error: str | None = None
 
 
-def _curve_model(curve) -> dict:
-    import numpy as np
+def band_radius(curve) -> float:
+    """Outer radius of the band itself: a low percentile of the per-bin maxima excludes heads."""
     mx = curve.bins_max_r[np.isfinite(curve.bins_max_r)]
-    outer = float(np.percentile(mx, 25)) if len(mx) else curve.inner_radius
+    return float(np.percentile(mx, 25)) if len(mx) else float(curve.inner_radius)
+
+
+def _curve_model(curve) -> dict:
+    outer = band_radius(curve)
     return {
         "inner_radius_mm": round(float(curve.inner_radius), 4),
         "span_deg": round(float(curve.span_deg), 3),
@@ -96,9 +102,16 @@ def process_file(path: str | Path, out_root: str | Path, *, draco: bool = True,
         t = stage("measure", t)
 
         curve = segment = ring = tops = None
+        heads: list[dict] = []
+        stones: list[dict] = []
+        array = None
         if ptype in ("bracelet", "ring"):
             c = fit_curve(analysis.vertices)
             curve = _curve_model(c)
+            heads, w = detect_heads(recon, c, band_radius(c))
+            warnings += w
+            stones = [h["stone"] for h in heads if h.get("stone")]
+            array = detect_array(heads)
             if c.inliers < 0.5:
                 warnings.append(f"curve: weak circle fit ({c.inliers:.0%} inliers)")
             if ptype == "bracelet":
@@ -119,8 +132,8 @@ def process_file(path: str | Path, out_root: str | Path, *, draco: bool = True,
         out.mkdir(parents=True, exist_ok=True)
         web = decimate(recon, WEB_TRIS)
         ar = decimate(recon, AR_TRIS)
-        write_glb(web, out / "web.glb", node_name="band")
-        write_glb(ar, out / "ar.glb", node_name="band")
+        write_glb_nodes(split_head_nodes(web, heads), out / "web.glb")
+        write_glb(ar, out / "ar.glb", node_name="band")  # one node: instanced in AR
         t = stage("glb", t)
 
         if draco:
@@ -140,6 +153,7 @@ def process_file(path: str | Path, out_root: str | Path, *, draco: bool = True,
             volume_mm3=round(stack.volume_mm3, 4), volume_recon_mm3=round(rec.volume_mm3, 4),
             weights_g=meas["weights_g"], bbox_mm=meas["bbox_mm"], surface_mm2=meas["surface_mm2"],
             curve=curve, segment=segment, ring=ring, tops=tops,
+            heads=heads, stones=stones, array=array,
             warnings=warnings, review={"status": "pending", "type": ptype},
         )
         write_manifest(manifest, out / "manifest.json")

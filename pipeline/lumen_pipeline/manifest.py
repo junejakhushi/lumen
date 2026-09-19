@@ -34,18 +34,22 @@ class CurveModel(BaseModel):
     fit_inliers: float
 
 
+class Stone(BaseModel):
+    d_mm: float
+    ct_est: float
+    source: str = "inferred"
+
+
 class Head(BaseModel):
     axis: list[float]
     origin: list[float]
     prongs: int
     prong_w_mm: float
     r_in_mm: float
-
-
-class Stone(BaseModel):
-    d_mm: float
-    ct_est: float
-    source: str = "inferred"
+    theta_deg: float | None = None
+    rise_mm: float | None = None
+    run_mm: float | None = None
+    stone: Stone | None = None  # placement for the app's procedural gem
 
 
 class ArrayInfo(BaseModel):

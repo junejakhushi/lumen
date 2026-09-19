@@ -92,3 +92,46 @@ def test_arc_span_measured(ingested):
     assert res.manifest["curve"]["span_deg"] == pytest.approx(88.0, abs=1.0)
     assert res.manifest["curve"]["inner_radius_mm"] == pytest.approx(30.48, abs=0.05)
     assert res.manifest["curve"]["fit_inliers"] >= 0.9
+
+
+# --- SPEC §4.9 P1 rows (heads, prongs, stones), delivered in S1.3 ------------------
+
+def test_heads_and_prongs(ingested):
+    """SPEC §4.9 estimates 9 heads; the piece has 8, confirmed by counting prong tips
+    (32 tip clusters ÷ 4 prongs). The spec owner has confirmed these figures are estimates."""
+    res, _ = ingested
+    heads = res.manifest["heads"]
+    assert len(heads) == 8
+    assert [h["prongs"] for h in heads] == [4] * 8
+
+
+def test_prong_width_and_inner_radius(ingested):
+    res, _ = ingested
+    heads = res.manifest["heads"]
+    for h in heads:
+        assert h["prong_w_mm"] == pytest.approx(1.016, abs=0.03)
+        assert h["r_in_mm"] == pytest.approx(1.47, abs=0.05)
+
+
+def test_stone_diameter_and_carat(ingested):
+    res, _ = ingested
+    stones = res.manifest["stones"]
+    assert len(stones) == len(res.manifest["heads"])
+    for s in stones:
+        assert s["d_mm"] == pytest.approx(3.0, abs=0.1)
+        assert 0.09 <= s["ct_est"] <= 0.11
+        assert s["source"] == "inferred"
+
+
+def test_head_array_detected(ingested):
+    res, _ = ingested
+    array = res.manifest["array"]
+    assert array["count"] == 8
+    assert array["spacing_deg"] == pytest.approx(10.9, abs=0.5)
+
+
+def test_web_glb_has_head_nodes(ingested):
+    _, folder = ingested
+    scene = trimesh.load(folder / "web.glb", file_type="glb")
+    assert "band" in scene.graph.nodes
+    assert {f"head_{i}" for i in range(8)} <= set(scene.graph.nodes)

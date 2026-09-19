@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import csv
 import logging
+import os
 import multiprocessing as mp
 import resource
 import sys
@@ -16,6 +17,7 @@ import click
 from .detect_export import detect_export
 from .load import load_stl
 from .process import process_file
+from .publish import ASSETS, NEVER_UPLOAD, load_dotenv, publish, spaces_config
 from .reconstruct import reconstruct
 from .volume import slice_layers
 
@@ -166,3 +168,30 @@ def ingest(src: Path, dst: Path, workers: int, no_draco: bool, no_thumb: bool) -
     click.echo(_rows_table(rows))
     click.echo(f"\n{len(rows)}/{len(files)} pieces in {time.perf_counter() - t0:.0f} s "
                f"({len(failures)} failed)")
+
+
+@main.command("publish")
+@click.argument("assets_out", type=click.Path(exists=True, file_okay=False, path_type=Path))
+@click.option("--dry-run", is_flag=True, help="List what would be uploaded and upserted.")
+def publish_cmd(assets_out: Path, dry_run: bool) -> None:
+    """Upload piece assets to private storage and upsert the pieces rows."""
+    load_dotenv()
+    if not dry_run:
+        cfg = spaces_config()
+        if cfg["missing"] or not os.environ.get("DATABASE_URL"):
+            missing = cfg["missing"] + ([] if os.environ.get("DATABASE_URL") else ["DATABASE_URL"])
+            raise click.ClickException(
+                f"missing environment: {', '.join(missing)} (see .env.example); "
+                "run with --dry-run to preview")
+    report = publish(assets_out, dry_run=dry_run)
+    head = "would upload" if dry_run else "uploaded"
+    for k in report.uploaded:
+        click.echo(f"{head} {k}")
+    for k in report.skipped:
+        click.echo(f"skipped {k}")
+    click.echo(f"\n{'would upsert' if dry_run else 'upserted'}: {len(report.upserted)} pieces")
+    click.echo(f"never uploaded: {', '.join(NEVER_UPLOAD)}, *.stl")
+    for e in report.errors:
+        click.echo(f"ERROR {e}")
+    if report.errors:
+        raise SystemExit(1)

@@ -47,9 +47,52 @@ def decimate(mesh: trimesh.Trimesh, target_tris: int, rounds: int = 4) -> trimes
     return out
 
 
+HEAD_NODE_MARGIN_MM = 0.3  # SPEC §4.6: prong outer radius + 0.3 mm
+
+
 def write_glb(mesh: trimesh.Trimesh, path: Path, node_name: str = "band") -> None:
     scene = trimesh.Scene()
     scene.add_geometry(mesh, node_name=node_name, geom_name=node_name)
+    path.write_bytes(scene.export(file_type="glb"))
+
+
+def split_head_nodes(mesh: trimesh.Trimesh, heads: list[dict]) -> list[tuple[str, trimesh.Trimesh]]:
+    """Label faces into `band` and `head_i` (SPEC §4.8).
+
+    A face belongs to head i when its centroid falls inside a cylinder around that head's
+    axis with radius = prong outer radius + 0.3 mm, running from the band surface outwards.
+    """
+    if not heads:
+        return [("band", mesh)]
+    centroids = mesh.triangles_center
+    owner = np.full(len(mesh.faces), -1)
+    for i, h in enumerate(heads):
+        origin = np.asarray(h["origin"], dtype=float)
+        axis = np.asarray(h["axis"], dtype=float)
+        axis = axis / np.linalg.norm(axis)
+        radius = h["r_in_mm"] + h["prong_w_mm"] + HEAD_NODE_MARGIN_MM
+        rel = centroids - origin
+        along = rel @ axis
+        off = np.linalg.norm(rel - np.outer(along, axis), axis=1)
+        inside = (along >= -0.2) & (along <= h["rise_mm"] + 0.5) & (off <= radius) & (owner < 0)
+        owner[inside] = i
+
+    parts = []
+    band = np.flatnonzero(owner < 0)
+    if len(band):
+        parts.append(("band", mesh.submesh([band], append=True)))
+    for i in range(len(heads)):
+        faces = np.flatnonzero(owner == i)
+        if len(faces):
+            parts.append((f"head_{i}", mesh.submesh([faces], append=True)))
+    return parts
+
+
+def write_glb_nodes(parts: list[tuple[str, trimesh.Trimesh]], path: Path) -> None:
+    """One GLB with a named node per labelled part."""
+    scene = trimesh.Scene()
+    for name, part in parts:
+        scene.add_geometry(part, node_name=name, geom_name=name)
     path.write_bytes(scene.export(file_type="glb"))
 
 
