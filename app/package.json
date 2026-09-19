@@ -14,6 +14,9 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.650.0",
     "@aws-sdk/s3-request-presigner": "^3.650.0",
+    "@react-three/drei": "^9.114.3",
+    "@react-three/fiber": "^8.17.10",
+    "@types/three": "^0.169.0",
     "argon2": "^0.45.1",
     "iron-session": "^8.0.3",
     "lru-cache": "^11.0.1",
@@ -21,6 +24,7 @@
     "pg": "^8.13.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "three": "^0.169.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {
