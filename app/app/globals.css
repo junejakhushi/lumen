@@ -2,7 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Page transition: 8px rise with fade */
+/* ---- Jaali lattice background at 5% opacity ---- */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-image: url("/brand/brand/motifs/jaali-tile.svg");
+  background-size: 256px 256px;
+  background-repeat: repeat;
+  opacity: 0.05;
+  pointer-events: none;
+}
+
+/* ---- Page transition: 8px rise with fade ---- */
 @keyframes page-enter {
   from {
     opacity: 0;
@@ -16,4 +29,78 @@
 
 .page-enter {
   animation: page-enter var(--dur-slow, 320ms) var(--ease-quiet, cubic-bezier(0.2, 0, 0, 1)) both;
+}
+
+/* ---- Gold-thread divider ---- */
+.gold-divider {
+  border: none;
+  height: 1px;
+  background: var(--hairline, #a8844a);
+}
+
+.gold-divider--bead {
+  background-image: url("/brand/brand/motifs/divider-bead-240.svg");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  height: 12px;
+}
+
+/* ---- Pearl shimmer placeholder ---- */
+.shimmer {
+  position: relative;
+  overflow: hidden;
+  background: var(--pearl, #e8e2d8);
+  border-radius: var(--radius-sm, 2px);
+}
+
+.shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--ivory, #f5f0e8) 50%,
+    transparent 100%
+  );
+  animation: shimmer-sweep 1.8s var(--ease-draw, cubic-bezier(0.65, 0, 0.35, 1)) infinite;
+}
+
+@keyframes shimmer-sweep {
+  0% { transform: translateX(-100%); }
+  70% { transform: translateX(100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* ---- Reduced motion ---- */
+@media (prefers-reduced-motion: reduce) {
+  .page-enter {
+    animation: none;
+    opacity: 1;
+  }
+
+  .shimmer::after {
+    animation: none;
+    display: none;
+  }
+
+  body::before {
+    /* Keep jaali but no motion */
+  }
+}
+
+/* ---- Focus ring utility ---- */
+.focus-gold:focus-visible {
+  outline: 2px solid var(--focus-ring, #8c6c3a);
+  outline-offset: 2px;
+}
+
+/* ---- No underline for link buttons ---- */
+a.no-underline {
+  text-decoration: none;
+}
+a.no-underline::before,
+a.no-underline::after {
+  display: none;
 }

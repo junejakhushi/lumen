@@ -23,11 +23,13 @@ export default function CollectionPage() {
   }, [pieces, filter]);
 
   return (
-    <div className="px-6 lg:px-margin-d py-12 max-w-content mx-auto">
-      <h1 className="font-display text-display-l-m lg:text-display-l-d text-text mb-2">
+    <div className="px-margin-m lg:px-margin-d py-12 lg:py-16 max-w-content mx-auto">
+      <p className="label-m text-text-muted mb-3">Private viewing</p>
+      <h1 className="font-display text-display-l-m lg:text-display-l-d text-text mb-3">
         The collection
       </h1>
-      <p className="text-body-m-m text-text-muted mb-8 max-w-measure">
+      <hr className="gold-divider w-16 mb-6" aria-hidden="true" />
+      <p className="text-body-l-m lg:text-body-l-d text-text-muted mb-10 max-w-measure">
         Every piece is made to order in the atelier. Try it on here, then make
         it yours.
       </p>

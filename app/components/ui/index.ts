@@ -11,3 +11,5 @@ export { ToastProvider, useToast } from "./Toast";
 export { ConsentRow } from "./ConsentRow";
 export { Field } from "./Field";
 export { IconButton } from "./IconButton";
+export { Loader } from "./Loader";
+export { GoldDivider } from "./GoldDivider";

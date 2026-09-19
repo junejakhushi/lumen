@@ -13,12 +13,12 @@ const NAV_LINKS = [
 export function Nav() {
   const pathname = usePathname();
 
-  // Don't show nav on the gate page
-  if (pathname === "/gate") return null;
+  // Don't show nav on the gate page or AR page
+  if (pathname === "/gate" || pathname?.endsWith("/ar")) return null;
 
   return (
-    <header className="flex items-center justify-between px-6 lg:px-margin-d py-4 border-b border-hairline-quiet">
-      <Link href="/" aria-label="Lumen home">
+    <header className="flex items-center justify-between px-margin-m lg:px-margin-d py-4 border-b border-hairline-quiet">
+      <Link href="/" aria-label="Lumen home" className="focus-gold rounded-sm">
         <Image
           src="/brand/brand/monogram.svg"
           alt=""
@@ -28,18 +28,20 @@ export function Nav() {
           priority
         />
       </Link>
-      <nav aria-label="Main" className="flex items-center gap-6">
-        {NAV_LINKS.map((link) => (
-          <Link
-            key={link.href}
-            href={link.href}
-            className={`qh-link text-ui-m-m ${
-              pathname === link.href ? "font-medium" : ""
-            }`}
-          >
-            {link.label}
-          </Link>
-        ))}
+      <nav aria-label="Main" className="flex items-center gap-5 lg:gap-8">
+        {NAV_LINKS.map((link) => {
+          const isActive = pathname === link.href || pathname?.startsWith(link.href + "/");
+          return (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={`qh-link text-ui-m-m ${isActive ? "font-medium" : ""}`}
+              aria-current={isActive ? "page" : undefined}
+            >
+              {link.label}
+            </Link>
+          );
+        })}
       </nav>
     </header>
   );

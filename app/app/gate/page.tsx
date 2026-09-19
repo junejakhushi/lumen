@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export default function GatePage() {
   const [code, setCode] = useState("");
@@ -40,9 +41,15 @@ export default function GatePage() {
   }
 
   return (
-    <div className="qh-gate min-h-screen flex flex-col items-center justify-center px-6">
+    <div className="qh-gate min-h-screen flex flex-col items-center justify-center px-margin-m lg:px-margin-d">
+      <div className="qh-gate__atelier mb-6">
+        <Image src="/brand/brand/monogram.svg" alt="" width={28} height={28} />
+      </div>
+      <div className="qh-gate__rule mb-8">
+        <Image src="/brand/brand/motifs/mark-paisley-48.svg" alt="" width={16} height={16} />
+      </div>
       <div className="qh-gate__main w-full max-w-sm">
-        <p className="qh-gate__accent mb-2">
+        <p className="qh-gate__accent mb-3">
           स्वागत <span>welcome</span>
         </p>
         <h1 className="qh-gate__title mb-2">A private viewing</h1>

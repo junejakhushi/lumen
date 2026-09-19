@@ -5,6 +5,8 @@ import { Footer } from "@/components/layout/Footer";
 import { ToastProvider } from "@/components/ui/Toast";
 import "@/public/brand/tokens/tokens.css";
 import "@/public/brand/design-system/components/bundle.css";
+import "@/public/brand/brand/motion/loader.css";
+import "@/public/brand/brand/motion/ar-states.css";
 import "./globals.css";
 
 const cormorant = Cormorant_Garamond({
