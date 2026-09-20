@@ -30,6 +30,9 @@ export function useHandTracking(): UseHandTrackingResult {
   const fpsFramesRef = useRef<number[]>([]);
   const lostTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const runningRef = useRef(false);
+  /** "Lost" only means something once a hand has actually been seen. */
+  const everSeenRef = useRef(false);
+  const detectErrorsRef = useRef(0);
 
   const stop = useCallback(() => {
     runningRef.current = false;
@@ -55,14 +58,22 @@ export function useHandTracking(): UseHandTrackingResult {
         );
 
         const vision = await FilesetResolver.forVisionTasks(WASM_URL);
-        const handLandmarker = await HandLandmarker.createFromOptions(vision, {
-          baseOptions: {
-            modelAssetPath: MODEL_URL,
-            delegate: "GPU",
-          },
-          runningMode: "VIDEO",
-          numHands: 1,
-        });
+        const create = (delegate: "GPU" | "CPU") =>
+          HandLandmarker.createFromOptions(vision, {
+            baseOptions: { modelAssetPath: MODEL_URL, delegate },
+            runningMode: "VIDEO",
+            numHands: 1,
+          });
+
+        // The page already runs a WebGL canvas for the piece; where that stops the GPU
+        // delegate from starting, CPU still tracks well enough to wear something.
+        let handLandmarker;
+        try {
+          handLandmarker = await create("GPU");
+        } catch (gpuError) {
+          console.warn("[ar] GPU hand tracking unavailable, falling back to CPU", gpuError);
+          handLandmarker = await create("CPU");
+        }
 
         handLandmarkerRef.current = handLandmarker;
         runningRef.current = true;
@@ -98,6 +109,7 @@ export function useHandTracking(): UseHandTrackingResult {
 
             if (result.landmarks && result.landmarks.length > 0) {
               const hand = result.landmarks[0];
+              everSeenRef.current = true;
               setLandmarks(hand);
               setStatus("tracking");
 
@@ -106,18 +118,25 @@ export function useHandTracking(): UseHandTrackingResult {
                 clearTimeout(lostTimerRef.current);
                 lostTimerRef.current = null;
               }
-            } else {
-              // No hand detected — hold for 300ms then mark lost
-              if (!lostTimerRef.current) {
-                lostTimerRef.current = setTimeout(() => {
-                  setStatus("lost");
-                  setLandmarks(null);
-                  lostTimerRef.current = null;
-                }, 300);
-              }
+            } else if (!lostTimerRef.current) {
+              // Hold briefly before reacting, so a dropped frame does not flicker the piece.
+              lostTimerRef.current = setTimeout(() => {
+                // Nothing has been seen yet: still looking, not lost.
+                setStatus(everSeenRef.current ? "lost" : "finding");
+                setLandmarks(null);
+                lostTimerRef.current = null;
+              }, 300);
             }
-          } catch {
-            // Detection error — skip frame
+          } catch (detectError) {
+            // One bad frame is nothing; every frame failing means tracking is not working,
+            // and staying silent about it is how this looked like "no hand in view".
+            detectErrorsRef.current += 1;
+            if (detectErrorsRef.current === 30) {
+              const message =
+                detectError instanceof Error ? detectError.message : String(detectError);
+              console.error(`[ar] hand detection is failing on every frame: ${message}`);
+              setError("Hand tracking could not run on this device.");
+            }
           }
 
           rafIdRef.current = requestAnimationFrame(detect);

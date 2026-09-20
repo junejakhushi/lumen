@@ -406,6 +406,13 @@ export default function ARPage() {
           </span>
           {trackingLabel}
         </div>
+        {trackingStatus !== "tracking" && (
+          <p className="caption-m text-center mt-2 text-ivory/60">
+            {fps > 0
+              ? "Show your whole hand, wrist included, in good light"
+              : "Starting the camera…"}
+          </p>
+        )}
       </div>
 
       {/* Price pill — floating top right */}
