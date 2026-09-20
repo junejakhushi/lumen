@@ -1,5 +1,6 @@
 import * as THREE from "three";
-import { bendVertex } from "@/lib/assembly/bracelet";
+import { bendVertex, segmentsAroundWrist } from "@/lib/assembly/bracelet";
+import { buildGems, type GemType, type HeadPlacement } from "./gems";
 
 /**
  * Put a piece into wearing position (SPEC §5.1).
@@ -19,6 +20,8 @@ export interface PieceCurve {
   center: number[];
   plane_normal: number[];
   inner_radius_mm: number;
+  /** How much of a circle the piece covers — a bracelet segment is a fraction of one. */
+  span_deg?: number;
 }
 
 export interface PlaceOptions {
@@ -28,6 +31,10 @@ export interface PlaceOptions {
   pieceType: "bracelet" | "ring";
   /** Bracelets: how many copies of the segment close the circle. */
   segmentCount?: number;
+  /** The settings the pipeline measured, so their stones can be drawn (SPEC §4.6). */
+  heads?: HeadPlacement[];
+  stoneDiameters?: number[];
+  stoneType?: GemType;
 }
 
 /** The transform that takes the model into "centred on the origin, axis along +Y". */
@@ -66,14 +73,20 @@ export function modelRadius(object: THREE.Object3D, curve?: PieceCurve | null): 
  */
 export function placePiece(source: THREE.Object3D, options: PlaceOptions): THREE.Group {
   const { curve, wornRadiusMm, pieceType } = options;
-  const segmentCount = Math.max(1, options.segmentCount ?? 1);
 
   const piece = source.clone(true);
   const bake = normalisingMatrix(piece, curve);
   const fromRadius = modelRadius(piece, curve);
-  // A ring keeps its angles and only moves outward; a bracelet segment also has its span
-  // squeezed, so that n of them close the circle at the new size.
-  const bendAngles = pieceType !== "ring";
+
+  // How many copies, and how far each must be stretched so they meet.
+  const spanDeg = curve?.span_deg ?? 360;
+  const isRing = pieceType === "ring" || spanDeg >= 330;
+  const copies = isRing
+    ? 1
+    : options.segmentCount ?? segmentsAroundWrist(spanDeg, fromRadius, wornRadiusMm);
+  const spanRad = (spanDeg * Math.PI) / 180;
+  // Each segment covers exactly its share of the circle, so there is no gap at the joints.
+  const thetaScale = isRing || spanRad <= 0 ? 1 : (2 * Math.PI) / copies / spanRad;
 
   piece.updateMatrixWorld(true);
   piece.traverse((child) => {
@@ -89,11 +102,11 @@ export function placePiece(source: THREE.Object3D, options: PlaceOptions): THREE
       const r = Math.hypot(x, z);
       if (r < 1e-6) continue;
       const theta = Math.atan2(z, x);
-      // Both cases move the inner surface from the modelled radius to the worn one; only a
-      // bracelet segment also has its angles squeezed, so n of them still close the circle.
-      const [nextTheta, nextR] = bendVertex(theta, r, fromRadius, wornRadiusMm);
-      const useTheta = bendAngles ? nextTheta : theta;
-      position.setXYZ(i, nextR * Math.cos(useTheta), y, nextR * Math.sin(useTheta));
+      // Both cases move the inner surface from the modelled radius to the worn one; a
+      // bracelet segment's angles are also stretched so n of them close the circle.
+      const [, nextR] = bendVertex(theta, r, fromRadius, wornRadiusMm);
+      const nextTheta = theta * thetaScale;
+      position.setXYZ(i, nextR * Math.cos(nextTheta), y, nextR * Math.sin(nextTheta));
     }
     position.needsUpdate = true;
     geometry.computeVertexNormals();
@@ -108,22 +121,51 @@ export function placePiece(source: THREE.Object3D, options: PlaceOptions): THREE
   piece.quaternion.identity();
   piece.scale.setScalar(1);
 
+  // The stones ride the same bend as the metal, so they stay in their settings.
+  const bendPoint = (p: THREE.Vector3) => {
+    const q = p.clone().applyMatrix4(bake);
+    const r = Math.hypot(q.x, q.z);
+    if (r < 1e-6) return q;
+    const theta = Math.atan2(q.z, q.x) * thetaScale;
+    const [, nextR] = bendVertex(0, r, fromRadius, wornRadiusMm);
+    return new THREE.Vector3(nextR * Math.cos(theta), q.y, nextR * Math.sin(theta));
+  };
+  const bendDirection = (origin: THREE.Vector3, dir: THREE.Vector3) => {
+    // Follow the direction a short way and see where it lands: a bent piece's outward
+    // direction turns with it.
+    const a = bendPoint(origin);
+    const b = bendPoint(origin.clone().addScaledVector(dir, 1));
+    const out = b.sub(a);
+    return out.lengthSq() < 1e-12 ? new THREE.Vector3(0, 1, 0) : out.normalize();
+  };
+
+  const gems =
+    options.heads && options.heads.length > 0
+      ? buildGems(options.heads, options.stoneDiameters ?? [], {
+          type: options.stoneType,
+          transformPoint: bendPoint,
+          transformDirection: bendDirection,
+        })
+      : null;
+
   const assembled = new THREE.Group();
-  const copies = pieceType === "bracelet" ? segmentCount : 1;
   for (let i = 0; i < copies; i++) {
-    const copy = i === 0 ? piece : piece.clone(true); // clones share geometry
-    copy.rotateY((i / copies) * Math.PI * 2);
-    assembled.add(copy);
+    const metal = i === 0 ? piece : piece.clone(true); // clones share geometry
+    const slot = new THREE.Group();
+    slot.add(metal);
+    if (gems) slot.add(i === 0 ? gems : gems.clone(true));
+    slot.rotateY((i / copies) * Math.PI * 2);
+    assembled.add(slot);
   }
   return assembled;
 }
 
 /** Free the geometry a placed piece owns. */
 export function disposePlaced(group: THREE.Object3D): void {
-  const seen = new Set<THREE.BufferGeometry>();
+  const seen: THREE.BufferGeometry[] = [];
   group.traverse((child) => {
-    if (child instanceof THREE.Mesh && child.geometry && !seen.has(child.geometry)) {
-      seen.add(child.geometry);
+    if (child instanceof THREE.Mesh && child.geometry && !seen.includes(child.geometry)) {
+      seen.push(child.geometry);
       child.geometry.dispose();
     }
   });

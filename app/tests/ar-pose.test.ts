@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { solveRingPose, solveWristPose, type Landmark } from "@/lib/ar/wristPose";
+import { mirrorPose, solveRingPose, solveWristPose, type Landmark } from "@/lib/ar/wristPose";
 import { bendVertex } from "@/lib/assembly/bracelet";
 
 /**
@@ -143,3 +143,31 @@ function rotate(v: number[], q: number[]): number[] {
     iz * w + iw * -z + ix * -y - iy * -x,
   ];
 }
+
+describe("mirroring for the front camera", () => {
+  it("moves the piece to the side of the frame the viewer sees", () => {
+    const pose = solveWristPose(flatHand(400, 20), W, H, FOV, PALM_MM)!;
+    const m = mirrorPose(pose);
+    expect(m.position[0]).toBeCloseTo(-pose.position[0], 9);
+    expect(m.position[1]).toBeCloseTo(pose.position[1], 9);
+    expect(m.position[2]).toBeCloseTo(pose.position[2], 9);
+  });
+
+  it("mirrors the rotation as well, so the piece is not left facing backwards", () => {
+    const pose = solveWristPose(flatHand(400, 20), W, H, FOV, PALM_MM)!;
+    const m = mirrorPose(pose);
+    // The wrist axis reflects in x; the palm normal still faces the camera.
+    const y = rotate([0, 1, 0], pose.quaternion);
+    const my = rotate([0, 1, 0], m.quaternion);
+    expect(my[0]).toBeCloseTo(-y[0], 6);
+    expect(my[1]).toBeCloseTo(y[1], 6);
+    expect(rotate([0, 0, 1], m.quaternion)[2]).toBeGreaterThan(0.9);
+  });
+
+  it("is its own inverse", () => {
+    const pose = solveWristPose(flatHand(400, 15), W, H, FOV, PALM_MM)!;
+    const back = mirrorPose(mirrorPose(pose));
+    expect(back.position).toEqual(pose.position);
+    back.quaternion.forEach((v, i) => expect(v).toBeCloseTo(pose.quaternion[i], 9));
+  });
+});

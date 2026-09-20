@@ -7,7 +7,7 @@ import Image from "next/image";
 import { usePieces, getAssetUrl } from "@/lib/hooks/usePieces";
 import { useCamera } from "@/lib/ar/useCamera";
 import { useHandTracking } from "@/lib/ar/useHandTracking";
-import { solveWristPose, solveRingPose } from "@/lib/ar/wristPose";
+import { mirrorPose, solveWristPose, solveRingPose } from "@/lib/ar/wristPose";
 import { OneEuroFilter3, OneEuroFilterQuat } from "@/lib/ar/oneEuro";
 import { sampleLighting, type LightingParams } from "@/lib/ar/lightingMatch";
 import { assembleForType } from "@/lib/assembly";
@@ -54,6 +54,7 @@ export default function ARPage() {
   const [showPermission, setShowPermission] = useState(true);
   const [snapshotFlash, setSnapshotFlash] = useState(false);
   const [lowFps, setLowFps] = useState(false);
+  const [lowFpsDismissed, setLowFpsDismissed] = useState(false);
 
   // Smoothing filters
   const posFilterRef = useRef(new OneEuroFilter3(1.0, 0.02));
@@ -137,14 +138,16 @@ export default function ARPage() {
       : solveWristPose(landmarks, vw, vh, CAMERA_FOV_DEG, PALM_WIDTH_MM);
 
     if (!rawPose) return null;
+    // The front camera is shown mirrored, so the piece has to be mirrored with it.
+    const framed = facing === "user" ? mirrorPose(rawPose) : rawPose;
 
     // Apply smoothing
     const t = performance.now() / 1000;
-    const pos = posFilterRef.current.filter(rawPose.position, t);
-    const quat = quatFilterRef.current.filter(rawPose.quaternion, t);
+    const pos = posFilterRef.current.filter(framed.position, t);
+    const quat = quatFilterRef.current.filter(framed.quaternion, t);
 
-    return { ...rawPose, position: pos, quaternion: quat };
-  }, [landmarks, manifest?.type, videoRef]);
+    return { ...framed, position: pos, quaternion: quat };
+  }, [landmarks, manifest?.type, videoRef, facing]);
 
   // Assembly + pricing
   const assembly = useMemo(() => {
@@ -169,9 +172,10 @@ export default function ARPage() {
     return (wristCm * 10 + 12) / (2 * Math.PI);
   }, [manifest?.type, wristCm, ringSizeIn]);
 
-  const videoAspect = videoRef.current
-    ? videoRef.current.videoWidth / (videoRef.current.videoHeight || 1)
-    : 16 / 9;
+  const videoSize = {
+    width: videoRef.current?.videoWidth ?? 0,
+    height: videoRef.current?.videoHeight ?? 0,
+  };
 
   // Snapshot
   const handleSnapshot = useCallback(async () => {
@@ -311,23 +315,6 @@ export default function ARPage() {
     );
   }
 
-  // Low FPS fallback
-  if (lowFps) {
-    return (
-      <div className="min-h-screen bg-ink flex items-center justify-center text-ivory px-6 text-center" data-theme="evening">
-        <div>
-          <p className="font-display text-title-m-m mb-4">AR runs better on a faster device</p>
-          <p className="text-body-m-m text-text-muted mb-6">
-            Running at {fps} fps. Try it in 3D instead for the best experience.
-          </p>
-          <button onClick={() => router.back()} className="qh-btn qh-btn--secondary">
-            View in 3D instead
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   // Tracking status label
   const trackingLabel: TrackingLabel =
     trackingStatus === "finding" ? "Finding you\u2026" :
@@ -340,6 +327,10 @@ export default function ARPage() {
     trackingStatus === "lost" ? "qh-track--closer" : "";
 
   const pieceName = piece?.name || manifest?.review?.name || `Piece`;
+
+  // ?debug=1 shows what the tracker and the camera model think, for tuning placement.
+  const debug =
+    typeof window !== "undefined" && new URLSearchParams(window.location.search).has("debug");
 
   return (
     // The layout's page transition animates a transform, which makes <main> the containing
@@ -369,8 +360,11 @@ export default function ARPage() {
         innerRadiusMm={innerRadiusMm}
         curve={manifest?.curve ?? null}
         segmentCount={assembly?.segmentCount ?? 1}
+        heads={manifest?.heads}
+        stoneDiameters={manifest?.stones?.map((s) => s.d_mm)}
         fovDeg={CAMERA_FOV_DEG}
-        videoAspect={videoAspect}
+        videoWidth={videoSize.width}
+        videoHeight={videoSize.height}
         lighting={lighting}
         pieceType={manifest?.type === "ring" ? "ring" : "bracelet"}
         visible={trackingStatus === "tracking"}
@@ -399,6 +393,46 @@ export default function ARPage() {
           Rough preview
         </span>
       </div>
+
+      {lowFps && !lowFpsDismissed && (
+        <div className="absolute bottom-40 left-1/2 -translate-x-1/2 z-30 w-[min(22rem,90vw)]">
+          <div className="qh-toast">
+            <span className="qh-toast__msg">
+              Running at {fps} fps. It may be smoother in 3D.
+            </span>
+            <button className="qh-toast__action" onClick={() => router.back()}>
+              View in 3D
+            </button>
+            <button
+              className="qh-iconbtn"
+              aria-label="Keep trying it on"
+              onClick={() => setLowFpsDismissed(true)}
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
+
+      {debug && pose && (
+        <pre
+          data-testid="ar-debug"
+          className="absolute top-24 left-3 z-40 text-[10px] leading-4 text-ivory/80 bg-ink/70 p-2 m-0"
+        >
+          {[
+            `distance   ${pose.distanceMm.toFixed(0)} mm`,
+            `palm       ${pose.palmWidthPx.toFixed(0)} px`,
+            `position   ${pose.position.map((n) => n.toFixed(0)).join(", ")}`,
+            `worn r     ${innerRadiusMm.toFixed(1)} mm`,
+            `segments   ${assembly?.segmentCount ?? 1}`,
+            `video      ${videoSize.width}x${videoSize.height}`,
+            `facing     ${facing}`,
+            `lm0 raw    ${landmarks ? `${landmarks[0].x.toFixed(3)}, ${landmarks[0].y.toFixed(3)}` : "-"}`,
+            `lm9 raw    ${landmarks ? `${landmarks[9].x.toFixed(3)}, ${landmarks[9].y.toFixed(3)}` : "-"}`,
+            `fps        ${fps}`,
+          ].join("\n")}
+        </pre>
+      )}
 
       {/* Tracking pill */}
       <div className="absolute top-20 left-1/2 -translate-x-1/2 z-20">

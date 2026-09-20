@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import * as THREE from "three";
 import { modelRadius, normalisingMatrix, placePiece } from "@/lib/ar/placePiece";
+import { segmentsAroundWrist } from "@/lib/assembly/bracelet";
 
 /**
  * A bracelet segment as the pipeline would hand one over: an arc of a band, modelled about
@@ -33,7 +34,7 @@ function segment({
   }
   const geometry = new THREE.BufferGeometry();
   geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
-  geometry.setIndex([...positions.keys()].filter((i) => i % 3 === 0).map((i) => i / 3).slice(0, 3));
+  geometry.setIndex([0, 1, 2]);
   const mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial());
 
   // Model it in CAD coordinates: not at the origin, not about +Y.
@@ -62,6 +63,7 @@ const curveOf = (s: ReturnType<typeof segment>) => ({
   center: [s.centre.x, s.centre.y, s.centre.z],
   plane_normal: [s.axis.x, s.axis.y, s.axis.z],
   inner_radius_mm: s.innerRadius,
+  span_deg: s.spanDeg,
 });
 
 describe("placing a piece on the wearer", () => {
@@ -119,21 +121,28 @@ describe("placing a piece on the wearer", () => {
     }
   });
 
-  it("lays the segments right round the wrist", () => {
+  it("closes the circle, whatever the wrist size", () => {
     const s = segment({ spanDeg: 88 });
-    const placed = placePiece(s.object, {
-      curve: curveOf(s),
-      wornRadiusMm: 25.5,
-      pieceType: "bracelet",
-      segmentCount: 4,
-    });
-    const angles = vertices(placed).map((v) => (Math.atan2(v.z, v.x) * 180) / Math.PI);
-    // four segments of a squeezed 88° arc cover the circle, with no gap wider than one slot
-    const sorted = [...new Set(angles.map((a) => Math.round(a)))].sort((a, b) => a - b);
-    const gaps = sorted.slice(1).map((a, i) => a - sorted[i]);
-    expect(Math.max(...gaps, 0)).toBeLessThan(25);
-    expect(sorted[0]).toBeLessThan(-150);
-    expect(sorted[sorted.length - 1]).toBeGreaterThan(150);
+    for (const worn of [22, 25.5, 29]) {
+      const placed = placePiece(s.object, {
+        curve: curveOf(s),
+        wornRadiusMm: worn,
+        pieceType: "bracelet",
+      });
+      // Every 10° of the circle has some jewellery in it: no gap at the joints.
+      const covered = new Set(
+        vertices(placed).map((v) => Math.floor(((Math.atan2(v.z, v.x) * 180) / Math.PI + 180) / 10))
+      );
+      expect(covered.size).toBe(36);
+    }
+  });
+
+  it("counts the segments from the arc length the bend preserves", () => {
+    // The fixture: an 88° arc of a 30.5 mm bangle, worn on a 16 cm wrist.
+    expect(segmentsAroundWrist(88, 30.5, 27.4)).toBe(4);
+    // Dividing the mid-radius arc into the inner circumference, as SPEC §5.1 reads, gives 3
+    // — and three of these leave a 66° hole.
+    expect(Math.round((2 * Math.PI * 27.4) / 50.48)).toBe(3);
   });
 
   it("a ring is widened without having its angles squeezed", () => {
@@ -168,7 +177,6 @@ describe("placing a piece on the wearer", () => {
       curve: curveOf(s),
       wornRadiusMm: 22,
       pieceType: "bracelet",
-      segmentCount: 3,
     });
     const after = vertices(s.object);
     after.forEach((v, i) => expect(v.distanceTo(before[i])).toBeLessThan(1e-9));

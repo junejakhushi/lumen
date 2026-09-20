@@ -9,6 +9,7 @@ import { METAL_COLORS, type MetalColor } from "@/lib/types";
 import type { WristPose } from "@/lib/ar/wristPose";
 import type { LightingParams } from "@/lib/ar/lightingMatch";
 import { disposePlaced, placePiece, type PieceCurve } from "@/lib/ar/placePiece";
+import type { GemType } from "@/lib/ar/gems";
 
 export type { PieceCurve } from "@/lib/ar/placePiece";
 
@@ -21,8 +22,13 @@ interface ARSceneProps {
   curve?: PieceCurve | null;
   /** How many copies of the segment make the bracelet at the chosen size. */
   segmentCount?: number;
+  /** Settings and stones the pipeline measured, drawn procedurally (SPEC §4.6). */
+  heads?: Array<{ origin: number[]; axis: number[]; r_in_mm?: number; rise_mm?: number }>;
+  stoneDiameters?: number[];
+  stoneType?: GemType;
   fovDeg: number;
-  videoAspect: number;
+  videoWidth: number;
+  videoHeight: number;
   lighting: LightingParams;
   pieceType: "bracelet" | "ring";
   visible: boolean;
@@ -36,6 +42,9 @@ function ARPiece({
   pieceType,
   curve,
   segmentCount,
+  heads,
+  stoneDiameters,
+  stoneType,
 }: {
   url: string;
   metalColor: MetalColor;
@@ -44,6 +53,9 @@ function ARPiece({
   pieceType: "bracelet" | "ring";
   curve?: PieceCurve | null;
   segmentCount: number;
+  heads?: Array<{ origin: number[]; axis: number[]; r_in_mm?: number; rise_mm?: number }>;
+  stoneDiameters?: number[];
+  stoneType?: GemType;
 }) {
   const { scene } = useGLTF(url);
   const groupRef = useRef<THREE.Group>(null);
@@ -57,8 +69,11 @@ function ARPiece({
         wornRadiusMm: innerRadiusMm,
         pieceType,
         segmentCount,
+        heads,
+        stoneDiameters,
+        stoneType,
       }),
-    [scene, curve, innerRadiusMm, pieceType, segmentCount]
+    [scene, curve, innerRadiusMm, pieceType, segmentCount, heads, stoneDiameters, stoneType]
   );
 
   useEffect(() => {
@@ -70,7 +85,8 @@ function ARPiece({
       envMapIntensity: 1.2,
     });
     placed.traverse((child) => {
-      if (child instanceof THREE.Mesh) {
+      // renderOrder 2 marks a stone; only the metal takes the metal colour.
+      if (child instanceof THREE.Mesh && child.renderOrder !== 2) {
         child.material = material;
         child.castShadow = false;
         child.renderOrder = 1;
@@ -146,24 +162,43 @@ function ARPiece({
   );
 }
 
+/**
+ * Match the 3D camera to the camera feed as it is actually shown.
+ *
+ * Two things have to line up or the piece renders at the wrong size and drifts away from the
+ * hand. three.js takes a *vertical* field of view, while the pose solver works from the
+ * camera's *horizontal* one — on a 16:9 frame, 60° horizontal is 36° vertical, and using the
+ * one for the other shrinks everything and pulls it toward the middle. And the video is shown
+ * with object-cover, so it is scaled up and cropped; the projection has to describe the part
+ * that is on screen, not the whole frame.
+ */
 function CameraSync({
   fovDeg,
-  videoAspect,
+  videoWidth,
+  videoHeight,
 }: {
   fovDeg: number;
-  videoAspect: number;
+  videoWidth: number;
+  videoHeight: number;
 }) {
-  const { camera } = useThree();
+  const { camera, size } = useThree();
 
   useEffect(() => {
-    if (camera instanceof THREE.PerspectiveCamera) {
-      camera.fov = fovDeg;
-      camera.aspect = videoAspect;
-      camera.near = 1;
-      camera.far = 10000;
-      camera.updateProjectionMatrix();
-    }
-  }, [camera, fovDeg, videoAspect]);
+    if (!(camera instanceof THREE.PerspectiveCamera)) return;
+    if (videoWidth === 0 || videoHeight === 0 || size.width === 0) return;
+
+    // Focal length in video pixels, from the camera's horizontal field of view.
+    const focalVideoPx = videoWidth / 2 / Math.tan((fovDeg * Math.PI) / 360);
+    // object-cover: the video is scaled until it covers the screen, then cropped.
+    const cover = Math.max(size.width / videoWidth, size.height / videoHeight);
+    const focalScreenPx = focalVideoPx * cover;
+
+    camera.fov = (2 * Math.atan(size.height / 2 / focalScreenPx) * 180) / Math.PI;
+    camera.aspect = size.width / size.height;
+    camera.near = 1;
+    camera.far = 10000;
+    camera.updateProjectionMatrix();
+  }, [camera, fovDeg, videoWidth, videoHeight, size.width, size.height]);
 
   return null;
 }
@@ -188,12 +223,16 @@ export function ARScene({
   metalColor,
   innerRadiusMm,
   fovDeg,
-  videoAspect,
+  videoWidth,
+  videoHeight,
   lighting,
   pieceType,
   visible,
   curve,
   segmentCount,
+  heads,
+  stoneDiameters,
+  stoneType,
 }: ARSceneProps) {
   /**
    * A canvas whose GL context has been lost paints as an opaque black rectangle — on this
@@ -252,7 +291,7 @@ export function ARScene({
       }}
       camera={{ fov: fovDeg, near: 1, far: 10000 }}
     >
-      <CameraSync fovDeg={fovDeg} videoAspect={videoAspect} />
+      <CameraSync fovDeg={fovDeg} videoWidth={videoWidth} videoHeight={videoHeight} />
       <LightingSync lighting={lighting} />
       <StudioEnvironment />
       <ambientLight intensity={0.3 * lighting.envMapIntensity} />
@@ -269,6 +308,9 @@ export function ARScene({
         pieceType={pieceType}
         curve={curve}
         segmentCount={segmentCount ?? 1}
+        heads={heads}
+        stoneDiameters={stoneDiameters}
+        stoneType={stoneType}
       />
     </Canvas>
   );

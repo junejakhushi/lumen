@@ -249,3 +249,21 @@ export function solveRingPose(
 }
 
 export { dot, normalize3, cross };
+
+
+/**
+ * Mirror a pose left-to-right.
+ *
+ * The front camera is shown mirrored, the way a mirror shows you yourself — but the 3D scene
+ * over it is not mirrored, so a piece placed from the raw pose lands on the wrong side of the
+ * frame and appears to slide away as the hand moves out from the middle. Reflecting the pose
+ * puts it back on the hand as displayed. For a reflection in the plane x = 0, a rotation
+ * (x, y, z, w) becomes (x, −y, −z, w).
+ */
+export function mirrorPose(pose: WristPose): WristPose {
+  return {
+    ...pose,
+    position: [-pose.position[0], pose.position[1], pose.position[2]],
+    quaternion: [pose.quaternion[0], -pose.quaternion[1], -pose.quaternion[2], pose.quaternion[3]],
+  };
+}

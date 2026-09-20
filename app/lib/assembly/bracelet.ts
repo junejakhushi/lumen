@@ -51,8 +51,12 @@ export function assembleBracelet(
   const circumference = wristCm * 10 + 12;
   const pathRadius = circumference / (2 * Math.PI);
 
-  // Number of segments
-  const n = Math.max(1, Math.round(circumference / seg.arc_len_mm));
+  // Number of segments — counted the way they are actually laid out, so the weight matches
+  // the bracelet on screen.
+  const innerRadius = circumference / (2 * Math.PI);
+  const n = manifest.curve?.span_deg && manifest.curve?.inner_radius_mm
+    ? segmentsAroundWrist(manifest.curve.span_deg, manifest.curve.inner_radius_mm, innerRadius)
+    : Math.max(1, Math.round(circumference / seg.arc_len_mm));
 
   // Connector type
   const connector = seg.connector || "butt";
@@ -99,6 +103,26 @@ export function assembleBracelet(
     totalStones,
     totalCarats,
   };
+}
+
+/**
+ * How many copies of the segment close the circle at the worn size.
+ *
+ * SPEC §5.1 divides the wrist circumference by the segment's arc length at its *mid* radius,
+ * but the bend preserves arc length at the *inner* radius — mixing the two leaves a visible
+ * gap (a third of the bracelet, for the fixture). Both are measured at the inner radius here,
+ * and the segment's span is then stretched to exactly 1/n of the circle so the joints meet.
+ */
+export function segmentsAroundWrist(
+  spanDeg: number,
+  segInnerRadius: number,
+  wornInnerRadius: number
+): number {
+  const spanRad = (spanDeg * Math.PI) / 180;
+  if (spanRad <= 0 || segInnerRadius <= 0) return 1;
+  const arcAtInner = spanRad * segInnerRadius;
+  if (arcAtInner <= 0) return 1;
+  return Math.max(1, Math.round((2 * Math.PI * wornInnerRadius) / arcAtInner));
 }
 
 /**

@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useRef, useState, useEffect, type ReactNode } from "react";
+import { Suspense, useRef, useState, useEffect, useMemo, type ReactNode } from "react";
 import { Canvas } from "@react-three/fiber";
 import {
   OrbitControls,
@@ -10,6 +10,8 @@ import {
 import { StudioEnvironment } from "./studio";
 import * as THREE from "three";
 import { METAL_COLORS, type MetalColor } from "@/lib/types";
+import { buildGems, disposeGems, type GemType, type HeadPlacement } from "@/lib/ar/gems";
+import { disposePlaced, placePiece, type PieceCurve } from "@/lib/ar/placePiece";
 
 /** How the loaded model was centred and scaled, so callers can place markers on it. */
 export interface ModelFit {
@@ -20,6 +22,16 @@ export interface ModelFit {
 interface PieceViewerProps {
   glbUrl: string | null;
   metalColor?: MetalColor;
+  /** Settings the pipeline measured; their stones are drawn procedurally (SPEC §4.6). */
+  heads?: HeadPlacement[];
+  stoneDiameters?: number[];
+  stoneType?: GemType;
+  /** A bracelet is shown as the whole piece, assembled from its segment (SPEC §5.1). */
+  assemble?: {
+    curve?: PieceCurve | null;
+    pieceType: "bracelet" | "ring";
+    wornRadiusMm: number;
+  } | null;
   className?: string;
   autoRotate?: boolean;
   /** Extra objects drawn in the model's space (atelier review markers). */
@@ -31,18 +43,60 @@ function PieceModel({
   url,
   metalColor = "yellow",
   onFit,
+  heads,
+  stoneDiameters,
+  stoneType,
+  assemble,
 }: {
   url: string;
   metalColor: MetalColor;
   onFit?: (fit: ModelFit) => void;
+  heads?: HeadPlacement[];
+  stoneDiameters?: number[];
+  stoneType?: GemType;
+  assemble?: PieceViewerProps["assemble"];
 }) {
-  const { scene } = useGLTF(url);
+  const loaded = useGLTF(url);
   const groupRef = useRef<THREE.Group>(null);
+
+  const scene = useMemo(() => {
+    if (!assemble) return loaded.scene;
+    return placePiece(loaded.scene, {
+      curve: assemble.curve,
+      wornRadiusMm: assemble.wornRadiusMm,
+      pieceType: assemble.pieceType,
+      heads,
+      stoneDiameters,
+      stoneType,
+    });
+  }, [loaded.scene, assemble, heads, stoneDiameters, stoneType]);
+
+  useEffect(() => {
+    if (!assemble) return;
+    const group = scene;
+    return () => disposePlaced(group);
+  }, [scene, assemble]);
+
+  // The stones ride with the model, so they keep their settings as it turns.
+  useEffect(() => {
+    if (assemble || !heads || heads.length === 0) return;
+    const gems = buildGems(heads, stoneDiameters ?? [], {
+      type: stoneType,
+      transformPoint: (p) => p.clone(),
+      transformDirection: (_origin, dir) => dir.clone(),
+    });
+    scene.add(gems);
+    return () => {
+      scene.remove(gems);
+      disposeGems(gems);
+    };
+  }, [scene, heads, stoneDiameters, stoneType, assemble]);
 
   useEffect(() => {
     const hex = METAL_COLORS[metalColor];
     scene.traverse((child) => {
-      if (child instanceof THREE.Mesh) {
+      // renderOrder 2 marks a stone; only the metal takes the metal colour.
+      if (child instanceof THREE.Mesh && child.renderOrder !== 2) {
         child.material = new THREE.MeshPhysicalMaterial({
           color: new THREE.Color(hex),
           metalness: 1,
@@ -56,6 +110,10 @@ function PieceModel({
 
   // Center and scale the model
   useEffect(() => {
+    // An assembled piece turns about +Y, so head-on it is a thin edge. Tilt it to show the
+    // band the way you would hold it up to look at.
+    scene.rotation.set(assemble ? -1.05 : 0, 0, 0);
+    scene.updateMatrixWorld(true);
     const box = new THREE.Box3().setFromObject(scene);
     const center = box.getCenter(new THREE.Vector3());
     const size = box.getSize(new THREE.Vector3());
@@ -67,7 +125,7 @@ function PieceModel({
     scene.scale.setScalar(scale);
     scene.position.copy(center).multiplyScalar(-scale);
     onFit?.({ center: [center.x, center.y, center.z], scale });
-  }, [scene, onFit]);
+  }, [scene, onFit, assemble]);
 
   return (
     <group ref={groupRef}>
@@ -92,6 +150,10 @@ export function PieceViewer({
   autoRotate = true,
   overlay,
   hint = "Drag to turn · Pinch to zoom",
+  heads,
+  stoneDiameters,
+  stoneType,
+  assemble,
 }: PieceViewerProps) {
   const [hasError, setHasError] = useState(false);
   const [fit, setFit] = useState<ModelFit | null>(null);
@@ -115,7 +177,15 @@ export function PieceViewer({
         gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping }}
       >
         <Suspense fallback={<LoadingFallback />}>
-          <PieceModel url={glbUrl} metalColor={metalColor} onFit={setFit} />
+          <PieceModel
+            url={glbUrl}
+            metalColor={metalColor}
+            onFit={setFit}
+            heads={heads}
+            stoneDiameters={stoneDiameters}
+            stoneType={stoneType}
+            assemble={assemble}
+          />
         </Suspense>
         {overlay && fit && overlay(fit)}
         <StudioEnvironment />

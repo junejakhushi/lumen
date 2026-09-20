@@ -146,6 +146,20 @@ export default function PieceDetailPage() {
           <PieceViewer
             glbUrl={glbUrl}
             metalColor={metal}
+            heads={manifest?.heads}
+            stoneDiameters={manifest?.stones?.map((s) => s.d_mm)}
+            assemble={
+              manifest && (manifest.type === "bracelet" || manifest.type === "ring")
+                ? {
+                    curve: manifest.curve ?? null,
+                    pieceType: manifest.type,
+                    wornRadiusMm:
+                      manifest.type === "ring"
+                        ? (RING_SIZES.find((r) => r.indian === ringSizeIn)?.inner_d_mm ?? 17) / 2
+                        : (wristCm * 10 + 12) / (2 * Math.PI),
+                  }
+                : null
+            }
             className="aspect-square rounded-sm overflow-hidden"
           />
         </div>
