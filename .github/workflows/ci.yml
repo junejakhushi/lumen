@@ -43,4 +43,4 @@ jobs:
       - name: Pipeline checks
         run: |
           if [ ! -f pipeline/pyproject.toml ]; then echo "pipeline not scaffolded yet"; exit 0; fi
-          cd pipeline && pip install -e . pytest && pytest -q
+          cd pipeline && pip install -e '.[dev]' && pytest -q
