@@ -20,12 +20,12 @@ function getCanvas(): { canvas: OffscreenCanvas | HTMLCanvasElement; ctx: Canvas
   try {
     if (typeof OffscreenCanvas !== "undefined") {
       canvas = new OffscreenCanvas(SAMPLE_SIZE, SAMPLE_SIZE);
-      ctx = canvas.getContext("2d");
+      ctx = canvas.getContext("2d", { willReadFrequently: true });
     } else {
       canvas = document.createElement("canvas");
       canvas.width = SAMPLE_SIZE;
       canvas.height = SAMPLE_SIZE;
-      ctx = canvas.getContext("2d");
+      ctx = canvas.getContext("2d", { willReadFrequently: true });
     }
     if (!ctx) return null;
     return { canvas, ctx };

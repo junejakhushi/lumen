@@ -29,7 +29,10 @@ const nextConfig = {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-eval' 'unsafe-inline'",
+              // MediaPipe loads its WASM runtime as a script from the CDN, so the hand
+              // tracker cannot start without this (SPEC §9: self + Spaces + MediaPipe).
+              // 'wasm-unsafe-eval' is for browsers that no longer accept 'unsafe-eval' for WASM.
+              "script-src 'self' 'unsafe-eval' 'wasm-unsafe-eval' 'unsafe-inline' https://cdn.jsdelivr.net",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
               "img-src 'self' blob: data: https://*.digitaloceanspaces.com",
