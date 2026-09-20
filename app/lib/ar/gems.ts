@@ -205,8 +205,13 @@ export function buildGems(
     const origin = new THREE.Vector3(head.origin[0], head.origin[1], head.origin[2]);
     const axis = new THREE.Vector3(head.axis[0], head.axis[1], head.axis[2]).normalize();
     // The stone sits where the prongs grip it — high in the basket, so its table catches the
-    // light rather than being shaded by the setting.
-    const seat = origin.clone().addScaledVector(axis, (head.rise_mm ?? diameter) * 0.72);
+    // light rather than being shaded by the setting. A setting cannot stand much more than a
+    // stone's width above the band, so a rise far beyond that is a misread head rather than a
+    // tall one, and the stone is kept on the piece instead of being flung off it.
+    const rise = Math.min(head.rise_mm ?? diameter, diameter * 1.6);
+    // The prongs close over the crown, so the table sits just under their tips rather than
+    // down in the basket: seat the girdle a crown's height below the top of the setting.
+    const seat = origin.clone().addScaledVector(axis, Math.max(rise - diameter * 0.08, rise * 0.5));
 
     const placedSeat = options.transformPoint(seat);
     const placedAxis = options.transformDirection(seat, axis).normalize();
