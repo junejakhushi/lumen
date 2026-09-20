@@ -342,7 +342,15 @@ export default function ARPage() {
   const pieceName = piece?.name || manifest?.review?.name || `Piece`;
 
   return (
-    <div className="fixed inset-0 bg-ink" data-theme="evening">
+    // The layout's page transition animates a transform, which makes <main> the containing
+    // block for fixed children. <main> has no height of its own here — this overlay is its
+    // only child and is out of flow — so `inset-0` resolved to a zero-height box and the
+    // camera had nowhere to draw. Sizing against the viewport directly cannot collapse.
+    <div
+      className="fixed inset-0 bg-ink"
+      style={{ width: "100vw", height: "100dvh", top: 0, left: 0 }}
+      data-theme="evening"
+    >
       {/* Video */}
       <video
         ref={videoRef as React.RefObject<HTMLVideoElement>}
