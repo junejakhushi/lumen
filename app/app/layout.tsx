@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Cormorant_Garamond, Jost } from "next/font/google";
 import { Nav } from "@/components/layout/Nav";
 import { Footer } from "@/components/layout/Footer";
+import { DemoTabs } from "@/components/layout/DemoTabs";
 import { ToastProvider } from "@/components/ui/Toast";
 import "@/public/brand/tokens/tokens.css";
 import "@/public/brand/design-system/components/bundle.css";
@@ -55,6 +56,7 @@ export default function RootLayout({
             {children}
           </main>
           <Footer />
+          <DemoTabs />
         </ToastProvider>
       </body>
     </html>
