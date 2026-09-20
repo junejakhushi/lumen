@@ -177,12 +177,16 @@ def publish_cmd(assets_out: Path, dry_run: bool) -> None:
     """Upload piece assets to private storage and upsert the pieces rows."""
     load_dotenv()
     if not dry_run:
-        cfg = spaces_config()
-        if cfg["missing"] or not os.environ.get("DATABASE_URL"):
-            missing = cfg["missing"] + ([] if os.environ.get("DATABASE_URL") else ["DATABASE_URL"])
+        if not os.environ.get("DATABASE_URL"):
             raise click.ClickException(
-                f"missing environment: {', '.join(missing)} (see .env.example); "
-                "run with --dry-run to preview")
+                "missing DATABASE_URL (see .env.example); run with --dry-run to preview")
+        cfg = spaces_config()
+        if cfg["missing"]:
+            click.echo(
+                f"No object storage configured ({', '.join(cfg['missing'])}). "
+                "Assets will be stored in the database, which the app serves through the "
+                "same signed URLs."
+            )
     report = publish(assets_out, dry_run=dry_run)
     head = "would upload" if dry_run else "uploaded"
     for k in report.uploaded:

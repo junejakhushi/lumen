@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getIronSession } from "iron-session";
 import { sessionOptions, type SessionData } from "@/lib/session";
-import { verifyDevAssetSig } from "@/lib/storage";
+import { getPrivateObject, verifyDevAssetSig } from "@/lib/storage";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -54,24 +54,29 @@ export async function GET(
     );
   }
 
-  // Serve from the pipeline's output folder (ASSETS_OUT_DIR, default ../private/assets_out)
+  // The pipeline's output folder, when it is there (a developer's machine).
   const assetsRoot = path.resolve(
     process.cwd(),
     process.env.ASSETS_OUT_DIR ?? "../private/assets_out"
   );
   const filePath = path.resolve(assetsRoot, pieceId, FILE_NAMES[kind]);
-
-  // Prevent path traversal
   if (!filePath.startsWith(assetsRoot)) {
     return NextResponse.json({ error: "Invalid path" }, { status: 400 });
   }
 
-  if (!fs.existsSync(filePath)) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  let fileBuffer: Buffer | null = fs.existsSync(filePath) ? fs.readFileSync(filePath) : null;
+
+  if (!fileBuffer) {
+    // Otherwise wherever `lumen publish` put it — the database, on a deployment with no
+    // object storage.
+    const stored = await getPrivateObject(`pieces/${pieceId}/${FILE_NAMES[kind]}`);
+    fileBuffer = stored?.body ?? null;
   }
 
-  const fileBuffer = fs.readFileSync(filePath);
-  return new NextResponse(fileBuffer, {
+  if (!fileBuffer) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+  return new NextResponse(new Uint8Array(fileBuffer), {
     status: 200,
     headers: {
       "Content-Type": CONTENT_TYPES[kind],

@@ -16,9 +16,20 @@ from pathlib import Path
 log = logging.getLogger(__name__)
 
 ASSETS = ("web.glb", "ar.glb", "thumb.webp", "manifest.json")
+BINARY_ASSETS = ("web.glb", "ar.glb", "thumb.webp")
 NEVER_UPLOAD = ("_index.csv",)
 CONTENT_TYPES = {".glb": "model/gltf-binary", ".webp": "image/webp", ".json": "application/json"}
 KEY_PREFIX = "pieces"
+
+# Without an object store the assets go into the database, which the app already knows how
+# to serve (private_files, added for briefs). A demo deployment then needs nothing but a
+# DATABASE_URL: the GLBs are ~100 kB each.
+PRIVATE_FILE_SQL = """
+INSERT INTO private_files (key, content, content_type)
+VALUES (%(key)s, %(content)s, %(content_type)s)
+ON CONFLICT (key) DO UPDATE
+SET content = EXCLUDED.content, content_type = EXCLUDED.content_type, created_at = now()
+"""
 
 UPSERT_SQL = """
 INSERT INTO pieces (id, manifest, approved, type)
@@ -53,6 +64,19 @@ def load_dotenv(path: str | Path = Path(__file__).resolve().parents[2] / ".env")
             os.environ[key] = value
             loaded[key] = value
     return loaded
+
+
+# node-postgres understands these; libpq (and so psycopg) rejects them outright.
+NODE_ONLY_PARAMS = ("uselibpqcompat",)
+
+
+def libpq_url(database_url: str) -> str:
+    """The same connection string, minus parameters only node-postgres knows."""
+    from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
+
+    parts = urlsplit(database_url)
+    query = [(k, v) for k, v in parse_qsl(parts.query) if k not in NODE_ONLY_PARAMS]
+    return urlunsplit(parts._replace(query=urlencode(query)))
 
 
 def piece_folders(root: str | Path) -> list[Path]:
@@ -92,17 +116,22 @@ def publish(root: str | Path, *, dry_run: bool = False, env: dict | None = None)
     database_url = e.get("DATABASE_URL", "")
     client = None
     conn = None
+    # Assets go to the bucket when there is one, and to the database when there is not.
+    to_database = bool(cfg["missing"])
     if not dry_run:
-        if cfg["missing"]:
-            report.errors.append(f"missing storage credentials: {', '.join(cfg['missing'])}")
-            return report
         if not database_url:
             report.errors.append("missing DATABASE_URL")
             return report
-        client = _client(cfg)
+        if to_database:
+            log.warning(
+                "no Spaces credentials (%s); assets will be stored in the database",
+                ", ".join(cfg["missing"]),
+            )
+        else:
+            client = _client(cfg)
         import psycopg
 
-        conn = psycopg.connect(database_url)
+        conn = psycopg.connect(libpq_url(database_url))
 
     try:
         for folder in folders:
@@ -117,14 +146,25 @@ def publish(root: str | Path, *, dry_run: bool = False, env: dict | None = None)
                     report.skipped.append(f"{folder.name}/{name} (missing)")
                     continue
                 key = object_key(folder.name, name)
+                content_type = CONTENT_TYPES.get(path.suffix, "application/octet-stream")
                 if dry_run:
-                    report.uploaded.append(f"{key} ({path.stat().st_size // 1024} kB)")
+                    where = "database" if to_database else "spaces"
+                    report.uploaded.append(
+                        f"{key} ({path.stat().st_size // 1024} kB -> {where})"
+                    )
                     continue
-                client.put_object(
-                    Bucket=cfg["SPACES_BUCKET"], Key=key, Body=path.read_bytes(),
-                    ACL="private", ServerSideEncryption="AES256",
-                    ContentType=CONTENT_TYPES.get(path.suffix, "application/octet-stream"),
-                    CacheControl="private, no-store")
+                if to_database:
+                    with conn.cursor() as cur:
+                        cur.execute(
+                            PRIVATE_FILE_SQL,
+                            {"key": key, "content": path.read_bytes(),
+                             "content_type": content_type},
+                        )
+                else:
+                    client.put_object(
+                        Bucket=cfg["SPACES_BUCKET"], Key=key, Body=path.read_bytes(),
+                        ACL="private", ServerSideEncryption="AES256",
+                        ContentType=content_type, CacheControl="private, no-store")
                 report.uploaded.append(key)
 
             row = {"id": manifest["id"], "manifest": json.dumps(manifest), "type": manifest["type"]}

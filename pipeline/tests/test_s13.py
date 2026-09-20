@@ -176,11 +176,28 @@ def test_publish_reports_missing_asset(tmp_path):
     assert any("thumb.webp" in s for s in report.skipped)
 
 
-def test_publish_requires_credentials(tmp_path):
+def test_publish_requires_a_database(tmp_path):
+    """Without a database there is nowhere to record the pieces, bucket or no bucket."""
     _piece_folder(tmp_path)
     report = publish(tmp_path, dry_run=False, env={})
-    assert report.errors and "credentials" in report.errors[0]
+    assert report.errors and "DATABASE_URL" in report.errors[0]
     assert not report.uploaded
+
+
+def test_publish_says_where_assets_will_go(tmp_path):
+    _piece_folder(tmp_path)
+    without_bucket = publish(tmp_path, dry_run=True, env={})
+    assert all("-> database" in line for line in without_bucket.uploaded)
+
+    with_bucket = publish(
+        tmp_path,
+        dry_run=True,
+        env={
+            "SPACES_KEY": "k", "SPACES_SECRET": "s", "SPACES_BUCKET": "b",
+            "SPACES_REGION": "r", "SPACES_ENDPOINT": "e", "DATABASE_URL": "d",
+        },
+    )
+    assert all("-> spaces" in line for line in with_bucket.uploaded)
 
 
 def test_publish_never_uploads_the_index(tmp_path):
@@ -201,3 +218,12 @@ def test_upsert_preserves_review_fields():
     assert "approved" not in sql.split("do update")[1]
     assert "name" not in sql.split("do update")[1]
     assert "collection" not in sql.split("do update")[1]
+
+
+def test_libpq_url_strips_node_only_parameters():
+    """uselibpqcompat is a node-postgres flag; psycopg refuses to parse it."""
+    from lumen_pipeline.publish import libpq_url
+
+    url = "postgresql://u:p@host:5432/db?sslmode=require&uselibpqcompat=true"
+    assert libpq_url(url) == "postgresql://u:p@host:5432/db?sslmode=require"
+    assert libpq_url("postgresql://u:p@host/db") == "postgresql://u:p@host/db"
