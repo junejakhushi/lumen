@@ -13,6 +13,8 @@ export interface AssemblyResult {
   totalWeight: number;
   totalStones: number;
   totalCarats: number;
+  /** Bracelets: how many copies of the segment make the piece at this size. */
+  segmentCount?: number;
 }
 
 /**
@@ -31,6 +33,7 @@ export function assembleForType(
         totalWeight: a.totalWeight,
         totalStones: a.totalStones,
         totalCarats: a.totalCarats,
+        segmentCount: a.segmentCount,
       };
     }
     case "ring": {

@@ -8,12 +8,19 @@ import * as THREE from "three";
 import { METAL_COLORS, type MetalColor } from "@/lib/types";
 import type { WristPose } from "@/lib/ar/wristPose";
 import type { LightingParams } from "@/lib/ar/lightingMatch";
+import { disposePlaced, placePiece, type PieceCurve } from "@/lib/ar/placePiece";
+
+export type { PieceCurve } from "@/lib/ar/placePiece";
 
 interface ARSceneProps {
   glbUrl: string | null;
   pose: WristPose | null;
   metalColor: MetalColor;
   innerRadiusMm: number;
+  /** Null for a piece the pipeline could not fit a circle to. */
+  curve?: PieceCurve | null;
+  /** How many copies of the segment make the bracelet at the chosen size. */
+  segmentCount?: number;
   fovDeg: number;
   videoAspect: number;
   lighting: LightingParams;
@@ -27,47 +34,52 @@ function ARPiece({
   pose,
   innerRadiusMm,
   pieceType,
+  curve,
+  segmentCount,
 }: {
   url: string;
   metalColor: MetalColor;
   pose: WristPose | null;
   innerRadiusMm: number;
   pieceType: "bracelet" | "ring";
+  curve?: PieceCurve | null;
+  segmentCount: number;
 }) {
   const { scene } = useGLTF(url);
   const groupRef = useRef<THREE.Group>(null);
   const occluderRef = useRef<THREE.Mesh>(null);
 
-  // Apply metal material
+  // Bend the piece to the wearer's size and lay it round the wrist (lib/ar/placePiece).
+  const placed = useMemo(
+    () =>
+      placePiece(scene, {
+        curve,
+        wornRadiusMm: innerRadiusMm,
+        pieceType,
+        segmentCount,
+      }),
+    [scene, curve, innerRadiusMm, pieceType, segmentCount]
+  );
+
   useEffect(() => {
     const hex = METAL_COLORS[metalColor];
-    scene.traverse((child) => {
+    const material = new THREE.MeshPhysicalMaterial({
+      color: new THREE.Color(hex),
+      metalness: 1,
+      roughness: 0.18,
+      envMapIntensity: 1.2,
+    });
+    placed.traverse((child) => {
       if (child instanceof THREE.Mesh) {
-        child.material = new THREE.MeshPhysicalMaterial({
-          color: new THREE.Color(hex),
-          metalness: 1,
-          roughness: 0.18,
-          envMapIntensity: 1.2,
-        });
+        child.material = material;
         child.castShadow = false;
         child.renderOrder = 1;
       }
     });
-  }, [scene, metalColor]);
+    return () => material.dispose();
+  }, [placed, metalColor]);
 
-  // Scale model to real mm and center
-  useEffect(() => {
-    const box = new THREE.Box3().setFromObject(scene);
-    const size = box.getSize(new THREE.Vector3());
-    const maxDim = Math.max(size.x, size.y, size.z);
-    // Scale factor: if the model is in mm, we keep it; otherwise normalize
-    // The pipeline exports in mm, so 1 unit = 1mm
-    const scale = maxDim > 1 ? 1 : 1;
-    scene.scale.setScalar(scale);
-
-    const center = box.getCenter(new THREE.Vector3());
-    scene.position.sub(center.multiplyScalar(scale));
-  }, [scene]);
+  useEffect(() => () => disposePlaced(placed), [placed]);
 
   // Update pose every frame
   useFrame(() => {
@@ -128,7 +140,7 @@ function ARPiece({
 
       {/* Piece */}
       <group ref={groupRef} visible={false}>
-        <primitive object={scene} />
+        <primitive object={placed} />
       </group>
     </>
   );
@@ -180,6 +192,8 @@ export function ARScene({
   lighting,
   pieceType,
   visible,
+  curve,
+  segmentCount,
 }: ARSceneProps) {
   /**
    * A canvas whose GL context has been lost paints as an opaque black rectangle — on this
@@ -253,6 +267,8 @@ export function ARScene({
         pose={pose}
         innerRadiusMm={innerRadiusMm}
         pieceType={pieceType}
+        curve={curve}
+        segmentCount={segmentCount ?? 1}
       />
     </Canvas>
   );

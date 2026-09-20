@@ -367,6 +367,8 @@ export default function ARPage() {
         pose={pose}
         metalColor={metal}
         innerRadiusMm={innerRadiusMm}
+        curve={manifest?.curve ?? null}
+        segmentCount={assembly?.segmentCount ?? 1}
         fovDeg={CAMERA_FOV_DEG}
         videoAspect={videoAspect}
         lighting={lighting}

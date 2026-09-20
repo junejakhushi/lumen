@@ -1,42 +1,63 @@
 /**
- * Wrist pose solver for bracelet AR per SPEC §5.3.
+ * Wrist and finger pose from MediaPipe hand landmarks (SPEC §5.3).
  *
- * From MediaPipe HandLandmarker landmarks (21 3D points in NDC):
- * - Wrist centre = lm0 + 18mm along the forearm axis (normalize(lm0 − lm9))
- * - Palm normal = normalize(cross(lm5 − lm0, lm17 − lm0)), flipped for handedness
- * - Depth from palm width: z = f · PALM_WIDTH_MM / pixelDist(lm5, lm17)
- *   where f = (videoWidth / 2) / tan(FOV_DEG / 2 * π / 180)
- * - Build a quaternion: bracelet axis = forearm axis, up = palm normal
+ * Landmarks arrive normalised: x and y in 0..1 across the frame, z roughly in the same scale
+ * as x. Directions cannot be taken from those numbers directly — x and y are stretched by
+ * different amounts, and y points down while 3D y points up. Everything here is therefore
+ * unprojected into camera space in millimetres first, and the geometry is done there.
+ *
+ * Camera space is three.js convention: x right, y up, camera at the origin looking down −z,
+ * so the hand sits at negative z.
+ *
+ * The pose returned orients a piece whose own axes are:
+ *   +Y  the axis the wrist (or finger) passes through
+ *   +Z  the palm normal (for a bracelet) or the direction the head faces (for a ring)
  */
 
 export interface Landmark {
-  x: number; // 0..1 normalized
-  y: number;
-  z: number;
+  x: number; // 0..1 across the frame
+  y: number; // 0..1 down the frame
+  z: number; // relative depth, roughly in x's scale
 }
 
 export interface WristPose {
-  /** Position in camera space (mm) */
+  /** Position in camera space, millimetres. */
   position: [number, number, number];
-  /** Quaternion [x, y, z, w] */
+  /** Quaternion [x, y, z, w] taking model axes into camera space. */
   quaternion: [number, number, number, number];
-  /** Palm width in pixels (for confidence) */
+  /** Palm width in pixels — how confident the depth estimate is. */
   palmWidthPx: number;
+  /** Distance from the camera, millimetres. */
+  distanceMm: number;
 }
 
-const WRIST_OFFSET_MM = 18;
+type Vec3 = [number, number, number];
 
-function sub(a: Landmark, b: Landmark): [number, number, number] {
-  return [a.x - b.x, a.y - b.y, a.z - b.z];
+const WRIST_OFFSET_MM = 18; // SPEC §5.3: the band sits this far up the forearm from lm0
+
+function sub(a: Vec3, b: Vec3): Vec3 {
+  return [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
 }
 
-function normalize3(v: [number, number, number]): [number, number, number] {
-  const len = Math.sqrt(v[0] ** 2 + v[1] ** 2 + v[2] ** 2);
-  if (len < 1e-10) return [0, 0, 1];
+function add(a: Vec3, b: Vec3): Vec3 {
+  return [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
+}
+
+function scale(v: Vec3, k: number): Vec3 {
+  return [v[0] * k, v[1] * k, v[2] * k];
+}
+
+function length(v: Vec3): number {
+  return Math.hypot(v[0], v[1], v[2]);
+}
+
+function normalize3(v: Vec3): Vec3 {
+  const len = length(v);
+  if (len < 1e-9) return [0, 0, 1];
   return [v[0] / len, v[1] / len, v[2] / len];
 }
 
-function cross(a: [number, number, number], b: [number, number, number]): [number, number, number] {
+function cross(a: Vec3, b: Vec3): Vec3 {
   return [
     a[1] * b[2] - a[2] * b[1],
     a[2] * b[0] - a[0] * b[2],
@@ -44,23 +65,23 @@ function cross(a: [number, number, number], b: [number, number, number]): [numbe
   ];
 }
 
-function dot(a: [number, number, number], b: [number, number, number]): number {
+function dot(a: Vec3, b: Vec3): number {
   return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 }
 
+/** Focal length in pixels from the camera's horizontal field of view. */
+export function focalLengthPx(videoWidth: number, fovDeg: number): number {
+  return videoWidth / 2 / Math.tan((fovDeg * Math.PI) / 360);
+}
+
 /**
- * Build a quaternion from an orthonormal basis (forward, up, right).
- * Uses the standard rotation matrix → quaternion conversion.
+ * Quaternion from three orthonormal axes, given as the columns of the rotation matrix:
+ * where the model's x, y and z end up in camera space.
  */
-function quaternionFromAxes(
-  forward: [number, number, number],
-  up: [number, number, number],
-  right: [number, number, number]
-): [number, number, number, number] {
-  // Rotation matrix columns: right, up, forward
-  const m00 = right[0], m01 = up[0], m02 = forward[0];
-  const m10 = right[1], m11 = up[1], m12 = forward[1];
-  const m20 = right[2], m21 = up[2], m22 = forward[2];
+function quaternionFromBasis(xAxis: Vec3, yAxis: Vec3, zAxis: Vec3): [number, number, number, number] {
+  const m00 = xAxis[0], m01 = yAxis[0], m02 = zAxis[0];
+  const m10 = xAxis[1], m11 = yAxis[1], m12 = zAxis[1];
+  const m20 = xAxis[2], m21 = yAxis[2], m22 = zAxis[2];
 
   const trace = m00 + m11 + m22;
   let x: number, y: number, z: number, w: number;
@@ -95,9 +116,56 @@ function quaternionFromAxes(
   return [x / len, y / len, z / len, w / len];
 }
 
+interface Frame {
+  videoWidth: number;
+  videoHeight: number;
+  fovDeg: number;
+  palmWidthMm: number;
+}
+
 /**
- * Solve the wrist pose for bracelet placement.
+ * Put the hand into camera space, in millimetres.
+ *
+ * Depth comes from the apparent width of the palm (lm5 to lm17) against its assumed real
+ * width — the pinhole model of SPEC §5.3. MediaPipe's own z is relative and noisy, so it is
+ * used only for the small within-hand differences, scaled to match.
  */
+function handInCameraSpace(landmarks: Landmark[], frame: Frame): { points: Vec3[]; palmWidthPx: number; distanceMm: number } | null {
+  const { videoWidth, videoHeight, fovDeg, palmWidthMm } = frame;
+  if (landmarks.length < 21 || videoWidth === 0 || videoHeight === 0) return null;
+
+  const lm5 = landmarks[5];
+  const lm17 = landmarks[17];
+  const palmWidthPx = Math.hypot(
+    (lm5.x - lm17.x) * videoWidth,
+    (lm5.y - lm17.y) * videoHeight
+  );
+  if (palmWidthPx < 1) return null;
+
+  const focal = focalLengthPx(videoWidth, fovDeg);
+  // Distance at which a palm of the assumed width spans that many pixels.
+  const distanceMm = (focal * palmWidthMm) / palmWidthPx;
+  // MediaPipe's z is in units of image width; at this distance one such unit is:
+  const zScaleMm = (videoWidth / focal) * distanceMm;
+
+  const cx = videoWidth / 2;
+  const cy = videoHeight / 2;
+  const points = landmarks.map((lm): Vec3 => {
+    const depth = distanceMm + lm.z * zScaleMm;
+    const px = lm.x * videoWidth;
+    const py = lm.y * videoHeight;
+    return [
+      ((px - cx) / focal) * depth,
+      // Image y runs down the frame; camera y runs up.
+      -((py - cy) / focal) * depth,
+      -depth,
+    ];
+  });
+
+  return { points, palmWidthPx, distanceMm };
+}
+
+/** Where the bracelet sits, and how it is turned (SPEC §5.3, bracelet mode). */
 export function solveWristPose(
   landmarks: Landmark[],
   videoWidth: number,
@@ -105,74 +173,42 @@ export function solveWristPose(
   fovDeg: number,
   palmWidthMm: number
 ): WristPose | null {
-  if (landmarks.length < 21) return null;
+  const hand = handInCameraSpace(landmarks, { videoWidth, videoHeight, fovDeg, palmWidthMm });
+  if (!hand) return null;
+  const { points, palmWidthPx, distanceMm } = hand;
 
-  const lm0 = landmarks[0]; // wrist
-  const lm5 = landmarks[5]; // index MCP
-  const lm9 = landmarks[9]; // middle MCP
-  const lm17 = landmarks[17]; // pinky MCP
+  const wrist = points[0];
+  const indexBase = points[5];
+  const middleBase = points[9];
+  const pinkyBase = points[17];
 
-  // Forearm axis: direction from middle finger base toward wrist
-  const forearmDir = normalize3(sub(lm0, lm9));
+  // Down the forearm, away from the hand.
+  const forearm = normalize3(sub(wrist, middleBase));
+  // The wrist centre proper sits a little further down the arm than landmark 0.
+  const centre = add(wrist, scale(forearm, WRIST_OFFSET_MM));
 
-  // Palm normal
-  const v05 = sub(lm5, lm0);
-  const v017 = sub(lm17, lm0);
-  let palmNormal = normalize3(cross(v05, v017));
-  // Flip if pointing away from camera (z should be negative for front-facing)
-  if (palmNormal[2] > 0) {
-    palmNormal = [-palmNormal[0], -palmNormal[1], -palmNormal[2]];
-  }
+  // Across the palm, then the normal to it.
+  const acrossPalm = sub(pinkyBase, indexBase);
+  let palmNormal = normalize3(cross(sub(indexBase, wrist), sub(pinkyBase, wrist)));
+  // Two hands and two camera facings give both signs; keep the normal pointing at the camera
+  // so the band's outer face is the one on show.
+  if (palmNormal[2] < 0) palmNormal = scale(palmNormal, -1);
 
-  // Palm width in pixels for depth estimation
-  const palmWidthPx = Math.sqrt(
-    ((lm5.x - lm17.x) * videoWidth) ** 2 +
-    ((lm5.y - lm17.y) * videoHeight) ** 2
-  );
-
-  // Focal length from FOV
-  const fovRad = (fovDeg * Math.PI) / 180;
-  const focalPx = (videoWidth / 2) / Math.tan(fovRad / 2);
-
-  // Depth from palm width
-  const z = (focalPx * palmWidthMm) / palmWidthPx;
-
-  // Wrist centre in pixel coords, offset along forearm
-  const wristPxX = lm0.x * videoWidth + forearmDir[0] * WRIST_OFFSET_MM * (focalPx / z);
-  const wristPxY = lm0.y * videoHeight + forearmDir[1] * WRIST_OFFSET_MM * (focalPx / z);
-
-  // Unproject to camera space (mm)
-  const cx = videoWidth / 2;
-  const cy = videoHeight / 2;
-  const posX = ((wristPxX - cx) / focalPx) * z;
-  const posY = -((wristPxY - cy) / focalPx) * z; // flip Y for 3D
-  const posZ = -z; // negative Z = in front of camera
-
-  // Build orthonormal basis for the bracelet orientation
-  // Forward = forearm axis (bracelet axis)
-  const forward = forearmDir;
-  // Up = palm normal
-  const up = palmNormal;
-  // Right = cross(up, forward)
-  let right = normalize3(cross(up, forward));
-  // Re-orthogonalize up
-  const upOrtho = normalize3(cross(forward, right));
-
-  const quaternion = quaternionFromAxes(forward, upOrtho, right);
+  // Square the basis up: the wrist axis is the one to trust.
+  const yAxis = forearm;
+  let zAxis = normalize3(sub(palmNormal, scale(yAxis, dot(palmNormal, yAxis))));
+  if (length(zAxis) < 1e-6) zAxis = normalize3(acrossPalm);
+  const xAxis = normalize3(cross(yAxis, zAxis));
 
   return {
-    position: [posX, posY, posZ],
-    quaternion,
+    position: centre,
+    quaternion: quaternionFromBasis(xAxis, yAxis, zAxis),
     palmWidthPx,
+    distanceMm,
   };
 }
 
-/**
- * Solve ring pose per SPEC §5.3 ring mode.
- * Position = lerp(lm13, lm14, 0.38) — ring finger proximal segment
- * Axis = normalize(lm14 − lm13) — along the finger
- * Head faces the back of the hand (palm normal flipped)
- */
+/** Where the ring sits on the ring finger (SPEC §5.3, ring mode). */
 export function solveRingPose(
   landmarks: Landmark[],
   videoWidth: number,
@@ -180,61 +216,36 @@ export function solveRingPose(
   fovDeg: number,
   palmWidthMm: number
 ): WristPose | null {
-  if (landmarks.length < 21) return null;
+  const hand = handInCameraSpace(landmarks, { videoWidth, videoHeight, fovDeg, palmWidthMm });
+  if (!hand) return null;
+  const { points, palmWidthPx, distanceMm } = hand;
 
-  const lm5 = landmarks[5];
-  const lm13 = landmarks[13]; // ring finger PIP
-  const lm14 = landmarks[14]; // ring finger DIP
-  const lm17 = landmarks[17];
-  const lm0 = landmarks[0];
+  const wrist = points[0];
+  const indexBase = points[5];
+  const pinkyBase = points[17];
+  const ringBase = points[13]; // ring finger MCP
+  const ringMid = points[14]; // first joint
 
-  // Palm width for depth
-  const palmWidthPx = Math.sqrt(
-    ((lm5.x - lm17.x) * videoWidth) ** 2 +
-    ((lm5.y - lm17.y) * videoHeight) ** 2
-  );
+  // SPEC: a little way along the first segment of the ring finger.
+  const centre = add(ringBase, scale(sub(ringMid, ringBase), 0.38));
+  const fingerDir = normalize3(sub(ringMid, ringBase));
 
-  const fovRad = (fovDeg * Math.PI) / 180;
-  const focalPx = (videoWidth / 2) / Math.tan(fovRad / 2);
-  const z = (focalPx * palmWidthMm) / palmWidthPx;
+  let palmNormal = normalize3(cross(sub(indexBase, wrist), sub(pinkyBase, wrist)));
+  if (palmNormal[2] < 0) palmNormal = scale(palmNormal, -1);
+  // The head of a ring sits on the back of the hand, away from the palm.
+  const headDir = scale(palmNormal, -1);
 
-  // Ring position = lerp(lm13, lm14, 0.38)
-  const t = 0.38;
-  const ringPxX = (lm13.x + t * (lm14.x - lm13.x)) * videoWidth;
-  const ringPxY = (lm13.y + t * (lm14.y - lm13.y)) * videoHeight;
-
-  const cx = videoWidth / 2;
-  const cy = videoHeight / 2;
-  const posX = ((ringPxX - cx) / focalPx) * z;
-  const posY = -((ringPxY - cy) / focalPx) * z;
-  const posZ = -z;
-
-  // Ring axis = along the finger
-  const fingerDir = normalize3(sub(lm14, lm13));
-
-  // Palm normal (head faces back of hand = flipped palm normal)
-  const v05 = sub(lm5, lm0);
-  const v017 = sub(lm17, lm0);
-  let palmNormal = normalize3(cross(v05, v017));
-  if (palmNormal[2] > 0) {
-    palmNormal = [-palmNormal[0], -palmNormal[1], -palmNormal[2]];
-  }
-  // Flip for ring head direction
-  const headDir: [number, number, number] = [-palmNormal[0], -palmNormal[1], -palmNormal[2]];
-
-  // Build basis: forward = finger direction, up = head direction
-  const forward = fingerDir;
-  let right = normalize3(cross(headDir, forward));
-  const up = normalize3(cross(forward, right));
-
-  const quaternion = quaternionFromAxes(forward, up, right);
+  const yAxis = fingerDir;
+  let zAxis = normalize3(sub(headDir, scale(yAxis, dot(headDir, yAxis))));
+  if (length(zAxis) < 1e-6) zAxis = normalize3(cross(yAxis, [0, 0, 1]));
+  const xAxis = normalize3(cross(yAxis, zAxis));
 
   return {
-    position: [posX, posY, posZ],
-    quaternion,
+    position: centre,
+    quaternion: quaternionFromBasis(xAxis, yAxis, zAxis),
     palmWidthPx,
+    distanceMm,
   };
 }
 
-// Re-export for unused var cleanup
-export { dot };
+export { dot, normalize3, cross };

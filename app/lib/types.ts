@@ -13,6 +13,13 @@ export interface PieceManifest {
     inner_radius_mm: number;
     span_deg: number;
     plane_normal: [number, number, number];
+    /** Centre of the fitted circle, in the model's own coordinates. */
+    center: [number, number, number];
+    ref_dir?: [number, number, number];
+    start_deg?: number;
+    end_deg?: number;
+    outer_radius_mm?: number;
+    fit_inliers?: number;
   };
   heads?: Array<{
     axis: [number, number, number];
