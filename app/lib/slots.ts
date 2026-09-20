@@ -5,11 +5,11 @@
  * buffer, generated 14 days ahead and offered in both the atelier's time and the client's.
  *
  * Pure functions over UTC instants. Zone arithmetic uses Intl, so it stays correct if the
- * atelier is ever somewhere with daylight saving; Asia/Kolkata has none.
+ * atelier's own zone, whatever it is, including its daylight saving.
  */
 
 export const SLOT_CONFIG = {
-  tz: process.env.BOOKING_TZ || "Asia/Kolkata",
+  tz: process.env.BOOKING_TZ || "America/New_York",
   openHour: 11,
   closeHour: 19, // last consultation must END by this hour
   durationMin: 45,
@@ -26,7 +26,7 @@ export interface Slot {
   start: string;
   end: string;
   /** Rendered in the atelier's timezone. */
-  ist: { date: string; time: string; weekday: string };
+  studio: { date: string; time: string; weekday: string };
   /** The same instant in the client's timezone, when it differs. */
   local: { date: string; time: string; tz: string } | null;
 }
@@ -181,7 +181,7 @@ export function generateSlots(options: SlotOptions = {}): Slot[] {
       slots.push({
         start: start.toISOString(),
         end: end.toISOString(),
-        ist: formatInZone(start, tz),
+        studio: formatInZone(start, tz),
         local: clientTz
           ? { ...formatInZone(start, clientTz), tz: clientTz }
           : null,
@@ -211,8 +211,8 @@ export function isBookableSlot(start: Date, options: SlotOptions = {}): boolean 
 export function groupByDay(slots: Slot[]): Array<{ date: string; weekday: string; slots: Slot[] }> {
   const days = new Map<string, { date: string; weekday: string; slots: Slot[] }>();
   for (const slot of slots) {
-    const key = slot.ist.date;
-    if (!days.has(key)) days.set(key, { date: key, weekday: slot.ist.weekday, slots: [] });
+    const key = slot.studio.date;
+    if (!days.has(key)) days.set(key, { date: key, weekday: slot.studio.weekday, slots: [] });
     days.get(key)!.slots.push(slot);
   }
   return Array.from(days.values());

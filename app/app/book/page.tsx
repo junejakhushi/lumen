@@ -20,7 +20,8 @@ const OCCASION_OPTIONS = [
 ];
 
 const BUDGET_OPTIONS = [
-  "Under ₹1L", "₹1–2L", "₹2–3L", "₹3–5L", "Above ₹5L", "I'd rather discuss it",
+  "Under $1,000", "$1,000–2,500", "$2,500–5,000", "$5,000–10,000", "Above $10,000",
+  "I'd rather discuss it",
 ];
 
 export default function BookPage() {

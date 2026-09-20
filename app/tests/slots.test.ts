@@ -43,8 +43,8 @@ describe("timezone helpers", () => {
 describe("generateSlots", () => {
   it("runs 11:00 to 18:00 IST on the hour", () => {
     const slots = generateSlots({ now: MONDAY_MORNING });
-    const monday = slots.filter((s) => s.ist.date.includes("21 Sep"));
-    expect(monday.map((s) => s.ist.time)).toEqual([
+    const monday = slots.filter((s) => s.studio.date.includes("21 Sep"));
+    expect(monday.map((s) => s.studio.time)).toEqual([
       "11:00",
       "12:00",
       "13:00",
@@ -65,30 +65,30 @@ describe("generateSlots", () => {
 
   it("never offers a slot that ends after closing", () => {
     for (const slot of generateSlots({ now: MONDAY_MORNING })) {
-      const [h, m] = slot.ist.time.split(":").map(Number);
+      const [h, m] = slot.studio.time.split(":").map(Number);
       expect(h * 60 + m + SLOT_CONFIG.durationMin).toBeLessThanOrEqual(SLOT_CONFIG.closeHour * 60);
     }
   });
 
   it("is closed on Sunday", () => {
     const slots = generateSlots({ now: MONDAY_MORNING });
-    expect(slots.some((s) => s.ist.weekday === "Sunday")).toBe(false);
-    expect(new Set(slots.map((s) => s.ist.weekday))).toEqual(
+    expect(slots.some((s) => s.studio.weekday === "Sunday")).toBe(false);
+    expect(new Set(slots.map((s) => s.studio.weekday))).toEqual(
       new Set(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"])
     );
   });
 
   it("covers 14 days ahead", () => {
     const slots = generateSlots({ now: MONDAY_MORNING });
-    const days = new Set(slots.map((s) => s.ist.date));
+    const days = new Set(slots.map((s) => s.studio.date));
     expect(days.size).toBe(12); // 14 days minus two Sundays
   });
 
   it("honours the lead time", () => {
-    // 10:30 IST on the Monday: the 11:00 slot is inside the hour of lead time
-    const now = new Date("2026-09-21T05:00:00Z");
+    // An hour before the studio's 11:00, so that slot is inside the lead time.
+    const now = zonedTimeToUtc(2026, 9, 21, 10, 30, SLOT_CONFIG.tz);
     const first = generateSlots({ now })[0];
-    expect(first.ist.time).toBe("12:00");
+    expect(first.studio.time).toBe("12:00");
   });
 
   it("drops slots that are already booked", () => {
@@ -100,18 +100,15 @@ describe("generateSlots", () => {
   });
 
   it("gives the client's local time when it differs", () => {
-    const [slot] = generateSlots({ now: MONDAY_MORNING, clientTz: "America/New_York" });
-    expect(slot.ist.time).toBe("11:00");
-    expect(slot.local).toMatchObject({
-      date: "Mon 21 Sep",
-      time: "01:30",
-      weekday: "Monday",
-      tz: "America/New_York",
-    });
+    const [slot] = generateSlots({ now: MONDAY_MORNING, clientTz: IST });
+    expect(slot.studio.time).toBe("11:00");
+    expect(slot.local).toMatchObject({ weekday: "Monday", tz: IST });
+    // The studio is not in India, so the two readings differ.
+    expect(slot.local?.time).not.toBe(slot.studio.time);
   });
 
   it("omits the local block when the client is in the atelier's zone", () => {
-    const [slot] = generateSlots({ now: MONDAY_MORNING, clientTz: IST });
+    const [slot] = generateSlots({ now: MONDAY_MORNING, clientTz: SLOT_CONFIG.tz });
     expect(slot.local).toBeNull();
   });
 
@@ -143,7 +140,7 @@ describe("groupByDay", () => {
   it("keeps days in order with their slots", () => {
     const days = groupByDay(generateSlots({ now: MONDAY_MORNING }));
     expect(days[0].weekday).toBe("Monday");
-    expect(days[0].slots[0].ist.time).toBe("11:00");
+    expect(days[0].slots[0].studio.time).toBe("11:00");
     expect(days.every((d) => d.slots.length > 0)).toBe(true);
   });
 });

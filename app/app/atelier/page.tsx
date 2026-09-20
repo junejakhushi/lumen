@@ -114,7 +114,7 @@ export default function AtelierHomePage() {
                   className="flex flex-wrap items-baseline gap-x-4 gap-y-1 py-4 no-underline"
                 >
                   <span className="font-display text-title-s-m text-text w-16">
-                    {booking.ist.time}
+                    {booking.studio.time}
                   </span>
                   <span className="text-body-m-m text-text flex-1 min-w-[10rem]">
                     {booking.client?.name ?? "—"}

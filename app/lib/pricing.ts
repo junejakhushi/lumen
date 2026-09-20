@@ -9,9 +9,19 @@ import { PURITY } from "./types";
  * making = 18% × metal_value
  * stones = Σ ct × price_per_ct(type, size_band)
  * subtotal = metal + making + stones
- * gst = 3% × subtotal
- * total = round to nearest ₹100
+ * tax = TAX_PCT × subtotal
+ * total = round to nearest $10
+ *
+ * Figures are in US dollars. Gold is priced per gram, as the trade does on both sides of
+ * the Atlantic, and stones per carat.
  */
+
+/**
+ * Sales tax is a state matter in the US — from nothing in Oregon to about 10% in parts of
+ * Louisiana — so a single national rate cannot be right. This is an estimate for a quote
+ * that is marked indicative anyway, and the atelier sets the real one at the consultation.
+ */
+export const TAX_PCT = 0.08;
 
 export interface PriceBreakdown {
   weight_g: number;
@@ -26,8 +36,8 @@ export interface PriceBreakdown {
   stones_ct: number;
   stones_value: number;
   subtotal: number;
-  gst_pct: number;
-  gst: number;
+  tax_pct: number;
+  tax: number;
   total: number;
   is_indicative: boolean;
 }
@@ -40,15 +50,15 @@ export interface StoneEntry {
 
 /** Placeholder price per carat by stone type and size band */
 const STONE_RATES: Record<string, number> = {
-  diamond_small: 25000, // < 0.3 ct
-  diamond_medium: 60000, // 0.3–1 ct
-  diamond_large: 150000, // > 1 ct
-  ruby: 30000,
-  emerald: 20000,
-  sapphire: 25000,
-  pearl: 5000,
-  polki: 15000,
-  inferred: 25000, // default for pipeline-inferred stones
+  diamond_small: 300, // < 0.3 ct
+  diamond_medium: 720, // 0.3–1 ct
+  diamond_large: 1800, // > 1 ct
+  ruby: 360,
+  emerald: 240,
+  sapphire: 300,
+  pearl: 60,
+  polki: 180,
+  inferred: 300, // default for pipeline-inferred stones
 };
 
 function stoneRatePerCt(stone: StoneEntry): number {
@@ -95,10 +105,10 @@ export function computePrice(opts: {
   }
 
   const subtotal = metal_value + making + stones_value;
-  const gst_pct = 0.03;
-  const gst = gst_pct * subtotal;
-  const raw_total = subtotal + gst;
-  const total = Math.round(raw_total / 100) * 100;
+  const tax_pct = TAX_PCT;
+  const tax = tax_pct * subtotal;
+  const raw_total = subtotal + tax;
+  const total = Math.round(raw_total / 10) * 10;
 
   return {
     weight_g,
@@ -113,30 +123,21 @@ export function computePrice(opts: {
     stones_ct,
     stones_value,
     subtotal,
-    gst_pct,
-    gst,
+    tax_pct,
+    tax,
     total,
     is_indicative: true,
   };
 }
 
-/** Format price for display: ₹1.4L, ₹82,400 */
+/** Format price for display: $82,400. */
 export function formatPrice(amount: number): string {
-  if (amount >= 100000) {
-    const lakhs = amount / 100000;
-    return `₹${lakhs.toFixed(1)}L`;
-  }
-  // Whole rupees: the breakdown lines are computed values and printed ₹33,342.807 without this.
-  return `₹${Math.round(amount).toLocaleString("en-IN")}`;
+  // Whole dollars: the breakdown lines are computed values and print $3,342.807 without this.
+  return `$${Math.round(amount).toLocaleString("en-US")}`;
 }
 
-/** Format a range: "₹1.4–1.7L" */
+/** Format a range: "$12,400–$14,900". */
 export function formatPriceRange(low: number, high: number): string {
-  if (low >= 100000 && high >= 100000) {
-    const l = (low / 100000).toFixed(1);
-    const h = (high / 100000).toFixed(1);
-    return `₹${l}–${h}L`;
-  }
   return `${formatPrice(low)}–${formatPrice(high)}`;
 }
 

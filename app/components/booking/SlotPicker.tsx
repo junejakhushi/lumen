@@ -115,7 +115,7 @@ export function SlotPicker({ value, onChange, error }: SlotPickerProps) {
                 isSelected ? "qh-btn--primary" : ""
               }`}
             >
-              <span>{slot.ist.time}</span>
+              <span>{slot.studio.time}</span>
               {slot.local && (
                 <span className="caption-m text-text-muted ml-2">{slot.local.time} local</span>
               )}
@@ -132,7 +132,7 @@ export function SlotPicker({ value, onChange, error }: SlotPickerProps) {
 
       {selected && (
         <p className="text-body-s-m text-text mt-3" data-testid="slot-chosen">
-          {selected.ist.weekday} {selected.ist.date}, {selected.ist.time} IST
+          {selected.studio.weekday} {selected.studio.date}, {selected.studio.time} IST
           {selected.local ? ` · ${selected.local.time} your time` : ""}
         </p>
       )}

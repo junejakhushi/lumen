@@ -37,7 +37,7 @@ export function Footer() {
 
         <p className="caption-m text-text-muted max-w-measure mt-2">
           &copy; {year} {studioName}. Designs, images and 3D models are for
-          private viewing only. Indicative prices include GST and may change
+          private viewing only. Indicative prices include estimated sales tax and may change
           with the gold rate.
         </p>
       </div>

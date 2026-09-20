@@ -11,7 +11,7 @@ function decorate(row: BookingRow): BookingSummary {
   const looks = Array.isArray(row.looks) ? row.looks : [];
   return {
     ...row,
-    ist: formatInZone(new Date(row.slot_start), SLOT_CONFIG.tz),
+    studio: formatInZone(new Date(row.slot_start), SLOT_CONFIG.tz),
     lookCount: looks.length,
     briefAvailable: Boolean(row.brief_key),
   };
@@ -63,9 +63,9 @@ export function groupByDay(bookings: BookingSummary[]): Array<{
 }> {
   const days = new Map<string, { date: string; weekday: string; bookings: BookingSummary[] }>();
   for (const booking of bookings) {
-    const key = booking.ist.date;
+    const key = booking.studio.date;
     if (!days.has(key)) {
-      days.set(key, { date: key, weekday: booking.ist.weekday, bookings: [] });
+      days.set(key, { date: key, weekday: booking.studio.weekday, bookings: [] });
     }
     days.get(key)!.bookings.push(booking);
   }

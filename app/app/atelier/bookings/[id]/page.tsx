@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { Button, GoldDivider, SpecTable, useToast } from "@/components/ui";
 import { formatPrice } from "@/lib/pricing";
+import { formatWristIn } from "@/lib/units";
 import { STATUSES, type BookingStatus, type BookingSummary } from "@/lib/atelier/bookingTypes";
 
 /** One consultation: looks, what was changed, the quote, notes and the brief (SPEC §5.7). */
@@ -42,7 +43,7 @@ function configLine(config: LookRecord["config"]): string {
   if (!config) return "—";
   const size =
     typeof config.wristCm === "number"
-      ? `Wrist ${config.wristCm} cm`
+      ? `Wrist ${formatWristIn(config.wristCm)}`
       : typeof config.ringSizeIn === "number"
         ? `IN ${config.ringSizeIn}`
         : "";
@@ -141,8 +142,8 @@ export default function BookingDetailPage() {
     ) {
       changes.push({
         attribute: "Wrist size",
-        original: `${hero.original.wristCm} cm`,
-        requested: `${hero.config?.wristCm ?? "—"} cm`,
+        original: formatWristIn(hero.original.wristCm),
+        requested: hero.config?.wristCm != null ? formatWristIn(hero.config.wristCm) : "—",
       });
     }
   }
@@ -162,7 +163,7 @@ export default function BookingDetailPage() {
         </span>
       </div>
       <p className="caption-m text-text-muted mb-4">
-        {booking.ist.date.replace(/^\w{3} /, `${booking.ist.weekday} `)} · {booking.ist.time} IST ·{" "}
+        {booking.studio.date.replace(/^\w{3} /, `${booking.studio.weekday} `)} · {booking.studio.time} IST ·{" "}
         {booking.visit_type === "video" ? "Video call" : "Studio visit"}
       </p>
       <GoldDivider className="w-16 mb-8" />

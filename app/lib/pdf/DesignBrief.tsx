@@ -15,8 +15,8 @@ import {
 import type { Style } from '@react-pdf/stylesheet';
 
 /* ------------------------------------------------------------------ fonts */
-// Use FULL (non-subset) TTFs from Google Fonts: the latin subsets lack ₹ (U+20B9).
-// Cormorant Garamond's full file has ₹; Jost does not, so every ₹ figure is set in Cormorant.
+// Use FULL (non-subset) TTFs from Google Fonts. Prices are set in dollars, which both
+// families carry, so a figure may be set in either.
 const FONT_DIR = path.join(process.cwd(), 'public', 'fonts');
 Font.register({
   family: 'Cormorant Garamond',
@@ -71,12 +71,10 @@ export interface DesignBriefData {
   session?: SessionReportData; // present => appended as the last page(s)
 }
 
-/** Indicative price formatting: lakh → "₹1.8–2.1L", thousands → "₹38–44K", en dash, no spaces. */
+/** Indicative price formatting: "$12,400–14,900", en dash, no spaces. */
 export function formatRange(lo: number, hi: number): string {
-  const one = (n: number) => (n >= 100000 ? `${+(n / 100000).toFixed(2)}L` : `${Math.round(n / 1000)}K`);
-  const a = one(lo), b = one(hi);
-  const sameUnit = a.slice(-1) === b.slice(-1);
-  return `₹${sameUnit ? a.slice(0, -1) : a}–${b}`;
+  const one = (n: number) => Math.round(n).toLocaleString("en-US");
+  return `$${one(lo)}–${one(hi)}`;
 }
 
 /* ---------------------------------------------------------------- styles */
@@ -567,16 +565,16 @@ export const sampleSession: SessionReportData = {
   ],
   journeyPiece: 'The Quiet River',
   journey: [
-    { step: 'As catalogued', detail: ['Yellow 18K', 'Wrist 16.5 cm'], priceRange: '₹1.9–2.2L' },
-    { step: 'Metal', from: 'Yellow 18K', to: 'Rose 18K', priceRange: '₹1.9–2.2L' },
-    { step: 'Size', from: '16.5', to: '15.5 cm', priceRange: '₹1.85–2.15L' },
-    { step: 'Weight', detail: ['Lighter', 'est. 16–17 g'], priceRange: '₹1.7–1.95L' },
-    { step: 'Stone', detail: ['+ one 2 mm', 'diamond'], priceRange: '₹1.8–2.1L', final: true },
+    { step: 'As catalogued', detail: ['Yellow 18K', 'Wrist 6.5 in'], priceRange: '$2,150–2,480' },
+    { step: 'Metal', from: 'Yellow 18K', to: 'Rose 18K', priceRange: '$2,150–2,480' },
+    { step: 'Size', from: '6.5 in', to: '6.25 in', priceRange: '$2,090–2,420' },
+    { step: 'Weight', detail: ['Lighter', 'est. 16–17 g'], priceRange: '$1,920–2,200' },
+    { step: 'Stone', detail: ['+ one 2 mm', 'diamond'], priceRange: '$2,040–2,360', final: true },
   ],
   signals: [
     { title: 'Undecided: rose vs yellow', evidence: 'Switched metal 5 times; 62% of AR time on the cuff was in rose.' },
     { title: 'Weight-conscious', evidence: 'Chose “Lighter” 40 s after opening weight; opened the weight note twice.' },
-    { title: 'Within budget, with room', evidence: 'Final range ₹1.8–2.1L sits under the stated ₹2–3L budget.' },
+    { title: 'Within budget, with room', evidence: 'Final range $2,040–2,360 sits under the stated $2,500–3,500 budget.' },
     { title: 'Fixed date, calm lead time', evidence: 'Needed by 12 Dec 2026: about 11 weeks after the consultation.' },
   ],
   talkingPoints: [
@@ -592,7 +590,7 @@ export const sampleBrief: DesignBriefData = {
   briefNo: 'LUM-0042', clientName: '{{client_name}}', studioName: '{{studio_name}}',
   consultation: { date: 'Tue 22 Sep 2026', timeIst: '7:30 PM IST', timeLocal: '10:00 AM EDT' },
   visit: { type: 'Video call', note: 'Link sent with the confirmation' },
-  piece: { code: 'LX-104', name: 'The Quiet River', collection: 'Fine', metal: 'Yellow gold', karat: '18K', estWeight: '18.2 g as shown; to be confirmed after changes', size: '62 × 14 mm · Wrist 16.5 cm', stones: 'None', story: 'A single bend of gold, like water finding its way around a stone.', catalogueRange: '₹1.9–2.2L' },
+  piece: { code: 'LX-104', name: 'The Quiet River', collection: 'Fine', metal: 'Yellow gold', karat: '18K', estWeight: '18.2 g as shown; to be confirmed after changes', size: '62 × 14 mm · Wrist 6.5 in', stones: 'None', story: 'A single bend of gold, like water finding its way around a stone.', catalogueRange: '$2,150–2,480' },
   snapshotCaption: 'Captured during try-on · Rose gold 18K · Wrist 15.5 cm',
   changes: [
     { attribute: 'Metal', original: 'Yellow gold', requested: 'Rose gold' },
@@ -602,13 +600,13 @@ export const sampleBrief: DesignBriefData = {
     { attribute: 'Stones', original: 'None', requested: 'One 2 mm round diamond at the polished edge' },
   ],
   clientNotes: 'I’d like it to sit a little lower on the wrist, closer to the hand, so it shows below a blouse sleeve. Rose felt warmer against my skin in the evening light, but I keep going back to yellow, so I’d love to see both side by side. I’ll wear it for all three days of my sister’s wedding, so lighter would be kinder.',
-  occasion: 'Sister’s wedding', neededBy: '12 Dec 2026', budgetRange: '₹2–3L',
-  indicativeRange: '₹1.8–2.1L',
+  occasion: 'Sister’s wedding', neededBy: '12 Dec 2026', budgetRange: '$2,500–3,500',
+  indicativeRange: '$2,040–2,360',
   disclaimer: 'Indicative range based on today’s gold rate and the requested changes. The atelier confirms weight and price after the consultation.',
   looks: [
-    { placeholder: 'cuff', name: 'The Quiet River', code: 'LX-104', config: 'Rose gold · 18K · Wrist 15.5 cm', priceRange: '₹1.8–2.1L', note: 'Booked for consultation' },
-    { placeholder: 'bangle', name: 'Temple Dawn', code: 'LX-130', config: 'Yellow gold · 22K · 2.4 (61 mm)', priceRange: '₹2.1–2.4L', note: 'Worn with the cuff, left wrist' },
-    { placeholder: 'bracelet', name: 'Courtyard Rain', code: 'LX-122', config: 'White gold · 18K · Wrist 16 cm', priceRange: '₹2.7–3.2L', note: 'Size changed from 17 cm' },
+    { placeholder: 'cuff', name: 'The Quiet River', code: 'LX-104', config: 'Rose gold · 18K · Wrist 6.25 in', priceRange: '$2,040–2,360', note: 'Booked for consultation' },
+    { placeholder: 'bangle', name: 'Temple Dawn', code: 'LX-130', config: 'Yellow gold · 22K · 2.4 (61 mm)', priceRange: '$2,380–2,720', note: 'Worn with the cuff, left wrist' },
+    { placeholder: 'bracelet', name: 'Courtyard Rain', code: 'LX-122', config: 'White gold · 18K · Wrist 6.25 in', priceRange: '$3,060–3,630', note: 'Size changed from 6.75 in' },
     { placeholder: 'solitaire-ring', name: 'First Light', code: 'LX-301', config: 'White gold · 18K · IN 12 · US 6', priceRange: null, note: 'Tried once, not changed' },
   ],
   session: sampleSession,
