@@ -126,7 +126,8 @@ export function formatPrice(amount: number): string {
     const lakhs = amount / 100000;
     return `₹${lakhs.toFixed(1)}L`;
   }
-  return `₹${amount.toLocaleString("en-IN")}`;
+  // Whole rupees: the breakdown lines are computed values and printed ₹33,342.807 without this.
+  return `₹${Math.round(amount).toLocaleString("en-IN")}`;
 }
 
 /** Format a range: "₹1.4–1.7L" */

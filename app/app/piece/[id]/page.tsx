@@ -130,8 +130,11 @@ export default function PieceDetailPage() {
     ...(assembly && assembly.totalStones > 0
       ? [{ label: "Stones", value: `${assembly.totalStones} (${assembly.totalCarats.toFixed(2)} ct est.)` }]
       : []),
-    ...(manifest.bbox_mm
-      ? [{ label: "Dimensions", value: `${manifest.bbox_mm[0]?.toFixed(1)} × ${manifest.bbox_mm[1]?.toFixed(1)} × ${manifest.bbox_mm[2]?.toFixed(1)} mm` }]
+    ...(manifest.bbox_mm?.size
+      ? [{
+          label: "Dimensions",
+          value: manifest.bbox_mm.size.map((n) => n.toFixed(1)).join(" × ") + " mm",
+        }]
       : []),
   ];
 
@@ -156,9 +159,9 @@ export default function PieceDetailPage() {
             {pieceName}
           </h1>
 
-          {manifest.review?.overrides && (
+          {manifest.review?.story && (
             <p className="text-body-m-m text-text-muted mb-6 max-w-measure font-display italic">
-              {String(manifest.review.overrides)}
+              {manifest.review.story}
             </p>
           )}
 

@@ -7,7 +7,8 @@ export interface PieceManifest {
   volume_mm3: number;
   volume_recon_mm3: number;
   weights_g: Record<string, number>;
-  bbox_mm: [number, number, number];
+  /** The pipeline writes corners and extents, not a bare triple (SPEC §4.8). */
+  bbox_mm: { min: number[]; max: number[]; size: number[] };
   curve?: {
     inner_radius_mm: number;
     span_deg: number;
@@ -45,11 +46,13 @@ export interface PieceManifest {
     post: { origin: [number, number, number]; axis: [number, number, number] } | null;
   };
   warnings: string[];
+  /** Written by the atelier in /atelier/catalog (lib/review.ts). */
   review?: {
     status: string;
     type: string;
-    name: string;
-    collection: string;
+    name: string | null;
+    collection: string | null;
+    story?: string | null;
     overrides: Record<string, unknown>;
   };
 }
