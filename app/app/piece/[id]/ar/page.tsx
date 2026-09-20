@@ -37,7 +37,7 @@ export default function ARPage() {
   const manifest = piece?.manifest as PieceManifest | undefined;
 
   // Camera
-  const { videoRef, hasPermission, error: camError, requestCamera, flipCamera, stopCamera, facing } = useCamera();
+  const { videoRef, hasPermission, error: camError, requestCamera, flipCamera, stopCamera, facing, attachStream } = useCamera();
 
   // Hand tracking
   const { landmarks, status: trackingStatus, fps, start: startTracking, stop: stopTracking, error: trackingError } = useHandTracking();
@@ -75,19 +75,34 @@ export default function ARPage() {
     if (manifest?.ring?.size_in) setRingSizeIn(manifest.ring.size_in);
   }, [manifest]);
 
-  // Start tracking when video is ready
+  // Start tracking once the camera is actually producing frames.
   useEffect(() => {
-    if (hasPermission && videoRef.current) {
+    if (!hasPermission) return;
+    attachStream();
+
+    let started = false;
+    const tryStart = () => {
       const video = videoRef.current;
-      const handleReady = () => {
-        if (video.videoWidth > 0) startTracking(video);
-      };
-      video.addEventListener("loadeddata", handleReady);
-      if (video.readyState >= 2) handleReady();
-      arStartRef.current = Date.now();
-      return () => video.removeEventListener("loadeddata", handleReady);
-    }
-  }, [hasPermission, startTracking, videoRef]);
+      if (started || !video || video.videoWidth === 0 || video.readyState < 2) return;
+      started = true;
+      startTracking(video);
+    };
+
+    // The element mounts a render after permission is granted, and any of these can be the
+    // first moment it has a frame — whichever arrives first wins, and a poll catches the
+    // case where none of them fire.
+    const video = videoRef.current;
+    const events = ["loadeddata", "loadedmetadata", "canplay", "playing", "resize"] as const;
+    events.forEach((e) => video?.addEventListener(e, tryStart));
+    const poll = setInterval(tryStart, 250);
+    tryStart();
+
+    arStartRef.current = Date.now();
+    return () => {
+      clearInterval(poll);
+      events.forEach((e) => video?.removeEventListener(e, tryStart));
+    };
+  }, [hasPermission, startTracking, videoRef, attachStream]);
 
   // Lighting match every 500ms
   useEffect(() => {

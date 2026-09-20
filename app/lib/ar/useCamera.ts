@@ -13,6 +13,8 @@ export interface UseCameraResult {
   requestCamera: () => Promise<void>;
   flipCamera: () => Promise<void>;
   stopCamera: () => void;
+  /** Re-attach the stream, for when the <video> mounts after permission is granted. */
+  attachStream: () => void;
 }
 
 export function useCamera(): UseCameraResult {
@@ -51,11 +53,7 @@ export function useCamera(): UseCameraResult {
         setFacing(facingMode);
         setHasPermission(true);
         setError(null);
-
-        if (videoRef.current) {
-          videoRef.current.srcObject = newStream;
-          await videoRef.current.play();
-        }
+        // The stream is attached by the effect below, once the <video> exists.
       } catch (err) {
         setHasPermission(false);
         if (err instanceof DOMException) {
@@ -83,6 +81,33 @@ export function useCamera(): UseCameraResult {
     await startCamera(newFacing);
   }, [facing, startCamera]);
 
+  /**
+   * Attach the stream to the video element.
+   *
+   * The element is only rendered once permission has been granted, so at the moment
+   * getUserMedia resolves there is nothing to attach to yet. Doing it here covers both
+   * orders: element first, or stream first.
+   */
+  const attach = useCallback(() => {
+    const video = videoRef.current;
+    if (!video || !stream) return;
+    if (video.srcObject !== stream) {
+      video.srcObject = stream;
+    }
+    if (video.paused) {
+      void video.play().catch(() => {
+        // Autoplay can be refused until the next gesture; the controls still work.
+      });
+    }
+  }, [stream]);
+
+  useEffect(() => {
+    attach();
+    // The element mounts a render after the stream arrives, so try again next frame too.
+    const id = requestAnimationFrame(attach);
+    return () => cancelAnimationFrame(id);
+  }, [attach]);
+
   // Cleanup on unmount
   useEffect(() => {
     return () => {
@@ -95,6 +120,7 @@ export function useCamera(): UseCameraResult {
 
   return {
     videoRef,
+    attachStream: attach,
     stream,
     facing,
     hasPermission,
