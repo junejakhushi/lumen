@@ -317,6 +317,9 @@ export function ARScene({
         // the extra quality a discrete GPU would buy here.
         powerPreference: "default",
         failIfMajorPerformanceCaveat: false,
+        // WebGL clears the drawing buffer once a frame has been composited, so a snapshot
+        // taken at any other moment gets the camera frame and no jewellery on it.
+        preserveDrawingBuffer: true,
       }}
       camera={{ fov: fovDeg, near: 1, far: 10000 }}
     >

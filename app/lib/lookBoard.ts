@@ -20,6 +20,11 @@ export interface SavedLook {
     karat: string;
     wristCm?: number;
     ringSizeIn?: number;
+    /** The stone the client chose. The pipeline measures settings, not stones (SPEC §4.6). */
+    stoneType?: string;
+    stoneCut?: string;
+    /** Multiplies the measured stone size. */
+    stoneScale?: number;
   };
   quote?: {
     total: number;

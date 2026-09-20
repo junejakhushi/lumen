@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useRef, useState, useEffect, useMemo, type ReactNode } from "react";
+import { Suspense, useRef, useState, useEffect, useMemo, type MutableRefObject, type ReactNode } from "react";
 import { Canvas } from "@react-three/fiber";
 import {
   OrbitControls,
@@ -10,7 +10,7 @@ import {
 import { StudioEnvironment } from "./studio";
 import * as THREE from "three";
 import { METAL_COLORS, type MetalColor } from "@/lib/types";
-import { buildGems, disposeGems, type GemType, type HeadPlacement } from "@/lib/ar/gems";
+import { buildGems, disposeGems, type GemType, type GemCut, type HeadPlacement } from "@/lib/ar/gems";
 import { disposePlaced, placePiece, type PieceCurve } from "@/lib/ar/placePiece";
 
 /** How the loaded model was centred and scaled, so callers can place markers on it. */
@@ -26,6 +26,9 @@ interface PieceViewerProps {
   heads?: HeadPlacement[];
   stoneDiameters?: number[];
   stoneType?: GemType;
+  stoneCut?: GemCut;
+  /** Multiplies the measured stone size, for a client who wants a larger stone. */
+  stoneScale?: number;
   /** A bracelet is shown as the whole piece, assembled from its segment (SPEC §5.1). */
   assemble?: {
     curve?: PieceCurve | null;
@@ -34,6 +37,8 @@ interface PieceViewerProps {
   } | null;
   className?: string;
   autoRotate?: boolean;
+  /** Filled with a function that renders the piece as it stands to a PNG. */
+  captureRef?: MutableRefObject<(() => Promise<Blob | null>) | null>;
   /** Extra objects drawn in the model's space (atelier review markers). */
   overlay?: (fit: ModelFit) => ReactNode;
   hint?: string;
@@ -46,6 +51,8 @@ function PieceModel({
   heads,
   stoneDiameters,
   stoneType,
+  stoneCut,
+  stoneScale,
   assemble,
 }: {
   url: string;
@@ -54,6 +61,8 @@ function PieceModel({
   heads?: HeadPlacement[];
   stoneDiameters?: number[];
   stoneType?: GemType;
+  stoneCut?: GemCut;
+  stoneScale?: number;
   assemble?: PieceViewerProps["assemble"];
 }) {
   const loaded = useGLTF(url);
@@ -68,8 +77,10 @@ function PieceModel({
       heads,
       stoneDiameters,
       stoneType,
+      stoneCut,
+      stoneScale,
     });
-  }, [loaded.scene, assemble, heads, stoneDiameters, stoneType]);
+  }, [loaded.scene, assemble, heads, stoneDiameters, stoneType, stoneCut, stoneScale]);
 
   useEffect(() => {
     if (!assemble) return;
@@ -82,6 +93,8 @@ function PieceModel({
     if (assemble || !heads || heads.length === 0) return;
     const gems = buildGems(heads, stoneDiameters ?? [], {
       type: stoneType,
+      cut: stoneCut,
+      sizeScale: stoneScale,
       transformPoint: (p) => p.clone(),
       transformDirection: (_origin, dir) => dir.clone(),
     });
@@ -90,7 +103,7 @@ function PieceModel({
       scene.remove(gems);
       disposeGems(gems);
     };
-  }, [scene, heads, stoneDiameters, stoneType, assemble]);
+  }, [scene, heads, stoneDiameters, stoneType, stoneCut, stoneScale, assemble]);
 
   useEffect(() => {
     const hex = METAL_COLORS[metalColor];
@@ -153,10 +166,37 @@ export function PieceViewer({
   heads,
   stoneDiameters,
   stoneType,
+  stoneCut,
+  stoneScale,
   assemble,
+  captureRef,
 }: PieceViewerProps) {
   const [hasError, setHasError] = useState(false);
   const [fit, setFit] = useState<ModelFit | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Hand the caller a way to take a picture of the piece as it stands. The drawing buffer is
+  // preserved for it: WebGL clears the buffer once a frame has been composited, so reading the
+  // canvas at any other moment returns an empty image.
+  useEffect(() => {
+    if (!captureRef) return;
+    captureRef.current = async () => {
+      const canvas = containerRef.current?.querySelector("canvas");
+      if (!canvas) return null;
+      // toBlob rather than a data URL: the page's connect-src does not allow data:, so
+      // fetching one back to a Blob is refused by the content security policy.
+      return new Promise<Blob | null>((resolve) => {
+        try {
+          canvas.toBlob((blob) => resolve(blob), "image/png");
+        } catch {
+          resolve(null);
+        }
+      });
+    };
+    return () => {
+      captureRef.current = null;
+    };
+  }, [captureRef]);
 
   if (!glbUrl || hasError) {
     return (
@@ -169,12 +209,17 @@ export function PieceViewer({
   }
 
   return (
-    <div className={`relative ${className}`}>
+    <div ref={containerRef} className={`relative ${className}`}>
       <Canvas
         camera={{ position: [0, 0, 4], fov: 35 }}
         style={{ background: "#F5F0E8" }}
         onError={() => setHasError(true)}
-        gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping }}
+        gl={{
+          antialias: true,
+          toneMapping: THREE.ACESFilmicToneMapping,
+          // So a look can be saved as a picture of the piece; see captureRef.
+          preserveDrawingBuffer: true,
+        }}
       >
         <Suspense fallback={<LoadingFallback />}>
           <PieceModel
@@ -184,6 +229,8 @@ export function PieceViewer({
             heads={heads}
             stoneDiameters={stoneDiameters}
             stoneType={stoneType}
+            stoneCut={stoneCut}
+            stoneScale={stoneScale}
             assemble={assemble}
           />
         </Suspense>

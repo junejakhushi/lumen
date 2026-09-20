@@ -207,7 +207,9 @@ function LookCard({
           {look.pieceName}
         </p>
         <p className="caption-m text-text-muted mt-1">
-          {look.config.karat}K {look.config.metal} · Snapshot {dateStr}
+          {look.config.karat}K {look.config.metal}
+          {look.config.stoneType ? ` · ${look.config.stoneCut ?? ""} ${look.config.stoneType}`.replace(/\s+/g, " ") : ""}
+          {" · "}{dateStr}
         </p>
         {look.quote && (
           <p className="text-numeric-m text-text mt-1">
