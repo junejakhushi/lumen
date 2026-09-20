@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import Link from "next/link";
@@ -11,14 +11,17 @@ import { Button, SpecTable, PricePill, Segmented, Swatch, Stepper, Sheet } from 
 import { METAL_COLORS, type MetalColor, RING_SIZES } from "@/lib/types";
 import type { PieceManifest } from "@/lib/types";
 import { allowedRingSizes } from "@/lib/assembly/ring";
+import { cmToIn, inToCm, toQuarterInch, WRIST_IN, formatWristIn } from "@/lib/units";
+import { recordQuote } from "@/lib/recordQuote";
+import { GEM_COLOURS, GEM_CUTS, type GemCut, type GemType } from "@/lib/ar/gems";
 
 const PieceViewer = dynamic(
   () => import("@/components/viewer/PieceViewer").then((m) => m.PieceViewer),
   { ssr: false, loading: () => <div className="aspect-square bg-pearl animate-pulse rounded-sm" /> }
 );
 
-// Default gold rate (₹/g for 24K) — will come from DB later
-const DEFAULT_RATE_24K = 7200;
+// Default gold rate (US$/g for 24K) — will come from DB later
+const DEFAULT_RATE_24K = 85;
 
 export default function PieceDetailPage() {
   const params = useParams();
@@ -33,11 +36,28 @@ export default function PieceDetailPage() {
   const [wristCm, setWristCm] = useState(16);
   const [ringSizeIn, setRingSizeIn] = useState(13);
   const [customiseOpen, setCustomiseOpen] = useState(false);
+  // The pipeline measures settings, not stones, so which stone goes in them is the client's
+  // to choose here just as it is in the try-on (SPEC §4.6).
+  const [stoneType, setStoneType] = useState<GemType>("diamond");
+  const [stoneCut, setStoneCut] = useState<GemCut>("round");
+  const [stoneScale, setStoneScale] = useState(1);
+  const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "failed">("idle");
+  const captureRef = useRef<(() => Promise<Blob | null>) | null>(null);
 
   // Load GLB
   useEffect(() => {
     if (!pieceId) return;
     getAssetUrl(pieceId, "web").then(setGlbUrl).catch(() => {});
+  }, [pieceId]);
+
+  // Opening a piece is the interest the try-on either holds or loses (SPEC §5.7).
+  useEffect(() => {
+    if (!pieceId) return;
+    fetch("/api/events", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type: "piece_view", piece_id: pieceId }),
+    }).catch(() => {});
   }, [pieceId]);
 
   // Set initial ring size from manifest
@@ -97,6 +117,24 @@ export default function PieceDetailPage() {
 
   const currentRingSize = RING_SIZES.find((s) => s.indian === ringSizeIn);
 
+  // Write down what the client settled on, so the insight sheet counts choices.
+  useEffect(() => {
+    if (!price || !manifest) return;
+    recordQuote(
+      pieceId,
+      {
+        metal,
+        karat,
+        ...(manifest.type === "bracelet" ? { wrist_cm: wristCm } : {}),
+        ...(manifest.type === "ring" ? { ring_size_in: ringSizeIn } : {}),
+        ...((manifest.heads?.length ?? 0) > 0
+          ? { stone_type: stoneType, stone_cut: stoneCut, stone_scale: stoneScale }
+          : {}),
+      },
+      price
+    );
+  }, [pieceId, manifest, price, metal, karat, wristCm, ringSizeIn, stoneType, stoneCut, stoneScale]);
+
   const handleSizeChange = useCallback((val: number) => {
     if (manifest?.type === "bracelet") setWristCm(val);
   }, [manifest]);
@@ -105,6 +143,48 @@ export default function PieceDetailPage() {
     (val: number) => setRingSizeIn(val),
     []
   );
+
+  /**
+   * Keep the design, not a photograph of one.
+   *
+   * The look board holds what the client chose — metal, karat, size and stone — together with
+   * a picture of the piece rendered as they configured it. The try-on saves the same thing
+   * over a camera frame; both carry the configuration, so the atelier reads a specification
+   * rather than guessing from an image.
+   */
+  const handleSaveLook = useCallback(async () => {
+    setSaveState("saving");
+    try {
+      const snapshot = (await captureRef.current?.()) ?? null;
+      const { saveLook } = await import("@/lib/lookBoard");
+      await saveLook({
+        pieceId,
+        pieceName: piece?.name || "Piece",
+        pieceType: manifest?.type || "unknown",
+        snapshot: snapshot as Blob,
+        config: {
+          metal,
+          karat,
+          ...(manifest?.type === "bracelet" ? { wristCm } : {}),
+          ...(manifest?.type === "ring" ? { ringSizeIn } : {}),
+          ...((manifest?.heads?.length ?? 0) > 0
+            ? { stoneType, stoneCut, stoneScale }
+            : {}),
+        },
+        quote: price ? { total: price.total, breakdown: price } : undefined,
+        weightG: assembly?.totalWeight,
+      });
+      setSaveState("saved");
+      setTimeout(() => setSaveState("idle"), 2400);
+    } catch (err) {
+      console.error("Could not save the look:", err);
+      setSaveState("failed");
+      setTimeout(() => setSaveState("idle"), 2400);
+    }
+  }, [
+    pieceId, piece, manifest, metal, karat, wristCm, ringSizeIn,
+    stoneType, stoneCut, stoneScale, price, assembly,
+  ]);
 
   if (!piece || !manifest) {
     return (
@@ -123,12 +203,24 @@ export default function PieceDetailPage() {
     { label: "Collection", value: piece.collection || "—" },
     { label: "Metal", value: `${karat}K ${metal.charAt(0).toUpperCase() + metal.slice(1)} Gold` },
     { label: "Weight", value: assembly ? `${assembly.totalWeight.toFixed(1)} g` : "—" },
-    ...(manifest.type === "bracelet" ? [{ label: "Wrist", value: `${wristCm} cm` }] : []),
+    ...(manifest.type === "bracelet" ? [{ label: "Wrist", value: formatWristIn(wristCm) }] : []),
     ...(manifest.type === "ring" && currentRingSize
-      ? [{ label: "Size", value: `IN ${currentRingSize.indian} · US ${currentRingSize.us}` }]
+      ? [{ label: "Size", value: `US ${currentRingSize.us}` }]
       : []),
     ...(assembly && assembly.totalStones > 0
-      ? [{ label: "Stones", value: `${assembly.totalStones} (${assembly.totalCarats.toFixed(2)} ct est.)` }]
+      ? [
+          {
+            label: "Stones",
+            value: `${assembly.totalStones} (${assembly.totalCarats.toFixed(2)} ct est.)`,
+          },
+          {
+            label: "Stone",
+            value: `${stoneCut[0].toUpperCase()}${stoneCut.slice(1)} ${stoneType}` +
+              (manifest.stones?.[0]
+                ? ` · Ø ${(manifest.stones[0].d_mm * stoneScale).toFixed(2)} mm`
+                : ""),
+          },
+        ]
       : []),
     ...(manifest.bbox_mm?.size
       ? [{
@@ -148,6 +240,10 @@ export default function PieceDetailPage() {
             metalColor={metal}
             heads={manifest?.heads}
             stoneDiameters={manifest?.stones?.map((s) => s.d_mm)}
+            stoneType={stoneType}
+            stoneCut={stoneCut}
+            stoneScale={stoneScale}
+            captureRef={captureRef}
             assemble={
               manifest && (manifest.type === "bracelet" || manifest.type === "ring")
                 ? {
@@ -184,7 +280,7 @@ export default function PieceDetailPage() {
             <div className="mb-6">
               <PricePill value={formatPriceRange(priceLow, priceHigh)} />
               <p className="caption-m text-text-muted mt-2">
-                Indicative, including GST, at today&rsquo;s gold rate. Confirmed
+                Indicative, including estimated sales tax, at today&rsquo;s gold rate. Confirmed
                 at consultation.
               </p>
             </div>
@@ -220,7 +316,10 @@ export default function PieceDetailPage() {
                   ...(price.stones_value > 0
                     ? [{ label: "Stones", value: formatPrice(price.stones_value) }]
                     : []),
-                  { label: "GST (3%)", value: formatPrice(price.gst) },
+                  {
+                    label: `Sales tax (est. ${Math.round(price.tax_pct * 100)}%)`,
+                    value: formatPrice(price.tax),
+                  },
                   { label: "Indicative total", value: formatPrice(price.total) },
                 ]}
               />
@@ -248,6 +347,27 @@ export default function PieceDetailPage() {
             >
               Customise
             </Button>
+          </div>
+
+          <div className="mb-6">
+            <Button
+              variant="secondary"
+              block
+              onClick={handleSaveLook}
+              disabled={saveState === "saving"}
+            >
+              {saveState === "saved"
+                ? "Saved to your look board"
+                : saveState === "failed"
+                  ? "Could not save — try again"
+                  : saveState === "saving"
+                    ? "Saving…"
+                    : "Save this design"}
+            </Button>
+            <p className="caption-m text-text-muted mt-2">
+              Keeps the piece as you have set it — metal, size and stone — on your look board,
+              ready for your design brief.
+            </p>
           </div>
         </div>
       </div>
@@ -292,16 +412,60 @@ export default function PieceDetailPage() {
             onChange={setKarat}
           />
 
+          {/* Stone — the settings are measured, the stone in them is chosen (SPEC §4.6) */}
+          {(manifest.heads?.length ?? 0) > 0 && (
+            <div className="flex flex-col gap-4 border-t border-hairline-quiet pt-6">
+              <div>
+                <span className="label-m text-text-muted block mb-2">Stone</span>
+                <div className="flex gap-2">
+                  {(["diamond", "ruby", "emerald", "sapphire", "polki"] as GemType[]).map((g) => (
+                    <Swatch
+                      key={g}
+                      color={GEM_COLOURS[g]}
+                      name={g.charAt(0).toUpperCase() + g.slice(1)}
+                      selected={stoneType === g}
+                      onClick={() => setStoneType(g)}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <div className="overflow-x-auto -mx-1 px-1">
+                <Segmented
+                  label="Cut"
+                  options={GEM_CUTS.map((c) => ({
+                    value: c,
+                    label: c.charAt(0).toUpperCase() + c.slice(1),
+                  }))}
+                  value={stoneCut}
+                  onChange={(v) => setStoneCut(v as GemCut)}
+                />
+              </div>
+
+              <Stepper
+                label="Stone size"
+                value={stoneScale}
+                min={0.7}
+                max={1.6}
+                step={0.1}
+                formatValue={(v) =>
+                  `${((manifest.stones?.[0]?.d_mm ?? 3) * v).toFixed(2)} mm`
+                }
+                onChange={setStoneScale}
+              />
+            </div>
+          )}
+
           {/* Size */}
           {manifest.type === "bracelet" && (
             <Stepper
               label="Wrist size"
-              value={wristCm}
-              min={14}
-              max={20}
-              step={0.5}
-              formatValue={(v) => `${v} cm`}
-              onChange={handleSizeChange}
+              value={toQuarterInch(cmToIn(wristCm))}
+              min={WRIST_IN.min}
+              max={WRIST_IN.max}
+              step={WRIST_IN.step}
+              formatValue={(v) => `${v} in`}
+              onChange={(inches) => handleSizeChange(inToCm(inches))}
             />
           )}
 
@@ -314,7 +478,7 @@ export default function PieceDetailPage() {
               step={1}
               formatValue={(v) => {
                 const s = RING_SIZES.find((rs) => rs.indian === v);
-                return s ? `IN ${s.indian} · US ${s.us}` : `IN ${v}`;
+                return s ? `US ${s.us}` : `${v}`;
               }}
               onChange={handleRingSizeChange}
             />

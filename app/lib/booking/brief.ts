@@ -1,5 +1,6 @@
 import { formatInZone, formatLongDate, SLOT_CONFIG, zoneAbbreviation } from "@/lib/slots";
 import { formatPriceRange } from "@/lib/pricing";
+import { formatWristIn } from "@/lib/units";
 import type { Change, DesignBriefData, Look, PlaceholderName } from "@/lib/pdf/DesignBrief";
 import type { BookingInput, BookingLook } from "./types";
 
@@ -34,16 +35,26 @@ export function metalLabel(metal: string): string {
 }
 
 export function sizeLabel(look: BookingLook): string {
-  if (typeof look.config.wristCm === "number") return `Wrist ${look.config.wristCm} cm`;
+  if (typeof look.config.wristCm === "number") {
+    return `Wrist ${formatWristIn(look.config.wristCm)}`;
+  }
   if (typeof look.config.ringSizeIn === "number") {
     const us = look.config.ringSizeUs;
-    return us ? `IN ${look.config.ringSizeIn} · US ${us}` : `IN ${look.config.ringSizeIn}`;
+    return us ? `Size US ${us}` : `Size ${look.config.ringSizeIn}`;
   }
   return "One size";
 }
 
+/** "Round diamond", or nothing when the piece has no settings to fill. */
+export function stoneLabel(look: BookingLook): string {
+  const { stoneType, stoneCut } = look.config;
+  if (!stoneType) return "";
+  const cut = stoneCut ? `${stoneCut[0].toUpperCase()}${stoneCut.slice(1)} ` : "";
+  return `${cut}${stoneType}`;
+}
+
 export function configLine(look: BookingLook): string {
-  return [metalLabel(look.config.metal), `${look.config.karat}K`, sizeLabel(look)]
+  return [metalLabel(look.config.metal), `${look.config.karat}K`, sizeLabel(look), stoneLabel(look)]
     .filter(Boolean)
     .join(" · ");
 }
@@ -70,6 +81,19 @@ export function changesFor(look: BookingLook): Change[] {
       attribute: "Karat",
       original: `${original.karat}K`,
       requested: `${look.config.karat}K`,
+    });
+  }
+  // The stone is the client's choice throughout — the catalogue piece has settings, not
+  // stones — so it is reported as a request rather than as a change from an original.
+  const stone = stoneLabel(look);
+  if (stone) {
+    changes.push({ attribute: "Stone", original: "Setting only", requested: stone });
+  }
+  if (typeof look.config.stoneScale === "number" && look.config.stoneScale !== 1) {
+    changes.push({
+      attribute: "Stone size",
+      original: "As measured",
+      requested: `${Math.round(look.config.stoneScale * 100)}% of measured`,
     });
   }
   if (

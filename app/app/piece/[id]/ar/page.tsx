@@ -14,6 +14,7 @@ import { assembleForType } from "@/lib/assembly";
 import { computePrice, formatPrice } from "@/lib/pricing";
 import { Swatch, Segmented, Stepper, PricePill } from "@/components/ui";
 import { GEM_COLOURS, GEM_CUTS, type GemCut, type GemType } from "@/lib/ar/gems";
+import { cmToIn, inToCm, toQuarterInch, WRIST_IN } from "@/lib/units";
 import { METAL_COLORS, type MetalColor, RING_SIZES } from "@/lib/types";
 import type { PieceManifest } from "@/lib/types";
 import { allowedRingSizes } from "@/lib/assembly/ring";
@@ -25,7 +26,7 @@ const ARScene = dynamic(
 
 const CAMERA_FOV_DEG = Number(process.env.NEXT_PUBLIC_CAMERA_FOV_DEG || 60);
 const PALM_WIDTH_MM = Number(process.env.NEXT_PUBLIC_PALM_WIDTH_MM || 80);
-const DEFAULT_RATE_24K = 7200;
+const DEFAULT_RATE_24K = 85;
 
 type TrackingLabel = "Finding you\u2026" | "Looking good" | "Move a little closer" | "We've lost you for a moment. Hold still.";
 
@@ -233,14 +234,25 @@ export default function ARPage() {
           pieceName: piece?.name || "Piece",
           pieceType: manifest?.type || "unknown",
           snapshot: blob,
-          config: { metal, karat, wristCm, ringSizeIn },
+          config: {
+            metal,
+            karat,
+            wristCm,
+            ringSizeIn,
+            ...((manifest?.heads?.length ?? 0) > 0
+              ? { stoneType, stoneCut, stoneScale }
+              : {}),
+          },
           quote: price ? { total: price.total, breakdown: price } : undefined,
         });
       }
     } catch (err) {
       console.error("Snapshot failed:", err);
     }
-  }, [videoRef, facing, pieceId, piece, manifest, metal, karat, wristCm, ringSizeIn, price]);
+  }, [
+    videoRef, facing, pieceId, piece, manifest, metal, karat, wristCm, ringSizeIn,
+    stoneType, stoneCut, stoneScale, price,
+  ]);
 
   // Close AR
   const handleClose = useCallback(() => {
@@ -563,12 +575,12 @@ export default function ARPage() {
             {manifest?.type === "bracelet" && (
               <Stepper
                 label="Wrist"
-                value={wristCm}
-                min={14}
-                max={20}
-                step={0.5}
-                formatValue={(v) => `${v} cm`}
-                onChange={setWristCm}
+                value={toQuarterInch(cmToIn(wristCm))}
+                min={WRIST_IN.min}
+                max={WRIST_IN.max}
+                step={WRIST_IN.step}
+                formatValue={(v) => `${v} in`}
+                onChange={(inches) => setWristCm(inToCm(inches))}
               />
             )}
             {manifest?.type === "ring" && ringSizes.length > 0 && (
@@ -580,7 +592,7 @@ export default function ARPage() {
                 step={1}
                 formatValue={(v) => {
                   const s = RING_SIZES.find((rs) => rs.indian === v);
-                  return s ? `IN ${s.indian}` : `${v}`;
+                  return s ? `US ${s.us}` : `${v}`;
                 }}
                 onChange={setRingSizeIn}
               />

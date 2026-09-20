@@ -30,6 +30,9 @@ export const lookSchema = z.object({
     wristCm: z.number().min(10).max(25).optional(),
     ringSizeIn: z.number().min(1).max(35).optional(),
     ringSizeUs: z.number().min(0).max(20).optional(),
+    stoneType: z.string().max(20).optional(),
+    stoneCut: z.string().max(20).optional(),
+    stoneScale: z.number().min(0.5).max(3).optional(),
   }),
   /** The catalogue version, so the brief can show original → requested. */
   original: z
