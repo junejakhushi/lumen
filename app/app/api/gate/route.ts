@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getIronSession } from "iron-session";
 import { sessionOptions, type SessionData } from "@/lib/session";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { startSession } from "@/lib/session-row";
 import { z } from "zod";
 
 const bodySchema = z.object({
@@ -86,6 +87,7 @@ export async function POST(request: NextRequest) {
     session.accessCodeId = "dev";
     session.isAtelier = false;
     session.createdAt = Date.now();
+    session.sid = (await startSession(request.headers.get("user-agent"), null)) ?? undefined;
     await session.save();
     return response;
   }
@@ -119,6 +121,8 @@ export async function POST(request: NextRequest) {
             session.accessCodeId = row.id;
             session.isAtelier = false;
             session.createdAt = Date.now();
+            session.sid =
+              (await startSession(request.headers.get("user-agent"), row.id)) ?? undefined;
             await session.save();
             return response;
           }

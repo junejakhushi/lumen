@@ -4,6 +4,8 @@ export interface SessionData {
   accessCodeId?: string;
   isAtelier?: boolean;
   createdAt?: number;
+  /** The try-on session this visit belongs to (SPEC §5.8); a row in `sessions`. */
+  sid?: string;
 }
 
 export const sessionOptions: SessionOptions = {

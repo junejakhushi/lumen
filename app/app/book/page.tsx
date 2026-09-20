@@ -4,6 +4,8 @@ import { Suspense, useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getLooks, type SavedLook } from "@/lib/lookBoard";
 import { Button, Field, ConsentRow, Segmented } from "@/components/ui";
+import { SlotPicker } from "@/components/booking/SlotPicker";
+import { blobToDataUrl } from "@/lib/lookBoard";
 import { useToast } from "@/components/ui/Toast";
 import { formatPrice } from "@/lib/pricing";
 
@@ -43,6 +45,8 @@ function BookForm() {
   const [occasion, setOccasion] = useState("");
   const [neededBy, setNeededBy] = useState("");
   const [budget, setBudget] = useState("");
+  const [slotStart, setSlotStart] = useState<string | null>(null);
+  const [notes, setNotes] = useState("");
   const [consentBrief, setConsentBrief] = useState(false);
   const [consentContact, setConsentContact] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -72,11 +76,12 @@ function BookForm() {
       e.email = "That email doesn't look quite right.";
     if (!occasion) e.occasion = "Choose an occasion.";
     if (!budget) e.budget = "Choose a range.";
+    if (!slotStart) e.slot = "Choose a time that suits you.";
     if (!consentBrief) e.consent = "We need your agreement to share the brief with the atelier.";
     if (looks.length === 0) e.looks = "Your look board is empty. Save at least one piece to book.";
     setErrors(e);
     return Object.keys(e).length === 0;
-  }, [name, phone, email, occasion, budget, consentBrief, looks]);
+  }, [name, phone, email, occasion, budget, consentBrief, looks, slotStart]);
 
   const handleSubmit = useCallback(async () => {
     if (!validate()) return;
@@ -90,18 +95,31 @@ function BookForm() {
         body: JSON.stringify({ type: "book_start" }),
       }).catch(() => {});
 
-      const payload = {
-        visit_type: visitType,
-        client: { name, phone, whatsapp, email },
-        occasion,
-        needed_by: neededBy || null,
-        budget,
-        looks: looks.map((l) => ({
+      // Snapshots have lived in IndexedDB until now; booking is the moment they travel.
+      const looksPayload = await Promise.all(
+        looks.map(async (l) => ({
           pieceId: l.pieceId,
           pieceName: l.pieceName,
+          pieceType: l.pieceType,
           config: l.config,
-          quote: l.quote,
-        })),
+          weightG: l.weightG,
+          quoteTotal: l.quote?.total,
+          quoteBreakdown: (l.quote?.breakdown ?? undefined) as Record<string, unknown> | undefined,
+          snapshot: await blobToDataUrl(l.snapshot),
+        }))
+      );
+
+      const payload = {
+        slot_start: slotStart,
+        visit_type: visitType,
+        client: { name, phone, whatsapp, email },
+        occasion: occasion || null,
+        needed_by: neededBy || null,
+        budget: budget || null,
+        notes: notes || null,
+        consent: consentBrief,
+        client_tz: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        looks: looksPayload,
       };
 
       const res = await fetch("/api/bookings", {
@@ -110,20 +128,32 @@ function BookForm() {
         body: JSON.stringify(payload),
       });
 
+      const data = await res.json().catch(() => ({}));
+
       if (res.ok) {
-        // Emit book_submit event
         await fetch("/api/events", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ type: "book_submit" }),
+          body: JSON.stringify({ type: "book_submit", payload: { booking_id: data.id } }),
         }).catch(() => {});
 
-        router.push("/book/done");
-      } else {
-        // S1.5 may not be ready yet — show success anyway for the demo
-        toast("Booking submitted (stub mode).", { variant: "positive" });
-        router.push("/book/done");
+        router.push(`/book/done?ref=${encodeURIComponent(data.briefNo ?? "")}`);
+        return;
       }
+
+      if (res.status === 409) {
+        // Someone else took the slot while this form was open.
+        setErrors({ slot: data.error ?? "That time has just been taken." });
+        setSlotStart(null);
+        toast(data.error ?? "That time has just been taken. Please choose another.", {
+          variant: "error",
+        });
+        return;
+      }
+
+      toast(data.error ?? "The atelier could not take that booking. Please try again.", {
+        variant: "error",
+      });
     } catch {
       toast("Your request didn't reach the atelier. Try again in a moment.", {
         variant: "error",
@@ -131,7 +161,23 @@ function BookForm() {
     } finally {
       setSubmitting(false);
     }
-  }, [validate, visitType, name, phone, whatsapp, email, occasion, neededBy, budget, looks, router, toast]);
+  }, [
+    validate,
+    visitType,
+    name,
+    phone,
+    whatsapp,
+    email,
+    occasion,
+    neededBy,
+    budget,
+    notes,
+    looks,
+    slotStart,
+    consentBrief,
+    router,
+    toast,
+  ]);
 
   const studioName = "The Atelier";
 
@@ -173,6 +219,11 @@ function BookForm() {
               ? `At the atelier. About 60 minutes, with the pieces in hand.`
               : `From wherever you are. About 45 minutes; we'll send a private link.`}
           </p>
+        </div>
+
+        {/* When */}
+        <div className="mb-8">
+          <SlotPicker value={slotStart} onChange={setSlotStart} error={errors.slot} />
         </div>
 
         {/* Contact */}
@@ -273,6 +324,21 @@ function BookForm() {
 
         {/* Consent */}
         <div className="mb-8 flex flex-col gap-3">
+          <div className="qh-field mb-2">
+            <label className="qh-label" htmlFor="booking-notes">
+              Anything the atelier should know
+            </label>
+            <textarea
+              id="booking-notes"
+              className="qh-input"
+              rows={3}
+              maxLength={1200}
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="How you'd like it to sit, when you'll wear it, anything you keep coming back to."
+              data-testid="booking-notes"
+            />
+          </div>
           <ConsentRow
             label="Share my look board and changes with the atelier as a design brief."
             required

@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
           `INSERT INTO events (time, session_id, piece_id, type, payload)
            VALUES (now(), $1, $2, $3, $4)`,
           [
-            event.session_id || session.accessCodeId,
+            session.sid ?? event.session_id ?? null,
             event.piece_id || null,
             event.type,
             event.payload ? JSON.stringify(event.payload) : null,

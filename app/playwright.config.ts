@@ -52,6 +52,10 @@ export default defineConfig({
         "$argon2id$v=19$m=65536,p=4,t=3$L4Bwtd8LcmT6iEEXWS9uKQ$uk6IYOzsw5aSXTtTIPTmN2kBmv33JPzjb1ho4YKCpg4",
       SESSION_SECRET: "e2e-secret-must-be-at-least-32-chars-long!",
       ASSETS_OUT_DIR: "./.e2e-assets",
+      PRIVATE_DIR: "./.e2e-private",
+      STUDIO_NAME: "The Atelier",
+      // Booking specs need a database; they skip themselves when this is unset.
+      ...(process.env.DATABASE_URL ? { DATABASE_URL: process.env.DATABASE_URL } : {}),
     },
   },
 });

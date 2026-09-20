@@ -26,7 +26,9 @@ export async function GET(request: NextRequest) {
          WHERE approved = true
          ORDER BY collection, name`
       );
-      return NextResponse.json({ pieces: rows });
+      // An empty table on a laptop means the pieces have not been published yet; the
+      // manifests on disk are then the better answer. On a server there are none to read.
+      if (rows.length > 0) return NextResponse.json({ pieces: rows });
     } catch {
       // DB not available — fall through to dev fallback
     }

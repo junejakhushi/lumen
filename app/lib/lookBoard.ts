@@ -25,6 +25,8 @@ export interface SavedLook {
     total: number;
     breakdown: unknown;
   };
+  /** Weight at the chosen size, when the piece page worked it out. */
+  weightG?: number;
   createdAt: number;
 }
 
@@ -91,5 +93,17 @@ export async function clearLooks(): Promise<void> {
     tx.objectStore(STORE_NAME).clear();
     tx.oncomplete = () => resolve();
     tx.onerror = () => reject(tx.error);
+  });
+}
+
+
+/** Snapshots live as blobs on the device; booking is the only time they are sent anywhere. */
+export async function blobToDataUrl(blob: Blob | null | undefined): Promise<string | null> {
+  if (!blob) return null;
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(typeof reader.result === "string" ? reader.result : null);
+    reader.onerror = () => resolve(null);
+    reader.readAsDataURL(blob);
   });
 }
