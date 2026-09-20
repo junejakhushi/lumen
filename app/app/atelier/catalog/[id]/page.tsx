@@ -163,7 +163,15 @@ export default function AtelierPieceReviewPage() {
     const stones = manifest.stones ?? [];
     if (stones.length > 0) {
       const d = review?.overrides.stone_d_mm ?? stones[0].d_mm;
-      rows.push({ label: "Stones", value: `${stones.length} × Ø ${d.toFixed(2)} mm` });
+      // Every stone size is derived rather than modelled, but a shared-prong array has no
+      // basket to derive it from: it comes from the spacing between prongs. That is a weaker
+      // number, so it is labelled rather than left to pass for the usual one.
+      const fromSpacing =
+        (manifest.heads ?? []).some((h) => h.shared_prongs) && !review?.overrides.stone_d_mm;
+      rows.push({
+        label: "Stones",
+        value: `${stones.length} × Ø ${d.toFixed(2)} mm${fromSpacing ? " (from spacing)" : ""}`,
+      });
       rows.push({
         label: "Carat (est.)",
         value: `${stones.reduce((s, x) => s + (x.ct_est ?? 0), 0).toFixed(2)} ct total`,

@@ -27,6 +27,9 @@ export interface PieceManifest {
     prongs: number;
     prong_w_mm: number;
     r_in_mm: number;
+    rise_mm?: number;
+    /** A shared-prong array: one pair of prongs holds two neighbouring stones. */
+    shared_prongs?: boolean;
   }>;
   stones?: Array<{
     d_mm: number;
