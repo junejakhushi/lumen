@@ -171,3 +171,54 @@ describe("mirroring for the front camera", () => {
     back.quaternion.forEach((v, i) => expect(v).toBeCloseTo(pose.quaternion[i], 9));
   });
 });
+
+describe("which way the piece faces", () => {
+  /**
+   * A hand with the palm toward the camera and fingers up. The two hands are mirror images:
+   * with the right palm facing you the thumb (and so the index base) is on your left, and
+   * with the left palm facing you it is on your right.
+   */
+  function palmToCamera(hand: "Left" | "Right", distance = 400): Landmark[] {
+    const indexX = hand === "Right" ? -PALM_MM / 2 : PALM_MM / 2;
+    const pinkyX = -indexX;
+    const place = (x: number, y: number): [number, number, number] => [x, y, -distance];
+    const pts: [number, number, number][] = new Array(21).fill(null).map(() => place(0, 0));
+    pts[0] = place(0, 0);
+    pts[5] = place(indexX, 90);
+    pts[17] = place(pinkyX, 90);
+    pts[9] = place(0, 95);
+    pts[13] = place(indexX * 0.25, 92);
+    pts[14] = place(indexX * 0.3, 125);
+    return pts.map(project);
+  }
+
+  it("puts the piece's front on the back of the hand, not toward the camera", () => {
+    // Palm toward the camera means the back of the hand faces away from it, either hand.
+    for (const hand of ["Left", "Right"] as const) {
+      const pose = solveWristPose(palmToCamera(hand), W, H, FOV, PALM_MM, hand)!;
+      const front = rotate([0, 0, 1], pose.quaternion);
+      expect(front[2]).toBeLessThan(-0.9);
+    }
+  });
+
+  it("keeps the front on the back of the hand when the hand turns over", () => {
+    // Flipping the hand swaps which landmark is where; the front must follow the anatomy.
+    const flipped = (hand: "Left" | "Right") =>
+      palmToCamera(hand === "Left" ? "Right" : "Left"); // same hand, palm now facing away
+    for (const hand of ["Left", "Right"] as const) {
+      const pose = solveWristPose(flipped(hand), W, H, FOV, PALM_MM, hand)!;
+      const front = rotate([0, 0, 1], pose.quaternion);
+      expect(front[2]).toBeGreaterThan(0.9); // back of the hand now faces the camera
+    }
+  });
+
+  it("a ring's head sits on the back of the hand too", () => {
+    const pose = solveRingPose(palmToCamera("Right"), W, H, FOV, PALM_MM, "Right")!;
+    expect(rotate([0, 0, 1], pose.quaternion)[2]).toBeLessThan(-0.9);
+  });
+
+  it("without a handedness, it faces whoever is looking", () => {
+    const pose = solveWristPose(palmToCamera("Right"), W, H, FOV, PALM_MM, null)!;
+    expect(rotate([0, 0, 1], pose.quaternion)[2]).toBeGreaterThan(0.9);
+  });
+});

@@ -13,6 +13,7 @@ import { sampleLighting, type LightingParams } from "@/lib/ar/lightingMatch";
 import { assembleForType } from "@/lib/assembly";
 import { computePrice, formatPrice } from "@/lib/pricing";
 import { Swatch, Segmented, Stepper, PricePill } from "@/components/ui";
+import { GEM_COLOURS, GEM_CUTS, type GemCut, type GemType } from "@/lib/ar/gems";
 import { METAL_COLORS, type MetalColor, RING_SIZES } from "@/lib/types";
 import type { PieceManifest } from "@/lib/types";
 import { allowedRingSizes } from "@/lib/assembly/ring";
@@ -40,13 +41,25 @@ export default function ARPage() {
   const { videoRef, hasPermission, error: camError, requestCamera, flipCamera, stopCamera, facing, attachStream } = useCamera();
 
   // Hand tracking
-  const { landmarks, status: trackingStatus, fps, start: startTracking, stop: stopTracking, error: trackingError } = useHandTracking();
+  const {
+    landmarks,
+    handedness,
+    status: trackingStatus,
+    fps,
+    start: startTracking,
+    stop: stopTracking,
+    error: trackingError,
+  } = useHandTracking();
 
   // State
   const [glbUrl, setGlbUrl] = useState<string | null>(null);
   const [metal, setMetal] = useState<MetalColor>("yellow");
   const [karat, setKarat] = useState("18");
   const [wristCm, setWristCm] = useState(16);
+  const [stoneType, setStoneType] = useState<GemType>("diamond");
+  const [stoneCut, setStoneCut] = useState<GemCut>("round");
+  /** Multiplies the measured stone, so a client can ask for a larger one. */
+  const [stoneScale, setStoneScale] = useState(1);
   const [ringSizeIn, setRingSizeIn] = useState(13);
   const [lighting, setLighting] = useState<LightingParams>({
     envMapIntensity: 1, tintR: 1, tintG: 1, tintB: 1,
@@ -134,8 +147,8 @@ export default function ARPage() {
     if (vw === 0) return null;
 
     const rawPose = manifest?.type === "ring"
-      ? solveRingPose(landmarks, vw, vh, CAMERA_FOV_DEG, PALM_WIDTH_MM)
-      : solveWristPose(landmarks, vw, vh, CAMERA_FOV_DEG, PALM_WIDTH_MM);
+      ? solveRingPose(landmarks, vw, vh, CAMERA_FOV_DEG, PALM_WIDTH_MM, handedness)
+      : solveWristPose(landmarks, vw, vh, CAMERA_FOV_DEG, PALM_WIDTH_MM, handedness);
 
     if (!rawPose) return null;
     // The front camera is shown mirrored, so the piece has to be mirrored with it.
@@ -147,7 +160,7 @@ export default function ARPage() {
     const quat = quatFilterRef.current.filter(framed.quaternion, t);
 
     return { ...framed, position: pos, quaternion: quat };
-  }, [landmarks, manifest?.type, videoRef, facing]);
+  }, [landmarks, manifest?.type, videoRef, facing, handedness]);
 
   // Assembly + pricing
   const assembly = useMemo(() => {
@@ -362,6 +375,10 @@ export default function ARPage() {
         segmentCount={assembly?.segmentCount ?? 1}
         heads={manifest?.heads}
         stoneDiameters={manifest?.stones?.map((s) => s.d_mm)}
+        stoneType={stoneType}
+        stoneCut={stoneCut}
+        stoneScale={stoneScale}
+        featureAngleDeg={manifest?.ring?.top_angle_deg ?? null}
         fovDeg={CAMERA_FOV_DEG}
         videoWidth={videoSize.width}
         videoHeight={videoSize.height}
@@ -427,6 +444,7 @@ export default function ARPage() {
             `segments   ${assembly?.segmentCount ?? 1}`,
             `video      ${videoSize.width}x${videoSize.height}`,
             `facing     ${facing}`,
+            `hand       ${handedness ?? "unknown"}`,
             `lm0 raw    ${landmarks ? `${landmarks[0].x.toFixed(3)}, ${landmarks[0].y.toFixed(3)}` : "-"}`,
             `lm9 raw    ${landmarks ? `${landmarks[9].x.toFixed(3)}, ${landmarks[9].y.toFixed(3)}` : "-"}`,
             `fps        ${fps}`,
@@ -494,6 +512,50 @@ export default function ARPage() {
             />
           </div>
         </div>
+
+        {/* Stones */}
+        {(manifest?.heads?.length ?? 0) > 0 && (
+          <div className="qh-rail__section">
+            <div className="qh-rail__row">
+              <span className="qh-rail__side">Stone</span>
+              <div className="flex gap-1 ml-3">
+                {(["diamond", "ruby", "emerald", "sapphire", "polki"] as GemType[]).map((g) => (
+                  <Swatch
+                    key={g}
+                    color={GEM_COLOURS[g]}
+                    selected={stoneType === g}
+                    onClick={() => setStoneType(g)}
+                    aria-label={g}
+                  />
+                ))}
+              </div>
+              <div className="qh-rail__div" />
+              <div className="overflow-x-auto max-w-full">
+              <Segmented
+                options={GEM_CUTS.map((c) => ({
+                  value: c,
+                  label: c === "round" ? "Round" : c[0].toUpperCase() + c.slice(1),
+                }))}
+                value={stoneCut}
+                onChange={(v) => setStoneCut(v as GemCut)}
+              />
+              </div>
+            </div>
+            <div className="qh-rail__row mt-2">
+              <Stepper
+                label="Stone size"
+                value={stoneScale}
+                min={0.7}
+                max={1.6}
+                step={0.1}
+                formatValue={(v) =>
+                  `${((manifest?.stones?.[0]?.d_mm ?? 3) * v).toFixed(2)} mm`
+                }
+                onChange={setStoneScale}
+              />
+            </div>
+          </div>
+        )}
 
         {/* Size stepper */}
         <div className="qh-rail__section">

@@ -9,7 +9,7 @@ import { METAL_COLORS, type MetalColor } from "@/lib/types";
 import type { WristPose } from "@/lib/ar/wristPose";
 import type { LightingParams } from "@/lib/ar/lightingMatch";
 import { disposePlaced, placePiece, type PieceCurve } from "@/lib/ar/placePiece";
-import type { GemType } from "@/lib/ar/gems";
+import type { GemCut, GemType } from "@/lib/ar/gems";
 
 export type { PieceCurve } from "@/lib/ar/placePiece";
 
@@ -26,6 +26,10 @@ interface ARSceneProps {
   heads?: Array<{ origin: number[]; axis: number[]; r_in_mm?: number; rise_mm?: number }>;
   stoneDiameters?: number[];
   stoneType?: GemType;
+  stoneCut?: GemCut;
+  stoneScale?: number;
+  /** Where the piece's front is, in its curve plane (a ring's head). */
+  featureAngleDeg?: number | null;
   fovDeg: number;
   videoWidth: number;
   videoHeight: number;
@@ -45,6 +49,9 @@ function ARPiece({
   heads,
   stoneDiameters,
   stoneType,
+  stoneCut,
+  stoneScale,
+  featureAngleDeg,
 }: {
   url: string;
   metalColor: MetalColor;
@@ -56,6 +63,10 @@ function ARPiece({
   heads?: Array<{ origin: number[]; axis: number[]; r_in_mm?: number; rise_mm?: number }>;
   stoneDiameters?: number[];
   stoneType?: GemType;
+  stoneCut?: GemCut;
+  stoneScale?: number;
+  /** Where the piece's front is, in its curve plane (a ring's head). */
+  featureAngleDeg?: number | null;
 }) {
   const { scene } = useGLTF(url);
   const groupRef = useRef<THREE.Group>(null);
@@ -72,8 +83,23 @@ function ARPiece({
         heads,
         stoneDiameters,
         stoneType,
+        stoneCut,
+        stoneScale,
+        featureAngleDeg,
       }),
-    [scene, curve, innerRadiusMm, pieceType, segmentCount, heads, stoneDiameters, stoneType]
+    [
+      scene,
+      curve,
+      innerRadiusMm,
+      pieceType,
+      segmentCount,
+      heads,
+      stoneDiameters,
+      stoneType,
+      stoneCut,
+      stoneScale,
+      featureAngleDeg,
+    ]
   );
 
   useEffect(() => {
@@ -233,6 +259,9 @@ export function ARScene({
   heads,
   stoneDiameters,
   stoneType,
+  stoneCut,
+  stoneScale,
+  featureAngleDeg,
 }: ARSceneProps) {
   /**
    * A canvas whose GL context has been lost paints as an opaque black rectangle — on this
@@ -311,6 +340,9 @@ export function ARScene({
         heads={heads}
         stoneDiameters={stoneDiameters}
         stoneType={stoneType}
+        stoneCut={stoneCut}
+        stoneScale={stoneScale}
+        featureAngleDeg={featureAngleDeg}
       />
     </Canvas>
   );

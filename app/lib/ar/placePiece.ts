@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { bendVertex, segmentsAroundWrist } from "@/lib/assembly/bracelet";
-import { buildGems, type GemType, type HeadPlacement } from "./gems";
+import { buildGems, type GemCut, type GemType, type HeadPlacement } from "./gems";
 
 /**
  * Put a piece into wearing position (SPEC §5.1).
@@ -22,6 +22,8 @@ export interface PieceCurve {
   inner_radius_mm: number;
   /** How much of a circle the piece covers — a bracelet segment is a fraction of one. */
   span_deg?: number;
+  /** The in-plane direction angles are measured from (manifest §4.8). */
+  ref_dir?: number[];
 }
 
 export interface PlaceOptions {
@@ -35,6 +37,14 @@ export interface PlaceOptions {
   heads?: HeadPlacement[];
   stoneDiameters?: number[];
   stoneType?: GemType;
+  stoneCut?: GemCut;
+  /** Multiplies the measured stone size. */
+  stoneScale?: number;
+  /**
+   * Where the piece's front is, as an angle in its curve plane — a ring's head, say. The
+   * piece is turned so this faces +Z, which the pose points at the back of the hand.
+   */
+  featureAngleDeg?: number | null;
 }
 
 /** The transform that takes the model into "centred on the origin, axis along +Y". */
@@ -143,12 +153,31 @@ export function placePiece(source: THREE.Object3D, options: PlaceOptions): THREE
     options.heads && options.heads.length > 0
       ? buildGems(options.heads, options.stoneDiameters ?? [], {
           type: options.stoneType,
+          cut: options.stoneCut,
+          sizeScale: options.stoneScale,
           transformPoint: bendPoint,
           transformDirection: bendDirection,
         })
       : null;
 
   const assembled = new THREE.Group();
+
+  /**
+   * Turn the piece about its own axis so its front faces +Z.
+   *
+   * The pose puts +Z on the back of the hand, so a ring's head ends up on top of the finger
+   * and a bracelet's motif on the outside of the wrist, wherever the hand is turned.
+   */
+  if (options.featureAngleDeg != null && curve?.ref_dir?.length === 3) {
+    const ref = new THREE.Vector3(curve.ref_dir[0], curve.ref_dir[1], curve.ref_dir[2]);
+    // Where the reference direction ends up once the piece is upright.
+    const refInPlace = ref.applyMatrix4(new THREE.Matrix4().extractRotation(bake));
+    const refAngle = Math.atan2(refInPlace.z, refInPlace.x);
+    const featureAngle = refAngle + (options.featureAngleDeg * Math.PI) / 180 * thetaScale;
+    // +Z is at 90°.
+    assembled.rotateY(Math.PI / 2 - featureAngle);
+  }
+
   for (let i = 0; i < copies; i++) {
     const metal = i === 0 ? piece : piece.clone(true); // clones share geometry
     const slot = new THREE.Group();

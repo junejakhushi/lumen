@@ -9,8 +9,12 @@ const MODEL_URL = "https://storage.googleapis.com/mediapipe-models/hand_landmark
 
 export type TrackingStatus = "loading" | "finding" | "tracking" | "lost";
 
+export type Handedness = "Left" | "Right" | null;
+
 export interface UseHandTrackingResult {
   landmarks: Landmark[] | null;
+  /** Which hand MediaPipe thinks it is, in the unmirrored frame. */
+  handedness: Handedness;
   status: TrackingStatus;
   fps: number;
   start: (video: HTMLVideoElement) => Promise<void>;
@@ -20,6 +24,7 @@ export interface UseHandTrackingResult {
 
 export function useHandTracking(): UseHandTrackingResult {
   const [landmarks, setLandmarks] = useState<Landmark[] | null>(null);
+  const [handedness, setHandedness] = useState<Handedness>(null);
   const [status, setStatus] = useState<TrackingStatus>("loading");
   const [fps, setFps] = useState(0);
   const [error, setError] = useState<string | null>(null);
@@ -98,7 +103,18 @@ export function useHandTracking(): UseHandTrackingResult {
           }
 
           try {
-            const result = (handLandmarker as { detectForVideo: (v: HTMLVideoElement, t: number) => { landmarks: Array<Array<{ x: number; y: number; z: number }>> } }).detectForVideo(video, now);
+            const result = (
+              handLandmarker as {
+                detectForVideo: (
+                  v: HTMLVideoElement,
+                  t: number
+                ) => {
+                  landmarks: Array<Array<{ x: number; y: number; z: number }>>;
+                  handednesses?: Array<Array<{ categoryName?: string }>>;
+                  handedness?: Array<Array<{ categoryName?: string }>>;
+                };
+              }
+            ).detectForVideo(video, now);
             lastTimeRef.current = now;
 
             // FPS tracking
@@ -110,6 +126,9 @@ export function useHandTracking(): UseHandTrackingResult {
             if (result.landmarks && result.landmarks.length > 0) {
               const hand = result.landmarks[0];
               everSeenRef.current = true;
+              const label =
+                (result.handednesses ?? result.handedness)?.[0]?.[0]?.categoryName ?? null;
+              if (label === "Left" || label === "Right") setHandedness(label);
               setLandmarks(hand);
               setStatus("tracking");
 
@@ -166,5 +185,5 @@ export function useHandTracking(): UseHandTrackingResult {
     };
   }, [stop]);
 
-  return { landmarks, status, fps, start, stop, error };
+  return { landmarks, handedness, status, fps, start, stop, error };
 }

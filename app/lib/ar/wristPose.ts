@@ -165,13 +165,39 @@ function handInCameraSpace(landmarks: Landmark[], frame: Frame): { points: Vec3[
   return { points, palmWidthPx, distanceMm };
 }
 
+export type Handedness = "Left" | "Right" | null;
+
+/**
+ * Which way the back of the hand faces.
+ *
+ * cross(index base − wrist, pinky base − wrist) is perpendicular to the palm, and which side
+ * it comes out of depends on which hand it is: the two hands are mirror images, so the same
+ * formula gives opposite answers for each. Anchoring on anatomy rather than on whichever side
+ * the camera happens to see keeps a piece's front on the back of the hand as the hand turns.
+ */
+function dorsalDirection(
+  wrist: Vec3,
+  indexBase: Vec3,
+  pinkyBase: Vec3,
+  handedness: Handedness,
+  fallbackTowardCamera: boolean
+): Vec3 {
+  const normal = normalize3(cross(sub(indexBase, wrist), sub(pinkyBase, wrist)));
+  if (handedness === "Right") return normal;
+  if (handedness === "Left") return scale(normal, -1);
+  // Without a handedness we cannot tell the back from the palm; show the piece's front to
+  // whoever is looking rather than guess.
+  return fallbackTowardCamera && normal[2] < 0 ? scale(normal, -1) : normal;
+}
+
 /** Where the bracelet sits, and how it is turned (SPEC §5.3, bracelet mode). */
 export function solveWristPose(
   landmarks: Landmark[],
   videoWidth: number,
   videoHeight: number,
   fovDeg: number,
-  palmWidthMm: number
+  palmWidthMm: number,
+  handedness: Handedness = null
 ): WristPose | null {
   const hand = handInCameraSpace(landmarks, { videoWidth, videoHeight, fovDeg, palmWidthMm });
   if (!hand) return null;
@@ -187,16 +213,13 @@ export function solveWristPose(
   // The wrist centre proper sits a little further down the arm than landmark 0.
   const centre = add(wrist, scale(forearm, WRIST_OFFSET_MM));
 
-  // Across the palm, then the normal to it.
+  // The piece's front goes on the back of the hand.
   const acrossPalm = sub(pinkyBase, indexBase);
-  let palmNormal = normalize3(cross(sub(indexBase, wrist), sub(pinkyBase, wrist)));
-  // Two hands and two camera facings give both signs; keep the normal pointing at the camera
-  // so the band's outer face is the one on show.
-  if (palmNormal[2] < 0) palmNormal = scale(palmNormal, -1);
+  const dorsal = dorsalDirection(wrist, indexBase, pinkyBase, handedness, true);
 
   // Square the basis up: the wrist axis is the one to trust.
   const yAxis = forearm;
-  let zAxis = normalize3(sub(palmNormal, scale(yAxis, dot(palmNormal, yAxis))));
+  let zAxis = normalize3(sub(dorsal, scale(yAxis, dot(dorsal, yAxis))));
   if (length(zAxis) < 1e-6) zAxis = normalize3(acrossPalm);
   const xAxis = normalize3(cross(yAxis, zAxis));
 
@@ -214,7 +237,8 @@ export function solveRingPose(
   videoWidth: number,
   videoHeight: number,
   fovDeg: number,
-  palmWidthMm: number
+  palmWidthMm: number,
+  handedness: Handedness = null
 ): WristPose | null {
   const hand = handInCameraSpace(landmarks, { videoWidth, videoHeight, fovDeg, palmWidthMm });
   if (!hand) return null;
@@ -230,10 +254,8 @@ export function solveRingPose(
   const centre = add(ringBase, scale(sub(ringMid, ringBase), 0.38));
   const fingerDir = normalize3(sub(ringMid, ringBase));
 
-  let palmNormal = normalize3(cross(sub(indexBase, wrist), sub(pinkyBase, wrist)));
-  if (palmNormal[2] < 0) palmNormal = scale(palmNormal, -1);
-  // The head of a ring sits on the back of the hand, away from the palm.
-  const headDir = scale(palmNormal, -1);
+  // The head of a ring sits on the back of the hand (SPEC §5.3).
+  const headDir = dorsalDirection(wrist, indexBase, pinkyBase, handedness, false);
 
   const yAxis = fingerDir;
   let zAxis = normalize3(sub(headDir, scale(yAxis, dot(headDir, yAxis))));
