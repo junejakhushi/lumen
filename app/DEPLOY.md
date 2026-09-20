@@ -32,6 +32,16 @@ DATABASE_URL="…" node scripts/seed.mjs      # demo access codes + today's gold
 Vercel → New Project → import the repo → **set the root directory to `app/`**. Framework
 preset, build command and output directory are detected.
 
+## Seeing it run before any of that
+
+A deployment with no `DATABASE_URL`, no `DEV_ACCESS_CODE` and no `ATELIER_PASSCODE_HASH` has
+no data to protect and no way in, so the gate accepts two built-in codes and says so on the
+screen: **`LUMEN`** for the client side and **`ATELIER`** for the atelier side. Booking and the
+catalog need a database, so they will say so, but the gate, the collection, the viewer and the
+AR all work.
+
+Setting any one of those three variables turns this off permanently.
+
 ## 3. Environment variables
 
 Required:

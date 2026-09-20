@@ -1,12 +1,21 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
 export default function GatePage() {
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
+  const [demo, setDemo] = useState<{ clientCode: string; atelierCode: string } | null>(null);
+
+  // An unconfigured deployment has nothing to protect and no way in, so it says so.
+  useEffect(() => {
+    fetch("/api/gate/status")
+      .then((res) => res.json())
+      .then((data) => setDemo(data.demo ? data : null))
+      .catch(() => {});
+  }, []);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
@@ -56,6 +65,37 @@ export default function GatePage() {
         <p className="qh-gate__lead">
           Enter the code from your invitation to see the collection.
         </p>
+
+        {demo && (
+          <div
+            className="mb-6 p-4 border border-hairline"
+            role="status"
+            data-testid="demo-notice"
+          >
+            <p className="label-s text-text-muted mb-2">Nothing configured yet</p>
+            <p className="text-body-s-m text-text-muted m-0">
+              This deployment has no database and no access codes, so it is letting anyone in to
+              see that it runs. Use{" "}
+              <button
+                type="button"
+                className="qh-link"
+                onClick={() => setCode(demo.clientCode)}
+              >
+                {demo.clientCode}
+              </button>{" "}
+              for the client side or{" "}
+              <button
+                type="button"
+                className="qh-link"
+                onClick={() => setCode(demo.atelierCode)}
+              >
+                {demo.atelierCode}
+              </button>{" "}
+              for the atelier. Setting DATABASE_URL, DEV_ACCESS_CODE or ATELIER_PASSCODE_HASH
+              turns this off.
+            </p>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="qh-field">

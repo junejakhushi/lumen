@@ -3,6 +3,7 @@ import { getIronSession } from "iron-session";
 import { sessionOptions, type SessionData } from "@/lib/session";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { startSession } from "@/lib/session-row";
+import { demoRoleFor } from "@/lib/demo-mode";
 import { z } from "zod";
 
 const bodySchema = z.object({
@@ -49,6 +50,22 @@ export async function POST(request: NextRequest) {
   }
 
   const submittedCode = body.code;
+
+  // --- Unconfigured deployment: let someone in to see that it runs (lib/demo-mode) ---
+  const demoRole = demoRoleFor(submittedCode);
+  if (demoRole) {
+    console.warn(
+      `[gate] demo mode: accepted the built-in ${demoRole} code. This deployment has no ` +
+        "DATABASE_URL, DEV_ACCESS_CODE or ATELIER_PASSCODE_HASH; set any of them to turn it off."
+    );
+    const response = NextResponse.json({ ok: true, demo: true });
+    const session = await getIronSession<SessionData>(request, response, sessionOptions);
+    session.accessCodeId = "demo";
+    session.isAtelier = demoRole === "atelier";
+    session.createdAt = Date.now();
+    await session.save();
+    return response;
+  }
 
   // --- Check atelier passcode (env-based, argon2) ---
   const atelierHash = process.env.ATELIER_PASSCODE_HASH;
