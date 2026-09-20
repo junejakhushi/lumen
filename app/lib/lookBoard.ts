@@ -97,13 +97,44 @@ export async function clearLooks(): Promise<void> {
 }
 
 
-/** Snapshots live as blobs on the device; booking is the only time they are sent anywhere. */
-export async function blobToDataUrl(blob: Blob | null | undefined): Promise<string | null> {
-  if (!blob) return null;
+/** The longest side a snapshot is sent at. Full AR frames are far larger than a brief needs. */
+const SNAPSHOT_MAX_PX = 900;
+
+function readAsDataUrl(blob: Blob): Promise<string | null> {
   return new Promise((resolve) => {
     const reader = new FileReader();
     reader.onload = () => resolve(typeof reader.result === "string" ? reader.result : null);
     reader.onerror = () => resolve(null);
     reader.readAsDataURL(blob);
   });
+}
+
+/**
+ * Snapshots live as blobs on the device; booking is the only time they are sent anywhere.
+ * They are scaled down on the way out: the brief prints them small, and the request body has
+ * a few megabytes to spare at most.
+ */
+export async function blobToDataUrl(blob: Blob | null | undefined): Promise<string | null> {
+  if (!blob) return null;
+  try {
+    const bitmap = await createImageBitmap(blob);
+    const scale = Math.min(1, SNAPSHOT_MAX_PX / Math.max(bitmap.width, bitmap.height));
+    if (scale === 1 && blob.size <= 1_000_000) {
+      bitmap.close();
+      return readAsDataUrl(blob);
+    }
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.round(bitmap.width * scale);
+    canvas.height = Math.round(bitmap.height * scale);
+    const ctx = canvas.getContext("2d");
+    if (!ctx) {
+      bitmap.close();
+      return readAsDataUrl(blob);
+    }
+    ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    bitmap.close();
+    return canvas.toDataURL("image/png");
+  } catch {
+    return readAsDataUrl(blob);
+  }
 }

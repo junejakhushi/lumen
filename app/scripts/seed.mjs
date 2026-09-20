@@ -15,7 +15,7 @@
  */
 
 import pg from "pg";
-import crypto from "node:crypto";
+import argon2 from "argon2";
 
 const CONNECTION = process.env.DATABASE_URL;
 
@@ -30,7 +30,7 @@ async function main() {
     console.log("Set DEV_ACCESS_CODE=LUMEN1 in your .env for local dev.\n");
     console.log(`Gold rate (24K): ₹${GOLD_RATE_24K}/g`);
     console.log("\nTo generate an atelier passcode hash:");
-    console.log("  npx argon2-cli <your-passcode>");
+    console.log('  node -e "require(\'argon2\').hash(process.argv[1]).then(console.log)" <passcode>');
     console.log("Then set ATELIER_PASSCODE_HASH=<hash> in env.\n");
     return;
   }
@@ -44,14 +44,15 @@ async function main() {
     const expiresAt = new Date(Date.now() + EXPIRY_HOURS * 60 * 60 * 1000);
 
     for (const code of DEMO_CODES) {
-      // Simple hash for demo — in production use argon2
-      const hash = crypto.createHash("sha256").update(code.toLowerCase()).digest("hex");
+      // argon2, because /api/gate verifies with argon2.verify — a sha256 hash here would
+      // mean the code silently never works.
+      const hash = await argon2.hash(code);
 
       await client.query(
         `INSERT INTO access_codes (hash, label, expires_at, revoked)
          VALUES ($1, $2, $3, false)
          ON CONFLICT DO NOTHING`,
-        [`demo:${hash}`, `Demo code: ${code}`, expiresAt]
+        [hash, `Demo code: ${code}`, expiresAt]
       );
       console.log(`  ✓ ${code} (expires ${expiresAt.toISOString()})`);
     }

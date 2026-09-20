@@ -61,6 +61,11 @@ export function devPrivateDir(): string {
   return process.env.PRIVATE_DIR ?? "../private/dev-private";
 }
 
+/** Serverless filesystems are read-only, so files have to go to the database instead. */
+export function filesystemIsWritable(): boolean {
+  return !process.env.VERCEL && !process.env.AWS_LAMBDA_FUNCTION_NAME;
+}
+
 /**
  * Store a private object: the Spaces bucket when configured (encrypted, private ACL),
  * otherwise a file under private/ so the flow still works on a laptop.
@@ -69,7 +74,7 @@ export async function putPrivateObject(
   key: string,
   body: Buffer,
   contentType: string
-): Promise<{ key: string; where: "spaces" | "file" }> {
+): Promise<{ key: string; where: "spaces" | "file" | "db" }> {
   const s3 = getS3Client();
   if (s3 && process.env.SPACES_BUCKET) {
     const { PutObjectCommand } = await import("@aws-sdk/client-s3");
@@ -87,12 +92,81 @@ export async function putPrivateObject(
     return { key, where: "spaces" };
   }
 
-  const fs = await import("node:fs/promises");
-  const path = await import("node:path");
-  const file = path.resolve(process.cwd(), devPrivateDir(), key);
-  await fs.mkdir(path.dirname(file), { recursive: true });
-  await fs.writeFile(file, body);
-  return { key, where: "file" };
+  if (filesystemIsWritable()) {
+    const fs = await import("node:fs/promises");
+    const path = await import("node:path");
+    const file = path.resolve(process.cwd(), devPrivateDir(), key);
+    await fs.mkdir(path.dirname(file), { recursive: true });
+    await fs.writeFile(file, body);
+    return { key, where: "file" };
+  }
+
+  if (!process.env.DATABASE_URL) {
+    throw new Error(
+      "No Spaces bucket, no database, and a read-only filesystem: nowhere to keep private files."
+    );
+  }
+  const { pool } = await import("@/lib/db");
+  await pool.query(
+    `INSERT INTO private_files (key, content, content_type)
+     VALUES ($1, $2, $3)
+     ON CONFLICT (key) DO UPDATE SET content = EXCLUDED.content, content_type = EXCLUDED.content_type`,
+    [key, body, contentType]
+  );
+  return { key, where: "db" };
+}
+
+/** Read a private object back, wherever it was put. */
+export async function getPrivateObject(
+  key: string
+): Promise<{ body: Buffer; contentType: string } | null> {
+  const s3 = getS3Client();
+  if (s3 && process.env.SPACES_BUCKET) {
+    try {
+      const out = await s3.send(
+        new GetObjectCommand({ Bucket: process.env.SPACES_BUCKET, Key: key })
+      );
+      const bytes = await out.Body?.transformToByteArray();
+      return bytes
+        ? { body: Buffer.from(bytes), contentType: out.ContentType ?? "application/octet-stream" }
+        : null;
+    } catch {
+      return null;
+    }
+  }
+
+  if (filesystemIsWritable()) {
+    try {
+      const fs = await import("node:fs/promises");
+      const path = await import("node:path");
+      const root = path.resolve(process.cwd(), devPrivateDir());
+      const file = path.resolve(root, key);
+      if (!file.startsWith(root + path.sep)) return null;
+      return { body: await fs.readFile(file), contentType: contentTypeFor(file) };
+    } catch {
+      return null;
+    }
+  }
+
+  if (!process.env.DATABASE_URL) return null;
+  try {
+    const { query } = await import("@/lib/db");
+    const rows = await query<{ content: Buffer; content_type: string }>(
+      `SELECT content, content_type FROM private_files WHERE key = $1`,
+      [key]
+    );
+    return rows[0] ? { body: rows[0].content, contentType: rows[0].content_type } : null;
+  } catch {
+    return null;
+  }
+}
+
+function contentTypeFor(file: string): string {
+  if (file.endsWith(".pdf")) return "application/pdf";
+  if (file.endsWith(".png")) return "image/png";
+  if (file.endsWith(".ics")) return "text/calendar";
+  if (file.endsWith(".webp")) return "image/webp";
+  return "application/octet-stream";
 }
 
 /** A short-lived URL for any private object (booking snapshots, briefs, session reports). */

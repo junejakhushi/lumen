@@ -1,7 +1,18 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: "standalone",
-  serverExternalPackages: ["argon2", "pg"],
+  // Next 14 reads this from experimental; the top-level key arrived in 15 and is ignored
+  // here, which left pg and argon2 to be bundled (and to fail) on a serverless deploy.
+  experimental: {
+    serverComponentsExternalPackages: ["argon2", "pg", "@react-pdf/renderer"],
+    // These are read from disk at request time, so the tracer has to be told about them:
+    // the PDF fonts and the email templates are not imported by any module.
+    outputFileTracingIncludes: {
+      "/api/bookings": ["./public/fonts/**", "./public/brand/emails/**"],
+      "/api/atelier/**": ["./public/fonts/**", "./public/brand/emails/**"],
+      "/api/cron/**": ["./public/fonts/**", "./public/brand/emails/**"],
+    },
+  },
   async headers() {
     return [
       {

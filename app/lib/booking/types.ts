@@ -4,8 +4,18 @@ import { COLLECTIONS } from "@/lib/review";
 /** What the /book form sends (SPEC §5.6). Snapshots come as PNG data URLs from IndexedDB. */
 
 const DATA_URL = /^data:image\/png;base64,[A-Za-z0-9+/=]+$/;
-export const MAX_SNAPSHOT_BYTES = 3 * 1024 * 1024;
+
+/** Serverless platforms cap the request body at about 4.5 MB, and the looks travel in it. */
+export const MAX_SNAPSHOT_BYTES = 1_200_000;
+export const MAX_TOTAL_SNAPSHOT_BYTES = 3_400_000;
 export const MAX_LOOKS = 6;
+
+/** Bytes a base64 data URL actually carries. */
+export function dataUrlBytes(dataUrl: string | null | undefined): number {
+  if (!dataUrl) return 0;
+  const base64 = dataUrl.slice(dataUrl.indexOf(",") + 1);
+  return Math.floor((base64.length * 3) / 4);
+}
 
 export const lookSchema = z.object({
   pieceId: z.string().min(1).max(64),
@@ -38,7 +48,10 @@ export const lookSchema = z.object({
   snapshot: z
     .string()
     .regex(DATA_URL, "snapshot must be a PNG data URL")
-    .refine((s) => s.length <= MAX_SNAPSHOT_BYTES * 1.4, "snapshot is too large")
+    .refine(
+      (s) => dataUrlBytes(s) <= MAX_SNAPSHOT_BYTES,
+      "that snapshot is too large to send"
+    )
     .nullable()
     .optional(),
 });
@@ -61,7 +74,16 @@ export const bookingSchema = z.object({
   }),
   client_tz: z.string().max(64).nullable().optional(),
   session_id: z.string().uuid().nullable().optional(),
-  looks: z.array(lookSchema).max(MAX_LOOKS).default([]),
+  looks: z
+    .array(lookSchema)
+    .max(MAX_LOOKS)
+    .default([])
+    .refine(
+      (looks) =>
+        looks.reduce((sum, look) => sum + dataUrlBytes(look.snapshot), 0) <=
+        MAX_TOTAL_SNAPSHOT_BYTES,
+      "too many large snapshots to send at once; save fewer looks"
+    ),
 });
 
 export type BookingInput = z.infer<typeof bookingSchema>;

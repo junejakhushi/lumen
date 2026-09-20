@@ -4,7 +4,7 @@ import { atelierNotification, clientConfirmation, studioName } from "@/lib/email
 import { sendEmail } from "@/lib/email/send";
 import { renderPdf } from "@/lib/pdf/render";
 import { DesignBriefDocument } from "@/lib/pdf/DesignBrief";
-import { getSignedKeyUrl, putPrivateObject } from "@/lib/storage";
+import { getPrivateObject, getSignedKeyUrl, putPrivateObject } from "@/lib/storage";
 import { SLOT_CONFIG, formatInZone } from "@/lib/slots";
 import { buildBriefData, briefNumber } from "./brief";
 import type { BookingInput } from "./types";
@@ -237,30 +237,8 @@ export async function createBooking(
   return { ok: true, id: bookingId, briefNo: briefNumber(bookingId), briefKey, warnings };
 }
 
-/** Read a stored private object back (used to attach the brief to the emails). */
+/** Read the stored brief back, to attach it to the emails. */
 async function downloadBrief(key: string): Promise<Buffer | null> {
-  try {
-    if (process.env.SPACES_KEY && process.env.SPACES_BUCKET) {
-      const { S3Client, GetObjectCommand } = await import("@aws-sdk/client-s3");
-      const s3 = new S3Client({
-        region: process.env.SPACES_REGION ?? "nyc3",
-        endpoint: process.env.SPACES_ENDPOINT,
-        credentials: {
-          accessKeyId: process.env.SPACES_KEY,
-          secretAccessKey: process.env.SPACES_SECRET ?? "",
-        },
-      });
-      const out = await s3.send(
-        new GetObjectCommand({ Bucket: process.env.SPACES_BUCKET, Key: key })
-      );
-      const bytes = await out.Body?.transformToByteArray();
-      return bytes ? Buffer.from(bytes) : null;
-    }
-    const fs = await import("node:fs/promises");
-    const path = await import("node:path");
-    const { devPrivateDir } = await import("@/lib/storage");
-    return await fs.readFile(path.resolve(process.cwd(), devPrivateDir(), key));
-  } catch {
-    return null;
-  }
+  const object = await getPrivateObject(key);
+  return object?.body ?? null;
 }
