@@ -3,6 +3,7 @@ import { getIronSession } from "iron-session";
 import { sessionOptions, type SessionData } from "@/lib/session";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { startSession } from "@/lib/session-row";
+import { verifyPassword } from "@/lib/argon2";
 import { demoRoleFor } from "@/lib/demo-mode";
 import { z } from "zod";
 
@@ -71,9 +72,7 @@ export async function POST(request: NextRequest) {
   const atelierHash = process.env.ATELIER_PASSCODE_HASH;
   if (atelierHash) {
     try {
-      // Dynamic import to avoid issues when argon2 isn't installed
-      const argon2 = await import("argon2");
-      const isAtelier = await argon2.verify(atelierHash, submittedCode);
+      const isAtelier = await verifyPassword(atelierHash, submittedCode);
       if (isAtelier) {
         const response = NextResponse.json({ ok: true });
         const session = await getIronSession<SessionData>(
@@ -128,10 +127,9 @@ export async function POST(request: NextRequest) {
          LIMIT 20`
       );
 
-      const argon2 = await import("argon2");
       for (const row of rows) {
         try {
-          const valid = await argon2.verify(row.hash, submittedCode);
+          const valid = await verifyPassword(row.hash, submittedCode);
           if (valid) {
             const response = NextResponse.json({ ok: true });
             const session = await getIronSession<SessionData>(

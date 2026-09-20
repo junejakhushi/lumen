@@ -1,0 +1,13 @@
+# Never upload studio data or pipeline working files to the platform.
+private/
+pipeline/
+docs/
+.git/
+**/.venv/
+**/__pycache__/
+**/node_modules/
+**/.next/
+**/.e2e-assets/
+**/.e2e-private/
+**/test-results/
+**/playwright-report/

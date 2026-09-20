@@ -4,6 +4,8 @@ const nextConfig = {
   // Next 14 reads this from experimental; the top-level key arrived in 15 and is ignored
   // here, which left pg and argon2 to be bundled (and to fail) on a serverless deploy.
   experimental: {
+    // argon2 is a native module with no build for newer Node versions; the app verifies
+    // through WebAssembly instead (lib/argon2.ts). It stays here only for scripts.
     serverComponentsExternalPackages: ["argon2", "pg", "@react-pdf/renderer"],
     // These are read from disk at request time, so the tracer has to be told about them:
     // the PDF fonts and the email templates are not imported by any module.
