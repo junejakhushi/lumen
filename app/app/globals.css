@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ---- Jaali lattice background at 5% opacity ---- */
+/* ---- Jaali lattice background at 15% opacity ---- */
 body::before {
   content: "";
   position: fixed;
@@ -11,7 +11,7 @@ body::before {
   background-image: url("/brand/brand/motifs/jaali-tile.svg");
   background-size: 256px 256px;
   background-repeat: repeat;
-  opacity: 0.05;
+  opacity: 0.15;
   pointer-events: none;
 }
 
