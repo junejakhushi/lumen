@@ -20,3 +20,6 @@ build/
 coverage/
 .DS_Store
 *.log
+.e2e-assets/
+test-results/
+playwright-report/

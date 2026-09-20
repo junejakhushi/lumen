@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import logging
+import math
 import subprocess
 from pathlib import Path
 
@@ -229,5 +230,21 @@ def render_thumb(mesh: trimesh.Trimesh, path: Path) -> str | None:
     return None
 
 
+def _json_safe(value):
+    """NaN / Infinity are not JSON: a measurement that could not be taken becomes null.
+
+    Python would happily write bare NaN, which every strict reader (browsers, Postgres
+    jsonb) then refuses, and the piece disappears without a word.
+    """
+    if isinstance(value, float):
+        return value if math.isfinite(value) else None
+    if isinstance(value, dict):
+        return {k: _json_safe(v) for k, v in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_json_safe(v) for v in value]
+    return value
+
+
 def write_manifest(manifest, path: Path) -> None:
-    path.write_text(json.dumps(manifest.model_dump(mode="json"), indent=1))
+    data = _json_safe(manifest.model_dump(mode="json"))
+    path.write_text(json.dumps(data, indent=1, allow_nan=False))

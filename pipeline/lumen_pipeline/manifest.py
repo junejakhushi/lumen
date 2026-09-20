@@ -80,8 +80,8 @@ class RingInfo(BaseModel):
     size_in: int
     size_us: float
     size_circ_mm: float
-    band_w_mm: float
-    band_t_mm: float
+    band_w_mm: float | None = None  # null when nothing was modelled to measure
+    band_t_mm: float | None = None
     top_angle_deg: float
 
 

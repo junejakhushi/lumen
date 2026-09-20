@@ -221,3 +221,30 @@ def test_manifest_never_contains_filenames(tmp_path):
                  bbox_mm={"min": [0, 0, 0], "max": [1, 1, 1], "size": [1, 1, 1]},
                  surface_mm2=1.0, review={"status": "pending", "type": "bracelet"})
     assert "studio_signature" not in m.model_dump_json()
+
+
+def test_manifest_json_has_no_nan(tmp_path):
+    """A measurement that could not be taken must serialise as null, not NaN.
+
+    Bare NaN is not JSON: browsers and Postgres jsonb both reject it, and the piece then
+    vanishes from the app without an error.
+    """
+    from lumen_pipeline.export import write_manifest
+    from lumen_pipeline.manifest import Manifest
+
+    m = Manifest(
+        id="p_12345678", type="ring", layers=10, layer_t=0.05, volume_mm3=1.0,
+        volume_recon_mm3=1.0, weights_g=weights_g(1.0),
+        bbox_mm={"min": [0, 0, 0], "max": [1, 1, 1], "size": [1, 1, 1]},
+        surface_mm2=1.0,
+        ring={"inner_d_mm": 17.0, "size_in": 14, "size_us": 7.0, "size_circ_mm": 53.8,
+              "band_w_mm": float("nan"), "band_t_mm": float("nan"), "top_angle_deg": 90.0},
+        review={"status": "pending", "type": "ring"},
+    )
+    path = tmp_path / "manifest.json"
+    write_manifest(m, path)
+    text = path.read_text()
+    assert "NaN" not in text and "Infinity" not in text
+    data = json.loads(text)  # strict: json.loads would accept NaN, so assert on the text too
+    assert data["ring"]["band_w_mm"] is None
+    assert data["ring"]["band_t_mm"] is None

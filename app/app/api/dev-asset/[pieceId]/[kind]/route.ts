@@ -54,18 +54,14 @@ export async function GET(
     );
   }
 
-  // Serve from ../private/assets_out/
-  const filePath = path.resolve(
+  // Serve from the pipeline's output folder (ASSETS_OUT_DIR, default ../private/assets_out)
+  const assetsRoot = path.resolve(
     process.cwd(),
-    "..",
-    "private",
-    "assets_out",
-    pieceId,
-    FILE_NAMES[kind]
+    process.env.ASSETS_OUT_DIR ?? "../private/assets_out"
   );
+  const filePath = path.resolve(assetsRoot, pieceId, FILE_NAMES[kind]);
 
   // Prevent path traversal
-  const assetsRoot = path.resolve(process.cwd(), "..", "private", "assets_out");
   if (!filePath.startsWith(assetsRoot)) {
     return NextResponse.json({ error: "Invalid path" }, { status: 400 });
   }

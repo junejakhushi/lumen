@@ -2,7 +2,8 @@
 
 import { useRef, useEffect, useMemo } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Environment, useGLTF } from "@react-three/drei";
+import { useGLTF } from "@react-three/drei";
+import { StudioEnvironment } from "@/components/viewer/studio";
 import * as THREE from "three";
 import { METAL_COLORS, type MetalColor } from "@/lib/types";
 import type { WristPose } from "@/lib/ar/wristPose";
@@ -199,7 +200,7 @@ export function ARScene({
     >
       <CameraSync fovDeg={fovDeg} videoAspect={videoAspect} />
       <LightingSync lighting={lighting} />
-      <Environment preset="studio" />
+      <StudioEnvironment />
       <ambientLight intensity={0.3 * lighting.envMapIntensity} />
       <directionalLight
         position={[5, 5, 5]}

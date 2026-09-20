@@ -36,7 +36,10 @@ export async function GET(request: NextRequest) {
   try {
     const fs = await import("node:fs");
     const path = await import("node:path");
-    const assetsDir = path.resolve(process.cwd(), "..", "private", "assets_out");
+    const assetsDir = path.resolve(
+      process.cwd(),
+      process.env.ASSETS_OUT_DIR ?? "../private/assets_out"
+    );
     if (!fs.existsSync(assetsDir)) {
       return NextResponse.json({ pieces: [] });
     }
@@ -46,6 +49,8 @@ export async function GET(request: NextRequest) {
       const manifestPath = path.join(assetsDir, dir, "manifest.json");
       if (fs.existsSync(manifestPath)) {
         const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
+        // Only approved pieces reach the client side, exactly as the DB query above does.
+        if (manifest.review?.status !== "approved") continue;
         pieces.push({
           id: manifest.id || dir,
           manifest,
