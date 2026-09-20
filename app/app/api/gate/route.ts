@@ -87,8 +87,12 @@ export async function POST(request: NextRequest) {
         await session.save();
         return response;
       }
-    } catch {
-      // argon2 not available or verify failed — continue to DB check
+    } catch (err) {
+      // A wrong passcode is not an error; anything else means the check could not run.
+      const message = err instanceof Error ? err.message : String(err);
+      if (!/password|hash|argon2id/i.test(message)) {
+        console.error(`[gate] atelier passcode check failed to run: ${message}`);
+      }
     }
   }
 
@@ -143,12 +147,17 @@ export async function POST(request: NextRequest) {
             await session.save();
             return response;
           }
-        } catch {
-          // Individual verify failure, try next
+        } catch (err) {
+          const message = err instanceof Error ? err.message : String(err);
+          if (!/password|hash|argon2id/i.test(message)) {
+            console.error(`[gate] could not check an access code: ${message}`);
+          }
         }
       }
-    } catch {
-      // DB not available — fall through to error
+    } catch (err) {
+      console.error(
+        `[gate] could not read access codes: ${err instanceof Error ? err.message : String(err)}`
+      );
     }
   }
 
