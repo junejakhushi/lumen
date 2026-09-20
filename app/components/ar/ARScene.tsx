@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect, useMemo } from "react";
+import { useRef, useEffect, useMemo, useCallback, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useGLTF } from "@react-three/drei";
 import { StudioEnvironment } from "@/components/viewer/studio";
@@ -181,20 +181,60 @@ export function ARScene({
   pieceType,
   visible,
 }: ARSceneProps) {
+  /**
+   * A canvas whose GL context has been lost paints as an opaque black rectangle — on this
+   * screen, right over the camera. Hide it, and build a fresh one, so a lost context costs
+   * the piece for a moment instead of the whole view.
+   */
+  const [contextLost, setContextLost] = useState(false);
+  const [epoch, setEpoch] = useState(0);
+  const retryRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleCreated = useCallback((state: { gl: THREE.WebGLRenderer }) => {
+    const canvas = state.gl.domElement;
+    canvas.addEventListener("webglcontextlost", (event: Event) => {
+      // Without preventDefault the browser will not try to give the context back.
+      event.preventDefault();
+      console.warn("[ar] WebGL context lost; hiding the piece and rebuilding the canvas");
+      setContextLost(true);
+      if (retryRef.current) clearTimeout(retryRef.current);
+      retryRef.current = setTimeout(() => {
+        setEpoch((n) => n + 1);
+        setContextLost(false);
+      }, 1200);
+    });
+    canvas.addEventListener("webglcontextrestored", () => {
+      if (retryRef.current) clearTimeout(retryRef.current);
+      setContextLost(false);
+    });
+  }, []);
+
+  useEffect(() => () => {
+    if (retryRef.current) clearTimeout(retryRef.current);
+  }, []);
+
   if (!visible || !glbUrl) return null;
 
   return (
     <Canvas
+      key={epoch}
+      onCreated={handleCreated}
       style={{
         position: "absolute",
         inset: 0,
         background: "transparent",
         pointerEvents: "none",
+        // Keep the camera visible rather than a black rectangle over it.
+        visibility: contextLost ? "hidden" : "visible",
       }}
       gl={{
         alpha: true,
         antialias: true,
         toneMapping: THREE.ACESFilmicToneMapping,
+        // The piece is jewellery on a camera feed; losing the context costs more than
+        // the extra quality a discrete GPU would buy here.
+        powerPreference: "default",
+        failIfMajorPerformanceCaveat: false,
       }}
       camera={{ fov: fovDeg, near: 1, far: 10000 }}
     >
